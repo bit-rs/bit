@@ -1,8 +1,11 @@
 /// Imports
-use std::ops::{Add, Range};
+use std::{
+    fmt::Debug,
+    ops::{Add, Range},
+    sync::Arc,
+};
 
-use camino::Utf8PathBuf;
-use id_arena::Id;
+use miette::NamedSource;
 
 /// Represents keyword
 #[derive(Debug, PartialEq, Clone, Eq)]
@@ -69,15 +72,34 @@ pub enum TokenKind {
     Number(String),
     String(String),
     Id(String),
+    Bool(bool),
 }
 
 /// Represents token
 #[derive(Debug, PartialEq, Clone, Eq)]
-pub struct Token(pub Span, pub TokenKind);
+pub struct Token {
+    pub span: Span,
+    pub kind: TokenKind,
+}
+
+/// Implementation
+impl Token {
+    /// Creates new token
+    pub fn new(span: Span, kind: TokenKind) -> Self {
+        Self { span, kind }
+    }
+}
 
 /// Represents span
-#[derive(Debug, PartialEq, Clone, Eq)]
-pub struct Span(pub Id<Utf8PathBuf>, pub Range<usize>);
+#[derive(PartialEq, Clone, Eq)]
+pub struct Span(pub Arc<NamedSource<String>>, pub Range<usize>);
+
+/// Debug implementation
+impl Debug for Span {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.debug_tuple("Span").field(&self.1).finish()
+    }
+}
 
 /// Add implementation
 impl Add for Span {

@@ -1,5 +1,5 @@
 [workspace]
-members = ["crates/geko", "crates/geko_common",
+members = ["crates/geko", "crates/geko_ast", "crates/geko_common",
     "crates/geko_lex",
     "crates/geko_parse",
 ]

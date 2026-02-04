@@ -3,62 +3,57 @@ use crate::{
     errors::LexError,
     token::{Keyword, Punctuator, Span, Token, TokenKind},
 };
-use camino::Utf8PathBuf;
-use geko_common::reporter::Reporter;
-use id_arena::Id;
-use std::str::Chars;
+use geko_common::bail;
+use miette::NamedSource;
+use std::{str::Chars, sync::Arc};
 
 /// Represents lexer
-pub struct Lexer<'r, 's> {
-    /// Current file
-    file: Id<Utf8PathBuf>,
+pub struct Lexer<'s> {
+    /// Current file source
+    source: Arc<NamedSource<String>>,
 
     /// Lexer source
-    source: Chars<'s>,
+    src: Chars<'s>,
 
     /// Current and next
     idx: usize,
     current: Option<char>,
     next: Option<char>,
-
-    /// Errors reporter
-    reporter: &'r Reporter,
 }
 
 /// Implementation
-impl<'r, 's> Lexer<'r, 's> {
+impl<'s> Lexer<'s> {
     /// Creates new lexer
-    pub fn new(reporter: &'r Reporter, file: Id<Utf8PathBuf>, source: &'s str) -> Self {
+    pub fn new(file: Arc<NamedSource<String>>, source: &'s str) -> Self {
         let mut chars = source.chars();
         let (current, next) = (chars.next(), chars.next());
         Self {
-            file,
-            source: chars,
+            source: file,
+            src: chars,
             current,
             next,
             idx: 0,
-            reporter,
         }
     }
 
     /// Advances char
     fn advance(&mut self) {
-        self.current = self.next;
-        self.next = self.source.next();
+        self.current = self.next.take();
+        self.next = self.src.next();
         self.idx += 1;
     }
 
     /// Advances char and returns token
     fn advance_with(&mut self, tk: TokenKind) -> Token {
         self.advance();
-        Token(Span(self.file, self.idx - 1..self.idx), tk)
+        Token::new(Span(self.source.clone(), self.idx - 1..self.idx), tk)
     }
 
     /// Advances char twice and returns token
     fn advance_twice_with(&mut self, tk: TokenKind) -> Token {
         self.advance();
         self.advance();
-        Token(Span(self.file, self.idx - 2..self.idx), tk)
+        Token::new(Span(self.source.clone(), self.idx - 2..self.idx), tk)
     }
 
     /// Advances string
@@ -74,13 +69,17 @@ impl<'r, 's> Lexer<'r, 's> {
             self.advance();
             // Checking for end of file
             if self.is_eof() {
-                self.reporter.report(LexError::UnclosedStringQuotes {
-                    span: Span(self.file, start..self.idx),
+                bail!(LexError::UnclosedStringQuotes {
+                    src: self.source.clone(),
+                    span: (start..self.idx).into(),
                 })
             }
         }
         let end = self.idx;
-        Token(Span(self.file, start..end), TokenKind::String(buffer))
+        Token::new(
+            Span(self.source.clone(), start..end),
+            TokenKind::String(buffer),
+        )
     }
 
     /// Advances number
@@ -100,8 +99,9 @@ impl<'r, 's> Lexer<'r, 's> {
             {
                 // If already float
                 if is_float {
-                    self.reporter.report(LexError::InvalidFloat {
-                        span: Span(self.file, start..self.idx),
+                    bail!(LexError::InvalidFloat {
+                        src: self.source.clone(),
+                        span: (start..self.idx).into(),
                     })
                 } else {
                     buffer.push('.');
@@ -111,7 +111,10 @@ impl<'r, 's> Lexer<'r, 's> {
             }
         }
         let end = self.idx;
-        Token(Span(self.file, start..end), TokenKind::Number(buffer))
+        Token::new(
+            Span(self.source.clone(), start..end),
+            TokenKind::Number(buffer),
+        )
     }
 
     /// Token kind for id
@@ -129,6 +132,8 @@ impl<'r, 's> Lexer<'r, 's> {
             "continue" => TokenKind::Keyword(Keyword::Continue),
             "break" => TokenKind::Keyword(Keyword::Break),
             "as" => TokenKind::Keyword(Keyword::As),
+            "true" => TokenKind::Bool(true),
+            "false" => TokenKind::Bool(false),
             _ => TokenKind::Id(value),
         }
     }
@@ -146,7 +151,10 @@ impl<'r, 's> Lexer<'r, 's> {
             self.advance();
         }
         let end = self.idx;
-        Token(Span(self.file, start..end), Self::token_kind_for_id(buffer))
+        Token::new(
+            Span(self.source.clone(), start..end),
+            Self::token_kind_for_id(buffer),
+        )
     }
 
     /// Skips comment
@@ -223,7 +231,7 @@ impl<'r, 's> Lexer<'r, 's> {
 }
 
 /// Iterator implementation
-impl<'r, 's> Iterator for Lexer<'r, 's> {
+impl<'s> Iterator for Lexer<'s> {
     type Item = Token;
 
     fn next(&mut self) -> Option<Self::Item> {
@@ -291,15 +299,20 @@ impl<'r, 's> Iterator for Lexer<'r, 's> {
             (Some('('), _) => Some(self.advance_with(TokenKind::Punctuation(Punctuator::Lparen))),
             (Some(')'), _) => Some(self.advance_with(TokenKind::Punctuation(Punctuator::Rparen))),
             (Some('"'), _) => Some(self.advance_string()),
-            (_, _) => {
+            (Some(ch), _) => {
                 if self.is_digit() {
                     Some(self.advance_number())
                 } else if self.is_id_letter() {
                     Some(self.advance_id_or_kw())
                 } else {
-                    None
+                    bail!(LexError::UnexpectedChar {
+                        ch,
+                        src: self.source.clone(),
+                        span: (self.idx..self.idx).into(),
+                    })
                 }
             }
+            (_, _) => None,
         }
     }
 }
