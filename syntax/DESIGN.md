@@ -114,12 +114,12 @@ a() // x = 4
 Geko supports custom data types. Here is example:
 ```
 type Dog {
-  fn init() {
+  init = || {
     self.food = 3
     self.water = 3
   }
   
-  fn get_food() {
+  get_food = || {
     return self.food
   }
 }
