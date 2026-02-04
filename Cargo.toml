@@ -1,0 +1,8 @@
+[workspace]
+members = [
+    "crates/geko_common",
+    "crates/geko_lex",
+    "crates/geko_parse",
+]
+resolver = "3"
+doctest = false
