@@ -1,8 +1,8 @@
 [package]
-name = "geko_common"
+name = "geko"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
 camino = "1.2.2"
-id-arena = "2.3.0"
+geko_lex = { path = "../geko_lex" }
