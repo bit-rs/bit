@@ -100,7 +100,8 @@ impl Interpreter {
                 BinaryOp::Mod => Value::Float((a as f64) % b),
                 _ => invalid_bin_op(),
             },
-            (a, Value::String(b)) | (Value::String(b), a) => Value::String(format!("{b}{a}")),
+            (a, Value::String(b)) => Value::String(format!("{a}{b}")),
+            (Value::String(a), b) => Value::String(format!("{a}{b}")),
             (Value::Float(a), Value::Float(b)) => match op {
                 BinaryOp::Gt => Value::Bool(a > b),
                 BinaryOp::Ge => Value::Bool(a >= b),
