@@ -5,7 +5,7 @@ use crate::{
     error::RuntimeError,
     flow::{ControlFlow, Flow},
     refs::{EnvRef, MutRef, Ref},
-    value::{Closure, Function, Type, Value},
+    value::{Bound, Callable, Closure, Function, Instance, Type, Value},
 };
 use geko_ast::{
     atom::{self, AssignOp, BinaryOp, Lit, UnaryOp},
@@ -19,9 +19,9 @@ use std::{cell::RefCell, collections::HashMap};
 /// Interpreter
 pub struct Interpreter {
     /// Builtins environment
-    builtins: EnvRef,
+    pub(crate) builtins: EnvRef,
     /// Current environment
-    env: EnvRef,
+    pub(crate) env: EnvRef,
 }
 
 /// Implementation
@@ -31,293 +31,6 @@ impl Interpreter {
         Interpreter {
             builtins: builtins::provide_builtins(),
             env: EnvRef::new(RefCell::new(Environment::default())),
-        }
-    }
-
-    /// Evaluates literal expression
-    fn eval_lit(&self, lit: &Lit) -> Flow<Value> {
-        // Matching literal
-        Ok(match lit {
-            Lit::Number(number) => {
-                if number.contains('.') {
-                    Value::Float(number.parse::<f64>().unwrap())
-                } else {
-                    Value::Int(number.parse::<i64>().unwrap())
-                }
-            }
-            Lit::String(string) => Value::String(string.clone()),
-            Lit::Bool(bool) => Value::Bool(bool.parse::<bool>().unwrap()),
-            Lit::Null => Value::Null,
-        })
-    }
-
-    /// Performs binary operation over values
-    fn perform_binary_op(&self, span: &Span, left: Value, right: Value, op: &BinaryOp) -> Value {
-        // Invalid binary op
-        let invalid_bin_op = || {
-            bail!(RuntimeError::InvalidBinaryOp {
-                op: op.clone(),
-                a: left.clone(),
-                b: right.clone(),
-                src: span.0.clone(),
-                span: span.1.clone().into()
-            });
-        };
-
-        match (left.clone(), right.clone()) {
-            (Value::Bool(a), Value::Bool(b)) => match op {
-                BinaryOp::And => Value::Bool(a && b),
-                BinaryOp::Or => Value::Bool(a || b),
-                BinaryOp::Gt => Value::Bool(a > b),
-                BinaryOp::Ge => Value::Bool(a >= b),
-                BinaryOp::Lt => Value::Bool(a < b),
-                BinaryOp::Le => Value::Bool(a <= b),
-                BinaryOp::Eq => Value::Bool(a == b),
-                BinaryOp::Ne => Value::Bool(a != b),
-                BinaryOp::BitAnd => Value::Bool(a & b),
-                BinaryOp::BitOr => Value::Bool(a | b),
-                BinaryOp::Xor => Value::Bool(a ^ b),
-                _ => invalid_bin_op(),
-            },
-            (Value::Int(a), Value::Int(b)) => match op {
-                BinaryOp::Gt => Value::Bool(a > b),
-                BinaryOp::Ge => Value::Bool(a >= b),
-                BinaryOp::Lt => Value::Bool(a < b),
-                BinaryOp::Le => Value::Bool(a <= b),
-                BinaryOp::Eq => Value::Bool(a == b),
-                BinaryOp::Ne => Value::Bool(a != b),
-                BinaryOp::Add => Value::Int(a + b),
-                BinaryOp::Sub => Value::Int(a - b),
-                BinaryOp::Mul => Value::Int(a * b),
-                BinaryOp::Div => Value::Int(a / b),
-                BinaryOp::Mod => Value::Int(a % b),
-                BinaryOp::Xor => Value::Int(a ^ b),
-                BinaryOp::BitAnd => Value::Int(a & b),
-                BinaryOp::BitOr => Value::Int(a | b),
-                _ => invalid_bin_op(),
-            },
-            (Value::Int(a), Value::Float(b)) | (Value::Float(b), Value::Int(a)) => match op {
-                BinaryOp::Gt => Value::Bool((a as f64) > b),
-                BinaryOp::Ge => Value::Bool((a as f64) >= b),
-                BinaryOp::Lt => Value::Bool((a as f64) < b),
-                BinaryOp::Le => Value::Bool((a as f64) <= b),
-                BinaryOp::Eq => Value::Bool((a as f64) == b),
-                BinaryOp::Ne => Value::Bool((a as f64) != b),
-                BinaryOp::Add => Value::Float((a as f64) + b),
-                BinaryOp::Sub => Value::Float((a as f64) - b),
-                BinaryOp::Mul => Value::Float((a as f64) * b),
-                BinaryOp::Div => Value::Float((a as f64) / b),
-                BinaryOp::Mod => Value::Float((a as f64) % b),
-                _ => invalid_bin_op(),
-            },
-            (a, Value::String(b)) | (Value::String(b), a) => Value::String(format!("{b}{a}")),
-            (Value::Float(a), Value::Float(b)) => match op {
-                BinaryOp::Gt => Value::Bool(a > b),
-                BinaryOp::Ge => Value::Bool(a >= b),
-                BinaryOp::Lt => Value::Bool(a < b),
-                BinaryOp::Le => Value::Bool(a <= b),
-                BinaryOp::Eq => Value::Bool(a == b),
-                BinaryOp::Ne => Value::Bool(a != b),
-                BinaryOp::Add => Value::Float(a + b),
-                BinaryOp::Sub => Value::Float(a - b),
-                BinaryOp::Mul => Value::Float(a * b),
-                BinaryOp::Div => Value::Float(a / b),
-                BinaryOp::Mod => Value::Float(a % b),
-                _ => invalid_bin_op(),
-            },
-            (a, b) => match op {
-                BinaryOp::Eq => Value::Bool(a == b),
-                BinaryOp::Ne => Value::Bool(a != b),
-                _ => invalid_bin_op(),
-            },
-        }
-    }
-
-    /// Evaluates binary expression
-    fn eval_binary(
-        &mut self,
-        span: &Span,
-        op: &BinaryOp,
-        left: &Expression,
-        right: &Expression,
-    ) -> Flow<Value> {
-        // Evaluating lhs and rhs
-        let left = self.eval(left)?;
-        let right = self.eval(right)?;
-
-        // Performing bin op
-        Ok(self.perform_binary_op(span, left, right, op))
-    }
-
-    /// Evaluates unary expression
-    fn eval_unary(&mut self, span: &Span, op: &UnaryOp, value: &Expression) -> Flow<Value> {
-        // Evaluating value
-        let value = self.eval(value)?;
-
-        // Invalid unary op
-        let invalid_unary_op = || {
-            bail!(RuntimeError::InvalidUnaryOp {
-                op: op.clone(),
-                value: value.clone(),
-                src: span.0.clone(),
-                span: span.1.clone().into()
-            });
-        };
-
-        // Matching left and right types
-        match (value) {
-            (Value::Bool(a)) => match op {
-                UnaryOp::Bang => Ok(Value::Bool(!a)),
-                _ => invalid_unary_op(),
-            },
-            (Value::Int(a)) => match op {
-                UnaryOp::Neg => Ok(Value::Int(-a)),
-                _ => invalid_unary_op(),
-            },
-            (Value::Float(a)) => match op {
-                UnaryOp::Neg => Ok(Value::Float(-a)),
-                _ => invalid_unary_op(),
-            },
-            _ => invalid_unary_op(),
-        }
-    }
-
-    /// Evaluates variable expression
-    fn eval_variable(&self, span: &Span, name: &str) -> Flow<Value> {
-        Ok(self
-            .env
-            .borrow()
-            .lookup(span, name)
-            .or_else(|| self.builtins.borrow().lookup(span, name))
-            .unwrap_or_else(|| {
-                bail!(RuntimeError::UndefinedVariable {
-                    name: name.to_string(),
-                    src: span.0.clone(),
-                    span: span.1.clone().into()
-                })
-            }))
-    }
-
-    /// Evaluates field expression
-    fn eval_field(&mut self, span: &Span, name: &str, container: &Expression) -> Flow<Value> {
-        let value = self.eval(container)?;
-        match value {
-            Value::Module(m) => match m.borrow().fields.get(name) {
-                Some(it) => Ok(it.clone()),
-                None => bail!(RuntimeError::UndefinedField {
-                    src: span.0.clone(),
-                    span: span.1.clone().into(),
-                    name: name.to_string()
-                }),
-            },
-            Value::Instance(i) => match i.borrow().fields.get(name) {
-                Some(it) => Ok(it.clone()),
-                None => bail!(RuntimeError::UndefinedField {
-                    src: span.0.clone(),
-                    span: span.1.clone().into(),
-                    name: name.to_string()
-                }),
-            },
-            value => bail!(RuntimeError::CouldNotResolveFields {
-                src: span.0.clone(),
-                span: span.1.clone().into(),
-                value
-            }),
-        }
-    }
-
-    /// Checks function arity
-    fn check_arity(&self, span: &Span, params: usize, args: usize) {
-        if params != args {
-            bail!(RuntimeError::IncorrectArity {
-                src: span.0.clone(),
-                span: span.1.clone().into(),
-                params,
-                args
-            })
-        }
-    }
-
-    /// Evaluates call expression
-    fn eval_call(&mut self, span: &Span, args: &Vec<Expression>, what: &Expression) -> Flow<Value> {
-        let value = self.eval(what)?;
-        match value {
-            Value::Function(closure) => {
-                // Evaluating argument
-                let arg_values: Result<Vec<Value>, ControlFlow> =
-                    args.into_iter().map(|expr| self.eval(expr)).collect();
-                let args = arg_values?;
-                let previous = self.env.clone();
-                // Checking arity
-                self.check_arity(span, closure.function.params.len(), args.len());
-                // Pushing environment
-                self.env = EnvRef::new(RefCell::new(Environment::new(closure.environment.clone())));
-                closure
-                    .function
-                    .params
-                    .iter()
-                    .zip(args)
-                    .for_each(|(p, a)| self.env.borrow_mut().define(span, p, a));
-                // Executing
-                let result = {
-                    match self.exec_block(&closure.function.block, false) {
-                        Ok(_) => Value::Null,
-                        Err(flow) => match flow {
-                            ControlFlow::Return(value) => value,
-                            _ => panic!("Control flow leak."),
-                        },
-                    }
-                };
-                // Popping environment
-                self.env = previous;
-                Ok(result)
-            }
-            Value::Native(native) => {
-                // Evaluating argument
-                let arg_values: Result<Vec<Value>, ControlFlow> =
-                    args.into_iter().map(|expr| self.eval(expr)).collect();
-                let args = arg_values?;
-                let previous = self.env.clone();
-                // Checking arity
-                self.check_arity(span, native.arity, args.len());
-                // Pushing environment
-                self.env = EnvRef::new(RefCell::new(Environment::default()));
-                // Executing
-                let result = (*native.function)(args);
-                // Popping environment
-                self.env = previous;
-                Ok(result)
-            }
-            Value::Type(ref_cell) => {
-                todo!()
-            }
-            _ => bail!(RuntimeError::CouldNotCall {
-                src: span.0.clone(),
-                span: span.1.clone().into(),
-                value
-            }),
-        }
-    }
-
-    /// Evaluates expression
-    pub fn eval(&mut self, expr: &Expression) -> Flow<Value> {
-        // Matching expression
-        match expr {
-            Expression::Lit { lit, .. } => self.eval_lit(lit),
-            Expression::Bin {
-                span,
-                op,
-                left,
-                right,
-            } => self.eval_binary(span, op, left, right),
-            Expression::Unary { span, op, value } => self.eval_unary(span, op, value),
-            Expression::Variable { span, name } => self.eval_variable(span, name),
-            Expression::Field {
-                span,
-                name,
-                container,
-            } => self.eval_field(span, name, container),
-            Expression::Call { span, args, what } => self.eval_call(span, args, what),
         }
     }
 
@@ -377,7 +90,7 @@ impl Interpreter {
         name: &str,
         methods: &Vec<atom::Function>,
     ) -> Flow<()> {
-        let type_ref = MutRef::new(RefCell::new(Type {
+        let type_ref = Ref::new(Type {
             name: name.to_string(),
             methods: methods
                 .iter()
@@ -391,7 +104,7 @@ impl Interpreter {
                     )
                 })
                 .collect(),
-        }));
+        });
         self.env
             .borrow_mut()
             .define(span, &name, Value::Type(type_ref));
@@ -408,9 +121,11 @@ impl Interpreter {
             function: function_ref,
             environment: self.env.clone(),
         });
-        self.env
-            .borrow_mut()
-            .define(&function.span, &function.name, Value::Function(closure));
+        self.env.borrow_mut().define(
+            &function.span,
+            &function.name,
+            Value::Callable(Callable::Closure(closure)),
+        );
 
         Ok(())
     }
@@ -475,12 +190,10 @@ impl Interpreter {
         op: &AssignOp,
         value: &Expression,
     ) -> Flow<()> {
-        let old = self.eval_field(span, name, container)?;
-        let container = self.eval(container)?;
-        let value = self.eval(value)?;
-
         match op {
             AssignOp::Assign => {
+                let container = self.eval(container)?;
+                let value = self.eval(value)?;
                 match container {
                     Value::Module(m) => m.borrow_mut().fields.insert(name.to_string(), value),
                     Value::Instance(i) => i.borrow_mut().fields.insert(name.to_string(), value),
@@ -492,6 +205,9 @@ impl Interpreter {
                 };
             }
             other => {
+                let old = self.eval_field(span, name, container)?;
+                let container = self.eval(container)?;
+                let value = self.eval(value)?;
                 let value = self.perform_binary_op(
                     span,
                     old,
@@ -588,12 +304,7 @@ impl Interpreter {
                 Ok(())
             }
             Statement::Block(block) => self.exec_block(block, true),
-            Statement::For {
-                span,
-                var,
-                range,
-                block,
-            } => todo!(),
+            Statement::For { .. } => todo!(),
         }
     }
 

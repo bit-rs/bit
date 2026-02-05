@@ -68,9 +68,3 @@ impl Environment {
         self.variables.insert(name.to_string(), value);
     }
 }
-
-/// Environments stack
-pub struct EnvironmentsStack {
-    // Environments stack
-    pub stack: Vec<Environment>,
-}

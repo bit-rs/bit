@@ -76,6 +76,7 @@ dependencies = [
  "camino",
  "geko_lex",
  "geko_parse",
+ "geko_rt",
  "miette",
 ]
 

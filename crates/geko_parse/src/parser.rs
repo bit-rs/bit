@@ -651,11 +651,7 @@ impl<'s> Parser<'s> {
                     false
                 }
             }
-            // Note: previous token is guaranteed `Some`
-            None => bail!(ParseError::UnexpectedEof {
-                src: self.source.clone(),
-                span: self.previous.clone().unwrap().span.1.into(),
-            }),
+            None => false,
         }
     }
 

@@ -30,6 +30,15 @@ pub struct Closure {
     pub environment: EnvRef,
 }
 
+/// Bound function
+#[derive(Clone, Debug)]
+pub struct Bound {
+    /// Function
+    pub function: Ref<Closure>,
+    /// Instance bound method belongs to
+    pub belongs_to: MutRef<Instance>,
+}
+
 /// User data type
 #[derive(Clone, Debug)]
 pub struct Type {
@@ -43,7 +52,7 @@ pub struct Type {
 #[derive(Clone, Debug)]
 pub struct Instance {
     /// Type of
-    pub type_of: Type,
+    pub type_of: Ref<Type>,
     /// Instance fields
     pub fields: HashMap<String, Value>,
 }
@@ -53,6 +62,29 @@ pub struct Instance {
 pub struct Module {
     /// Module fields
     pub fields: HashMap<String, Value>,
+}
+
+/// Runtime callable
+#[derive(Clone, Debug)]
+pub enum Callable {
+    /// Closure
+    Closure(Ref<Closure>),
+    /// Bound to instance method
+    Bound(Ref<Bound>),
+    /// Native method
+    Native(Ref<Native>),
+}
+
+/// PartialEq implementation
+impl PartialEq for Callable {
+    fn eq(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Callable::Closure(a), Callable::Closure(b)) => Rc::ptr_eq(a, b),
+            (Callable::Bound(a), Callable::Bound(b)) => Rc::ptr_eq(a, b),
+            (Callable::Native(a), Callable::Native(b)) => Rc::ptr_eq(a, b),
+            _ => false,
+        }
+    }
 }
 
 /// Runtime value representation
@@ -67,11 +99,9 @@ pub enum Value {
     /// String value
     String(String),
     /// Function value
-    Function(Ref<Closure>),
-    /// Native function
-    Native(Ref<Native>),
+    Callable(Callable),
     /// Meta type
-    Type(MutRef<Type>),
+    Type(Ref<Type>),
     /// Module
     Module(MutRef<Module>),
     /// Type instance
@@ -89,9 +119,8 @@ impl Display for Value {
             Value::Int(int) => write!(f, "{int}"),
             Value::Float(float) => write!(f, "{float}"),
             Value::String(string) => write!(f, "{string}"),
-            Value::Function(_) => write!(f, "Closure"),
-            Value::Native(_) => write!(f, "Native"),
-            Value::Type(typ) => write!(f, "Type({})", typ.borrow().name),
+            Value::Callable(_) => write!(f, "Callable"),
+            Value::Type(typ) => write!(f, "Type({})", typ.name),
             Value::Module(_) => write!(f, "Module"),
             Value::Instance(instance) => write!(f, "Instance({})", instance.borrow().type_of.name),
             Value::Null => todo!(),
@@ -107,8 +136,7 @@ impl PartialEq for Value {
             (Self::Int(a), Self::Int(b)) => a == b,
             (Self::Float(a), Self::Float(b)) => a == b,
             (Self::String(a), Self::String(b)) => a == b,
-            (Self::Function(a), Self::Function(b)) => Rc::ptr_eq(a, b),
-            (Self::Native(a), Self::Native(b)) => Rc::ptr_eq(a, b),
+            (Self::Callable(a), Self::Callable(b)) => a == b,
             (Self::Type(a), Self::Type(b)) => Rc::ptr_eq(a, b),
             (Self::Module(a), Self::Module(b)) => Rc::ptr_eq(a, b),
             (Self::Instance(a), Self::Instance(b)) => Rc::ptr_eq(a, b),
