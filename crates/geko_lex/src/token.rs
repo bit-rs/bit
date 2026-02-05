@@ -62,6 +62,7 @@ pub enum TokenKind {
     String,      // "quoted text"
     Id,          // identifier
     Bool,        // bool
+    Null,        // null
 }
 
 /// Represents token

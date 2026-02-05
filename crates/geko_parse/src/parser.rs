@@ -469,6 +469,14 @@ impl<'s> Parser<'s> {
                 self.bump();
                 expr
             }
+            TokenKind::Null => {
+                let expr = Expression::Literal {
+                    span: tk.span,
+                    literal: Lit::Null,
+                };
+                self.bump();
+                expr
+            }
             TokenKind::Id => self.variable(),
             _ => bail!(ParseError::UnexpectedExprToken {
                 got: tk.kind,

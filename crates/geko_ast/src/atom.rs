@@ -54,6 +54,8 @@ pub enum Lit {
     String(String),
     /// Bool literal
     Bool(String),
+    /// Null literal
+    Null,
 }
 
 /// Function
