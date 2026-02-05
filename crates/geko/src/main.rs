@@ -19,7 +19,7 @@ fn main() {
 fn hello() {
     for i in 0..100 {
         if i > 10 {
-            io.println("Hello, world!") = 3;
+            io.println("Hello, world!");
         }
     }
 }
