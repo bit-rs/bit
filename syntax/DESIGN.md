@@ -4,19 +4,19 @@ This document describes syntax of the `Geko` programming language.
 
 ### Data types
 
-| Data type | Rust representation   |
-|-----------|-----------------------|
-| int       | i64                   |
-| decimal   | f64                   |
-| bool      | bool                  |
-| string    | String                |
-| function  | Rc<Function>          |
-| meta type | Rc<Type>              |
-| instance  | Rc<Instance>          |
-| null      | ()                    |
-| native    | Rc<Native>            |
-| module    | Rc<Module>            |
-| any       | Rc<dyn std::any::Any> |
+| Data type |   Rust representation   |
+|-----------|-------------------------|
+| int       | `i64`                   |
+| decimal   | `f64`                   |
+| bool      | `boo l`                 |
+| string    | `String`                |
+| function  | `Rc<Function>`          |
+| meta type | `Rc<Type>`              |
+| instance  | `Rc<Instance>`          |
+| null      | `()`                    |
+| native    | `Rc<Native>`            |
+| module    | `Rc<Module>`            |
+| any       | `Rc<dyn std::any::Any>` |
 
 ### Variable declaration
 `Geko` does not support variables shadowing, so here's
@@ -62,19 +62,19 @@ id |= value
 ### Value examples
 Examples of the values:
 
-| Data type | Example of the value  |
-|-----------|-----------------------|
-| int       | 123                   |
-| decimal   | 123.456               |
-| bool      | true / false          |
-| string    | "text"                |
-| function  | |x, y| x + y          |
-| meta type | AnyDeclaredType       |
-| instance  | AnyDeclaredType()     |
-| null      | null                  |
-| native    | declared native       |
-| module    | module                |
-| any       | any_native_value      |
+| Data type | Example of the value       |
+|-----------|----------------------------|
+| int       | 123                        | 
+| decimal   | 123.456                    |
+| bool      | true / false               |
+| string    | "text"                     |
+| function  | fn(x, y) {} return x + y } |
+| meta type | AnyDeclaredType            |
+| instance  | AnyDeclaredType()          |
+| null      | null                       |
+| native    | declared native            |
+| module    | module                     |
+| any       | any_native_value           |
 
 ### Functions example
 Here's an example on how you can define function in `Geko`:
@@ -94,19 +94,19 @@ can only use a copy of the `environment` as a closure. This does not mean
 that reference types will be copied deeply.
 
 ```geko
-let a = || {
+fn a() {
   let x = 1
-  a = || {
+  fn b() {
     x += 1
   }
-  a() // x = 2, because x is in root environment
-  return a
+  b() // x = 2, because x is in root environment
+  return b
 }
 
-let a = a() // x got copied when function called, so `x = 1`, instead of `x = 2`
-a() // x = 2
-a() // x = 3
-a() // x = 4
+let b = a() // x got copied when function called, so `x = 1`, instead of `x = 2`
+b() // x = 2
+b() // x = 3
+b() // x = 4
 ```
 
 ### Classes or custom data types
@@ -114,12 +114,11 @@ a() // x = 4
 Geko supports custom data types. Here is example:
 ```
 type Dog {
-  init = || {
+  fn init() {
     self.food = 3
     self.water = 3
   }
-  
-  get_food = || {
+  fn get_food() {
     return self.food
   }
 }

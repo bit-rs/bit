@@ -3,6 +3,7 @@ use crate::atom::{BinaryOp, Lit, UnaryOp};
 use geko_lex::token::Span;
 
 /// Range
+#[derive(Debug, Clone)]
 pub enum Range {
     // x..y
     IncludeLast {
@@ -19,6 +20,7 @@ pub enum Range {
 }
 
 /// Expression
+#[derive(Debug, Clone)]
 pub enum Expression {
     // Literal
     Literal {
@@ -52,10 +54,7 @@ pub enum Expression {
     // Call expression
     Call {
         span: Span,
-        args: Vec<Box<Expression>>,
-    },
-    /// Function expression
-    Function {
-        span: Span,
+        args: Vec<Expression>,
+        what: Box<Expression>,
     },
 }

@@ -1,32 +1,27 @@
 /// Imports
+use miette::NamedSource;
 use std::{
     fmt::Debug,
     ops::{Add, Range},
     sync::Arc,
 };
 
-use miette::NamedSource;
-
-/// Represents keyword
+/// Represents token kind
 #[derive(Debug, PartialEq, Clone, Eq)]
-pub enum Keyword {
-    For,
-    While,
-    In,
-    Let,
-    Use,
-    Type,
-    If,
-    Else,
-    Return,
-    Continue,
-    Break,
-    As,
-}
-
-/// Punctuation token
-#[derive(Debug, PartialEq, Clone, Eq)]
-pub enum Punctuator {
+pub enum TokenKind {
+    For,         // `for` keyword
+    While,       // `while` keyword
+    In,          // `in` keyword
+    Let,         // `let` keyword
+    Use,         // `use` keyword
+    Type,        // `type` keyword
+    If,          // `if` keyword
+    Else,        // `else` keyword
+    Return,      // `return` keyword
+    Continue,    // `continue` keyword
+    Break,       // `break` keyword
+    As,          // `as` keyword
+    Fn,          // `fn` keyword
     Comma,       // ,
     Dot,         // .
     Lbrace,      // {
@@ -41,7 +36,7 @@ pub enum Punctuator {
     Slash,       // /
     Percent,     // %
     Caret,       // ^
-    Amp,         // &
+    Ampersand,   // &
     Bang,        // !
     Bar,         // |
     Eq,          // =
@@ -49,6 +44,7 @@ pub enum Punctuator {
     Le,          // <=
     Gt,          // >
     Lt,          // <
+    Semi,        // ;
     DoubleEq,    // ==
     DoubleBar,   // ||
     DoubleAmp,   // &&
@@ -62,17 +58,10 @@ pub enum Punctuator {
     BarEq,       // |=
     AmpersandEq, // &=
     DoubleDot,   // ..
-}
-
-/// Represents token kind
-#[derive(Debug, PartialEq, Clone, Eq)]
-pub enum TokenKind {
-    Keyword(Keyword),
-    Punctuation(Punctuator),
-    Number(String),
-    String(String),
-    Id(String),
-    Bool(bool),
+    Number,      // any number
+    String,      // "quoted text"
+    Id,          // identifier
+    Bool,        // bool
 }
 
 /// Represents token
@@ -80,13 +69,14 @@ pub enum TokenKind {
 pub struct Token {
     pub span: Span,
     pub kind: TokenKind,
+    pub lexeme: String,
 }
 
 /// Implementation
 impl Token {
     /// Creates new token
-    pub fn new(span: Span, kind: TokenKind) -> Self {
-        Self { span, kind }
+    pub fn new(span: Span, kind: TokenKind, lexeme: String) -> Self {
+        Self { span, kind, lexeme }
     }
 }
 

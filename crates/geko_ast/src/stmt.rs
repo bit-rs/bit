@@ -6,6 +6,7 @@ use crate::{
 use geko_lex::token::Span;
 
 /// Statement
+#[derive(Debug, Clone)]
 pub enum Statement {
     // While statement
     While {
@@ -16,8 +17,9 @@ pub enum Statement {
     // If statement
     If {
         span: Span,
+        condition: Expression,
         then: Block,
-        else_: Box<Statement>,
+        else_: Option<Box<Statement>>,
     },
     // For statement
     For {
@@ -30,11 +32,70 @@ pub enum Statement {
     Type {
         span: Span,
         name: String,
-        functions: Vec<Function>,
+        methods: Vec<Function>,
     },
+    // Function declaration
+    Function(Function),
+    // Let declaration
+    Let {
+        span: Span,
+        name: String,
+        value: Expression,
+    },
+    // Assignment declaration
+    Assign {
+        span: Span,
+        name: String,
+        value: Expression,
+    },
+    // Field assignment declaration
+    Set {
+        span: Span,
+        container: Expression,
+        name: String,
+        value: Expression,
+    },
+    // Return statement
+    Return {
+        span: Span,
+        expr: Option<Expression>,
+    },
+    // Continue statement
+    Continue(Span),
+    // Break statement
+    Break(Span),
+    // Expr
+    Expr(Expression),
+    // Block
+    Block(Box<Block>),
+}
+
+/// Implementation
+impl Statement {
+    /// Is statement requires semicolon after it?
+    pub fn requires_semi(&self) -> bool {
+        match self {
+            // Without semicolon
+            Statement::While { .. }
+            | Statement::If { .. }
+            | Statement::For { .. }
+            | Statement::Type { .. }
+            | Statement::Function(_)
+            | Statement::Block(_) => false,
+            // With semicolon
+            Statement::Let { .. }
+            | Statement::Assign { .. }
+            | Statement::Continue(_)
+            | Statement::Break(_)
+            | Statement::Return { .. }
+            | Statement::Expr(_)
+            | Statement::Set { .. } => true,
+        }
+    }
 }
 
 /// Represents block
+#[derive(Debug, Clone)]
 pub struct Block {
-    statements: Vec<Statement>,
+    pub statements: Vec<Statement>,
 }

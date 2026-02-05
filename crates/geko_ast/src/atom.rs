@@ -1,30 +1,38 @@
+/// Imports
 use crate::stmt::Block;
+use geko_lex::token::Span;
 
 /// Binary operator
+#[derive(Debug, Clone)]
 pub enum BinaryOp {
-    Add, //  +
-    Sub, //  -
-    Mul, //  *
-    Div, //  /
-    Mod, //  %
-    And, //  &&
-    Or,  //  ||
-    Gt,  //  >
-    Ge,  //  >=
-    Lt,  //  <
-    Le,  //  <=
-    Not, //  !
-    Eq,  //  ==
-    Ne,  //  !=
+    Add,        //  +
+    Sub,        //  -
+    Mul,        //  *
+    Div,        //  /
+    Mod,        //  %
+    And,        //  &&
+    Or,         //  ||
+    Gt,         //  >
+    Ge,         //  >=
+    Lt,         //  <
+    Le,         //  <=
+    Not,        //  !
+    Eq,         //  ==
+    Ne,         //  !=
+    BitwiseAnd, // &&
+    BitwiseOr,  // ||
+    Xor,        // ^
 }
 
 /// Unary operator
+#[derive(Debug, Clone)]
 pub enum UnaryOp {
     Neg,  // -
     Bang, // !
 }
 
 /// Literal
+#[derive(Debug, Clone)]
 pub enum Lit {
     /// Number literal
     Number(String),
@@ -35,11 +43,14 @@ pub enum Lit {
 }
 
 /// Function
+#[derive(Debug, Clone)]
 pub struct Function {
-    // Function name
+    /// Function span
+    pub span: Span,
+    /// Function name
     pub name: String,
-    // Function params
+    /// Function parameters
     pub params: Vec<String>,
-    // Block
+    /// Function block
     pub block: Block,
 }

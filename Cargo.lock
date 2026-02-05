@@ -75,6 +75,7 @@ version = "0.1.0"
 dependencies = [
  "camino",
  "geko_lex",
+ "geko_parse",
  "miette",
 ]
 
