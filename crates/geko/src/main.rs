@@ -25,7 +25,7 @@ fn hello() {
 }
 "#;
     let src = Arc::new(NamedSource::new("test.gk", text.to_string()));
-    let mut lexer = Lexer::new(src, &text);
+    let lexer = Lexer::new(src, &text);
     let mut parser = Parser::new(lexer);
     println!("{:#?}", parser.parse())
 }

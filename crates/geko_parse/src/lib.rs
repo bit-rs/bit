@@ -1,8 +1,6 @@
-use std::env::var;
-
 /// Import
 use geko_ast::{
-    atom::{BinaryOp, Function, Lit, UnaryOp},
+    atom::{AssignOp, BinaryOp, Function, Lit, UnaryOp},
     expr::{Expression, Range},
     stmt::{Block, Statement},
 };
@@ -11,16 +9,21 @@ use geko_lex::{
     token::{Token, TokenKind},
 };
 
-/// Parser used to parse token
-/// into the abstract syntax tree
+/// Parser converts a stream of tokens
+/// produced by the lexer into an abstract syntax tree (AST).
 pub struct Parser<'s> {
-    /// Represen
+    /// Source lexer providing tokens
     lexer: Lexer<'s>,
-    /// Previous token
+
+    /// Previously consumed token
+    /// (useful for spans and error reporting)
     previous: Option<Token>,
-    /// Current token
+
+    /// Current token under inspection
     current: Option<Token>,
-    /// Next token
+
+    /// Lookahead token
+    /// (used for predictive parsing)
     next: Option<Token>,
 }
 
@@ -66,7 +69,7 @@ impl<'s> Parser<'s> {
         } else {
             let to = self.expr();
             let end_span = self.peek().span.clone();
-            Range::IncludeLast {
+            Range::ExcludeLast {
                 span: start_span + end_span,
                 from,
                 to,
@@ -83,7 +86,7 @@ impl<'s> Parser<'s> {
         self.expect(TokenKind::In);
         let range = self.range();
         let block = self.block();
-        let end_span = self.peek().span.clone();
+        let end_span = self.prev().span.clone();
 
         Statement::For {
             span: start_span + end_span,
@@ -100,7 +103,7 @@ impl<'s> Parser<'s> {
         self.expect(TokenKind::While);
         let condition = self.expr();
         let block = self.block();
-        let end_span = self.peek().span.clone();
+        let end_span = self.prev().span.clone();
 
         Statement::While {
             span: start_span + end_span,
@@ -132,7 +135,7 @@ impl<'s> Parser<'s> {
         } else {
             None
         };
-        let end_span = self.peek().span.clone();
+        let end_span = self.prev().span.clone();
 
         Statement::If {
             span: start_span + end_span,
@@ -150,7 +153,7 @@ impl<'s> Parser<'s> {
         let name = self.expect(TokenKind::Id).lexeme;
         self.expect(TokenKind::Eq);
         let value = self.expr();
-        let end_span = self.peek().span.clone();
+        let end_span = self.prev().span.clone();
 
         Statement::Let {
             span: start_span + end_span,
@@ -170,7 +173,7 @@ impl<'s> Parser<'s> {
             methods.push(self.function())
         }
         self.expect(TokenKind::Rbrace);
-        let end_span = self.peek().span.clone();
+        let end_span = self.prev().span.clone();
 
         Statement::Type {
             span: start_span + end_span,
@@ -183,73 +186,46 @@ impl<'s> Parser<'s> {
     fn assignment_stmt(&mut self) -> Statement {
         let start_span = self.peek().span.clone();
         let variable = self.variable();
-        match self.peek().kind {
-            TokenKind::PlusEq
-            | TokenKind::MinusEq
-            | TokenKind::StarEq
-            | TokenKind::SlashEq
-            | TokenKind::PercentEq
-            | TokenKind::AmpersandEq
-            | TokenKind::BarEq
-            | TokenKind::CaretEq => {
-                let op = self.bump().kind;
+        // Checking for ssignment operator
+        let op = match self.peek().kind {
+            TokenKind::PlusEq => Some(AssignOp::Add),
+            TokenKind::MinusEq => Some(AssignOp::Sub),
+            TokenKind::StarEq => Some(AssignOp::Mul),
+            TokenKind::SlashEq => Some(AssignOp::Div),
+            TokenKind::PercentEq => Some(AssignOp::Mod),
+            TokenKind::AmpersandEq => Some(AssignOp::BitAnd),
+            TokenKind::BarEq => Some(AssignOp::BitOr),
+            TokenKind::CaretEq => Some(AssignOp::Xor),
+            TokenKind::Eq => Some(AssignOp::Assign),
+            _ => None,
+        };
+        // Checking assignment operator existence
+        match op {
+            // If operator found
+            Some(op) => {
                 let value = self.expr();
-                let end_span = self.peek().span.clone();
-                let value = Expression::Bin {
-                    span: start_span.clone() + end_span.clone(),
-                    op: match op {
-                        TokenKind::PlusEq => BinaryOp::Add,
-                        TokenKind::MinusEq => BinaryOp::Sub,
-                        TokenKind::StarEq => BinaryOp::Mul,
-                        TokenKind::SlashEq => BinaryOp::Div,
-                        TokenKind::PercentEq => BinaryOp::Mod,
-                        TokenKind::AmpersandEq => BinaryOp::BitwiseAnd,
-                        TokenKind::BarEq => BinaryOp::BitwiseOr,
-                        TokenKind::CaretEq => BinaryOp::Xor,
-                        _ => unreachable!(),
-                    },
-                    left: Box::new(variable.clone()),
-                    right: Box::new(value),
-                };
-                match variable {
-                    Expression::Variable { name, .. } => Statement::Assign {
-                        span: start_span.clone() + end_span.clone(),
-                        name: name.clone(),
-                        value,
-                    },
-                    Expression::Field {
-                        container, name, ..
-                    } => Statement::Set {
-                        span: start_span + end_span,
-                        container: *container,
-                        name: name.clone(),
-                        value,
-                    },
-                    _ => panic!("unexpected variable"),
-                }
-            }
-            TokenKind::Eq => {
-                self.bump();
-                let value = self.expr();
-                let end_span = self.peek().span.clone();
+                let end_span = self.prev().span.clone();
                 match variable {
                     Expression::Variable { name, .. } => Statement::Assign {
                         span: start_span + end_span,
                         name,
+                        op,
                         value,
                     },
                     Expression::Field {
-                        container, name, ..
+                        name, container, ..
                     } => Statement::Set {
                         span: start_span + end_span,
                         container: *container,
                         name,
+                        op,
                         value,
                     },
-                    _ => panic!("unexpected variable"),
+                    _ => panic!("temp error"),
                 }
             }
-            _ => return Statement::Expr(variable),
+            // Else
+            None => Statement::Expr(variable),
         }
     }
 
@@ -270,14 +246,14 @@ impl<'s> Parser<'s> {
         let start_span = self.peek().span.clone();
         self.expect(TokenKind::Return);
         if self.check(TokenKind::Semi) {
-            let end_span = self.peek().span.clone();
+            let end_span = self.prev().span.clone();
             Statement::Return {
                 span: start_span + end_span,
                 expr: None,
             }
         } else {
-            let end_span = self.peek().span.clone();
             let value = self.expr();
+            let end_span = self.prev().span.clone();
             Statement::Return {
                 span: start_span + end_span,
                 expr: Some(value),
@@ -485,7 +461,7 @@ impl<'s> Parser<'s> {
         if self.check(TokenKind::Minus) || self.check(TokenKind::Bang) {
             let start_span = self.peek().span.clone();
             let op = self.bump();
-            let value = self.atom();
+            let value = self.unary_expr();
             let end_span = self.prev().span.clone();
             return Expression::Unary {
                 span: start_span.clone() + end_span,
@@ -636,7 +612,7 @@ impl<'s> Parser<'s> {
     }
 
     /// Checks token match
-    fn check(&mut self, tk: TokenKind) -> bool {
+    fn check(&self, tk: TokenKind) -> bool {
         match &self.current {
             Some(it) => {
                 if it.kind == tk {

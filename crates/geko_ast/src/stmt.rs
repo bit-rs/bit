@@ -1,6 +1,6 @@
 /// Imports
 use crate::{
-    atom::Function,
+    atom::{AssignOp, Function},
     expr::{Expression, Range},
 };
 use geko_lex::token::Span;
@@ -46,6 +46,7 @@ pub enum Statement {
     Assign {
         span: Span,
         name: String,
+        op: AssignOp,
         value: Expression,
     },
     // Field assignment declaration
@@ -53,6 +54,7 @@ pub enum Statement {
         span: Span,
         container: Expression,
         name: String,
+        op: AssignOp,
         value: Expression,
     },
     // Return statement
