@@ -23,9 +23,9 @@ pub enum Range {
 #[derive(Debug, Clone)]
 pub enum Expression {
     // Literal
-    Literal {
+    Lit {
         span: Span,
-        literal: Lit,
+        lit: Lit,
     },
     // Binary operation
     Bin {

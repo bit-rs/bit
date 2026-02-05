@@ -454,25 +454,25 @@ impl<'s> Parser<'s> {
         match tk.kind {
             TokenKind::Lparen => self.group(),
             TokenKind::Number => {
-                let expr = Expression::Literal {
+                let expr = Expression::Lit {
                     span: tk.span,
-                    literal: Lit::Number(tk.lexeme),
+                    lit: Lit::Number(tk.lexeme),
                 };
                 self.bump();
                 expr
             }
             TokenKind::String => {
-                let expr = Expression::Literal {
+                let expr = Expression::Lit {
                     span: tk.span,
-                    literal: Lit::String(tk.lexeme),
+                    lit: Lit::String(tk.lexeme),
                 };
                 self.bump();
                 expr
             }
             TokenKind::Null => {
-                let expr = Expression::Literal {
+                let expr = Expression::Lit {
                     span: tk.span,
-                    literal: Lit::Null,
+                    lit: Lit::Null,
                 };
                 self.bump();
                 expr

@@ -1,9 +1,11 @@
+use std::fmt::Display;
+
 /// Imports
 use crate::stmt::Block;
 use geko_lex::token::Span;
 
 /// Assignment operator
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum AssignOp {
     Assign, // =
     Add,    // +=
@@ -17,7 +19,7 @@ pub enum AssignOp {
 }
 
 /// Binary operator
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Copy)]
 pub enum BinaryOp {
     Add,    // +
     Sub,    // -
@@ -30,7 +32,6 @@ pub enum BinaryOp {
     Ge,     // >=
     Lt,     // <
     Le,     // <=
-    Not,    // !
     Eq,     // ==
     Ne,     // !=
     BitAnd, // &
@@ -38,11 +39,45 @@ pub enum BinaryOp {
     Xor,    // ^
 }
 
+/// Display implementation
+impl Display for BinaryOp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            BinaryOp::Add => write!(f, "+"),
+            BinaryOp::Sub => write!(f, "-"),
+            BinaryOp::Mul => write!(f, "*"),
+            BinaryOp::Div => write!(f, "/"),
+            BinaryOp::Mod => write!(f, "%"),
+            BinaryOp::And => write!(f, "&&"),
+            BinaryOp::Or => write!(f, "||"),
+            BinaryOp::Gt => write!(f, ">"),
+            BinaryOp::Ge => write!(f, ">="),
+            BinaryOp::Lt => write!(f, "<"),
+            BinaryOp::Le => write!(f, "<="),
+            BinaryOp::Eq => write!(f, "=="),
+            BinaryOp::Ne => write!(f, "!="),
+            BinaryOp::BitAnd => write!(f, "&"),
+            BinaryOp::BitOr => write!(f, "|"),
+            BinaryOp::Xor => write!(f, "^"),
+        }
+    }
+}
+
 /// Unary operator
 #[derive(Debug, Clone)]
 pub enum UnaryOp {
     Neg,  // -
     Bang, // !
+}
+
+/// Display implementation
+impl Display for UnaryOp {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            UnaryOp::Neg => write!(f, "-"),
+            UnaryOp::Bang => write!(f, "!"),
+        }
+    }
 }
 
 /// Literal

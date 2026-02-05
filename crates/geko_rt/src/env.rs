@@ -5,7 +5,7 @@ use geko_lex::token::Span;
 use std::collections::HashMap;
 
 /// Variables environment
-#[derive(Default)]
+#[derive(Default, Debug)]
 pub struct Environment {
     /// Variables map
     variables: HashMap<String, Value>,
@@ -15,6 +15,21 @@ pub struct Environment {
 
 /// Implementation
 impl Environment {
+    /// Creates new environment
+    pub fn new(&self) -> Self {
+        Self {
+            ..Default::default()
+        }
+    }
+
+    /// Creates new environment with enclosing
+    pub fn new_with_enclosing(enclosing: EnvRef) -> Self {
+        Self {
+            variables: HashMap::new(),
+            enclosing: Some(enclosing),
+        }
+    }
+
     /// Looks up a variable
     pub fn lookup(&self, span: &Span, name: &str) -> Value {
         match self.variables.get(name) {
