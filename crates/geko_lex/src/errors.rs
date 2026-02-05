@@ -7,7 +7,7 @@ use thiserror::Error;
 #[derive(Error, Diagnostic, Debug)]
 pub enum LexError {
     /// Unexpected char
-    #[error("unexpected character \"{ch}\".")]
+    #[error("unexpected character `{ch}`.")]
     #[diagnostic(code(lex::unexpected_char))]
     UnexpectedChar {
         ch: char,

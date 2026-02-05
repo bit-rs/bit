@@ -1,5 +1,5 @@
 use geko_lex::lexer::Lexer;
-use geko_parse::Parser;
+use geko_parse::parser::Parser;
 use miette::NamedSource;
 use std::sync::Arc;
 
@@ -19,13 +19,13 @@ fn main() {
 fn hello() {
     for i in 0..100 {
         if i > 10 {
-            io.println("Hello, world!");
+            io.println("Hello, world!") = 3;
         }
     }
 }
 "#;
     let src = Arc::new(NamedSource::new("test.gk", text.to_string()));
-    let lexer = Lexer::new(src, &text);
-    let mut parser = Parser::new(lexer);
+    let lexer = Lexer::new(src.clone(), &text);
+    let mut parser = Parser::new(src, lexer);
     println!("{:#?}", parser.parse())
 }

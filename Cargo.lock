@@ -111,6 +111,19 @@ dependencies = [
  "geko_ast",
  "geko_common",
  "geko_lex",
+ "miette",
+ "thiserror",
+]
+
+[[package]]
+name = "geko_rt"
+version = "0.1.0"
+dependencies = [
+ "geko_common",
+ "geko_lex",
+ "geko_parse",
+ "miette",
+ "thiserror",
 ]
 
 [[package]]

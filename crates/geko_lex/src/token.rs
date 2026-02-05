@@ -102,7 +102,7 @@ impl Add for Span {
         }
         // Calculating new span range
         let start = self.1.start.min(rhs.1.start);
-        let end = self.1.end.min(rhs.1.end);
+        let end = self.1.end.max(rhs.1.end);
         Span(self.0, start..end)
     }
 }
