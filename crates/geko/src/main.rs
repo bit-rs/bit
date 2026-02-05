@@ -25,7 +25,10 @@ type Dog {
 }
 
 let dog = Dog(3);
+let dog2 = dog;
+dog2.a = 5;
 println(dog.a);
+println(dog2.a);
 "#;
     let src = Arc::new(NamedSource::new("test.gk", text.to_string()));
     let lexer = Lexer::new(src.clone(), &text);
