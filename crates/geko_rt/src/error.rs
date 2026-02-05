@@ -85,4 +85,25 @@ pub enum RuntimeError {
         #[label("here...")]
         span: SourceSpan,
     },
+    /// Expected boolean value
+    #[error("expected bool value. got {value}")]
+    #[diagnostic(code(rt::expected_bool_value))]
+    ExpectedBool {
+        value: Value,
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("here...")]
+        span: SourceSpan,
+    },
+    /// Incorrect arity
+    #[error("incorrect arity. expected {params} params got {args} args")]
+    #[diagnostic(code(rt::incorrect_arity))]
+    IncorrectArity {
+        params: usize,
+        args: usize,
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("here...")]
+        span: SourceSpan,
+    },
 }

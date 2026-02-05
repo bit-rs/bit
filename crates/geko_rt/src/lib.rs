@@ -1,6 +1,6 @@
 mod builtins;
-#[allow(unused_assignments)]
 mod env;
+#[allow(unused_assignments)]
 mod error;
 mod flow;
 pub mod interpreter;

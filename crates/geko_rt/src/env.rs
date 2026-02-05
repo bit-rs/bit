@@ -15,32 +15,21 @@ pub struct Environment {
 
 /// Implementation
 impl Environment {
-    /// Creates new environment
-    pub fn new(&self) -> Self {
+    /// Creates new environment with enclosing
+    pub fn new(enclosing: EnvRef) -> Self {
         Self {
+            enclosing: Some(enclosing),
             ..Default::default()
         }
     }
 
-    /// Creates new environment with enclosing
-    pub fn new_with_enclosing(enclosing: EnvRef) -> Self {
-        Self {
-            variables: HashMap::new(),
-            enclosing: Some(enclosing),
-        }
-    }
-
     /// Looks up a variable
-    pub fn lookup(&self, span: &Span, name: &str) -> Value {
+    pub fn lookup(&self, span: &Span, name: &str) -> Option<Value> {
         match self.variables.get(name) {
-            Some(it) => it.clone(),
+            Some(it) => Some(it.clone()),
             None => match &self.enclosing {
                 Some(env) => env.borrow().lookup(span, name),
-                None => bail!(RuntimeError::UndefinedVariable {
-                    name: name.to_string(),
-                    src: span.0.clone(),
-                    span: span.1.clone().into()
-                }),
+                None => None,
             },
         }
     }
@@ -78,4 +67,10 @@ impl Environment {
     pub fn force_define(&mut self, name: &str, value: Value) {
         self.variables.insert(name.to_string(), value);
     }
+}
+
+/// Environments stack
+pub struct EnvironmentsStack {
+    // Environments stack
+    pub stack: Vec<Environment>,
 }

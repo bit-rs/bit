@@ -9,7 +9,7 @@ pub struct Native {
     /// Function parameters arity
     pub arity: usize,
     /// Native function
-    pub function: Box<fn(Vec<&Value>) -> Value>,
+    pub function: Box<fn(Vec<Value>) -> Value>,
 }
 
 /// Function value
