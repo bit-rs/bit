@@ -1,4 +1,4 @@
-<img width="200" height="200" alt="image" src="https://github.com/user-attachments/assets/519a467c-5e78-4f9b-a4ec-a94dd4faabca" />
+<img width="138" height="194" alt="image" src="https://github.com/user-attachments/assets/ee8f93a0-8fd5-4ab8-abe8-52e2941e9d3b" />
 
 ### 🦎 Geko
 Geko is tiny dynamic programming language.
