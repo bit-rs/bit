@@ -187,11 +187,11 @@ impl Interpreter {
     /// Evaluates variable expression
     pub(crate) fn eval_variable(&self, span: &Span, name: &str) -> Flow<Value> {
         // Current environment
-        if let Some(value) = self.env.borrow().lookup(span, name) {
+        if let Some(value) = self.env.borrow().lookup(name) {
             Ok(value)
         }
         // Builtins environment
-        else if let Some(value) = self.builtins.borrow().lookup(span, name) {
+        else if let Some(value) = self.builtins.borrow().lookup(name) {
             Ok(value)
         }
         // Otherwise, raising error
@@ -216,7 +216,7 @@ impl Interpreter {
         // Matching container
         match container {
             // Module field access
-            Value::Module(m) => match m.borrow().fields.get(name) {
+            Value::Module(m) => match m.borrow().env.borrow().lookup(name) {
                 Some(it) => Ok(it.clone()),
                 None => bail!(RuntimeError::UndefinedField {
                     src: span.0.clone(),

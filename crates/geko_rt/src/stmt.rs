@@ -66,7 +66,7 @@ impl Interpreter {
     }
 
     /// Executes type statement
-    pub fn exec_type_decl(
+    fn exec_type_decl(
         &mut self,
         span: &Span,
         name: &str,
@@ -98,7 +98,7 @@ impl Interpreter {
     }
 
     /// Executes function statement
-    pub fn exec_function_decl(&mut self, function: &atom::Function) -> Flow<()> {
+    fn exec_function_decl(&mut self, function: &atom::Function) -> Flow<()> {
         // Creating function
         let function_ref = Ref::new(Function {
             params: function.params.clone(),
@@ -122,7 +122,7 @@ impl Interpreter {
     }
 
     /// Executes let statement
-    pub fn exec_let_decl(&mut self, span: &Span, name: &str, value: &Expression) -> Flow<()> {
+    fn exec_let_decl(&mut self, span: &Span, name: &str, value: &Expression) -> Flow<()> {
         // Evaluating value
         let value = self.eval(value)?;
 
@@ -133,7 +133,7 @@ impl Interpreter {
     }
 
     /// Executes assignment
-    pub fn exec_assign(
+    fn exec_assign(
         &mut self,
         span: &Span,
         name: &str,
@@ -183,7 +183,7 @@ impl Interpreter {
     }
 
     /// Executes field set
-    pub fn exec_set(
+    fn exec_set(
         &mut self,
         span: &Span,
         container: &Expression,
@@ -202,9 +202,11 @@ impl Interpreter {
                 // Matching container
                 match container {
                     // Module field assignment
-                    Value::Module(m) => m.borrow_mut().fields.insert(name.to_string(), value),
+                    Value::Module(m) => m.borrow_mut().env.borrow_mut().force_define(name, value),
                     // Instance field assignment
-                    Value::Instance(i) => i.borrow_mut().fields.insert(name.to_string(), value),
+                    Value::Instance(i) => {
+                        i.borrow_mut().fields.insert(name.to_string(), value);
+                    }
                     // Otherwise, raising error
                     value => bail!(RuntimeError::CouldNotResolveFields {
                         src: span.0.clone(),
@@ -243,8 +245,13 @@ impl Interpreter {
 
                 // Processing assignment
                 match container {
-                    Value::Module(m) => m.borrow_mut().fields.insert(name.to_string(), value),
-                    Value::Instance(i) => i.borrow_mut().fields.insert(name.to_string(), value),
+                    // Module field assignment
+                    Value::Module(m) => m.borrow_mut().env.borrow_mut().force_define(name, value),
+                    // Instance field assignment
+                    Value::Instance(i) => {
+                        i.borrow_mut().fields.insert(name.to_string(), value);
+                    }
+                    // Otherwise, raising error
                     value => bail!(RuntimeError::CouldNotResolveFields {
                         src: span.0.clone(),
                         span: span.1.clone().into(),
@@ -258,7 +265,7 @@ impl Interpreter {
     }
 
     /// Executes return
-    pub fn exec_return(&mut self, expr: &Option<Expression>) -> Flow<()> {
+    fn exec_return(&mut self, expr: &Option<Expression>) -> Flow<()> {
         match expr {
             Some(expr) => {
                 let value = self.eval(expr)?;
@@ -269,12 +276,12 @@ impl Interpreter {
     }
 
     /// Executes continue
-    pub fn exec_continue(&mut self) -> Flow<()> {
+    fn exec_continue(&mut self) -> Flow<()> {
         Err(ControlFlow::Continue)
     }
 
     /// Executes break
-    pub fn exec_break(&mut self) -> Flow<()> {
+    fn exec_break(&mut self) -> Flow<()> {
         Err(ControlFlow::Break)
     }
 

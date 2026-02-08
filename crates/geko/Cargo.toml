@@ -5,7 +5,5 @@ edition = "2024"
 
 [dependencies]
 camino = "1.2.2"
-geko_lex = { path = "../geko_lex" }
-geko_parse = { path = "../geko_parse" }
 geko_rt = { path = "../geko_rt" }
 miette = { git = "https://github.com/geko-rs/miette", features = ["fancy"] }

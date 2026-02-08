@@ -24,11 +24,11 @@ impl Environment {
     }
 
     /// Looks up a variable
-    pub fn lookup(&self, span: &Span, name: &str) -> Option<Value> {
+    pub fn lookup(&self, name: &str) -> Option<Value> {
         match self.variables.get(name) {
             Some(it) => Some(it.clone()),
             None => match &self.enclosing {
-                Some(env) => env.borrow().lookup(span, name),
+                Some(env) => env.borrow().lookup(name),
                 None => None,
             },
         }

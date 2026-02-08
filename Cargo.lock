@@ -74,8 +74,6 @@ name = "geko"
 version = "0.1.0"
 dependencies = [
  "camino",
- "geko_lex",
- "geko_parse",
  "geko_rt",
  "miette",
 ]
@@ -120,6 +118,7 @@ dependencies = [
 name = "geko_rt"
 version = "0.1.0"
 dependencies = [
+ "camino",
  "geko_ast",
  "geko_common",
  "geko_lex",

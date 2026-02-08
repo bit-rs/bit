@@ -10,3 +10,4 @@ geko_parse = { path = "../geko_parse" }
 geko_ast = { path = "../geko_ast" }
 miette = { git = "https://github.com/geko-rs/miette", features = ["fancy"] }
 thiserror = "2.0.18"
+camino = "1.2.2"

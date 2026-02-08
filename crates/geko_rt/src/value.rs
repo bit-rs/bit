@@ -60,8 +60,8 @@ pub struct Instance {
 /// Module
 #[derive(Clone, Debug)]
 pub struct Module {
-    /// Module fields
-    pub fields: HashMap<String, Value>,
+    /// Module environment
+    pub env: EnvRef,
 }
 
 /// Runtime callable
