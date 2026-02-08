@@ -510,6 +510,14 @@ impl<'s> Parser<'s> {
                 self.bump();
                 expr
             }
+            TokenKind::Bool => {
+                let expr = Expression::Lit {
+                    span: tk.span,
+                    lit: Lit::Bool(tk.lexeme),
+                };
+                self.bump();
+                expr
+            }
             TokenKind::Null => {
                 let expr = Expression::Lit {
                     span: tk.span,
@@ -551,7 +559,10 @@ impl<'s> Parser<'s> {
     fn factor_expr(&mut self) -> Expression {
         let start_span = self.peek().span.clone();
         let mut left = self.unary_expr();
-        while self.check(TokenKind::Star) || self.check(TokenKind::Slash) {
+        while self.check(TokenKind::Star)
+            || self.check(TokenKind::Slash)
+            || self.check(TokenKind::Percent)
+        {
             let op = self.bump();
             let right = self.unary_expr();
             let end_span = self.prev().span.clone();
@@ -560,6 +571,7 @@ impl<'s> Parser<'s> {
                 op: match op.kind {
                     TokenKind::Star => BinaryOp::Mul,
                     TokenKind::Slash => BinaryOp::Div,
+                    TokenKind::Percent => BinaryOp::Mod,
                     _ => unreachable!(),
                 },
                 left: Box::new(left),
@@ -641,13 +653,67 @@ impl<'s> Parser<'s> {
         left
     }
 
-    /// Logical and expression parsing
-    fn logical_and_expr(&mut self) -> Expression {
+    /// `Bitwise and` expression parsing
+    fn bitwise_and_expr(&mut self) -> Expression {
         let start_span = self.peek().span.clone();
         let mut left = self.equality_expr();
-        while self.check(TokenKind::DoubleAmp) {
+        while self.check(TokenKind::Ampersand) {
             self.bump();
             let right = self.equality_expr();
+            let end_span = self.prev().span.clone();
+            left = Expression::Bin {
+                span: start_span.clone() + end_span,
+                op: BinaryOp::BitAnd,
+                left: Box::new(left),
+                right: Box::new(right),
+            }
+        }
+        left
+    }
+
+    /// `Bitwise xor` expression parsing
+    fn bitwise_xor_expr(&mut self) -> Expression {
+        let start_span = self.peek().span.clone();
+        let mut left = self.bitwise_and_expr();
+        while self.check(TokenKind::Caret) {
+            self.bump();
+            let right = self.bitwise_and_expr();
+            let end_span = self.prev().span.clone();
+            left = Expression::Bin {
+                span: start_span.clone() + end_span,
+                op: BinaryOp::Xor,
+                left: Box::new(left),
+                right: Box::new(right),
+            };
+        }
+        left
+    }
+
+    /// `Bitwise or` expression parsing
+    fn bitwise_or_expr(&mut self) -> Expression {
+        let start_span = self.peek().span.clone();
+        let mut left = self.bitwise_xor_expr();
+        while self.check(TokenKind::Bar) {
+            self.bump();
+            let right = self.bitwise_xor_expr();
+            let end_span = self.prev().span.clone();
+            left = Expression::Bin {
+                span: start_span.clone() + end_span,
+                op: BinaryOp::BitOr,
+                left: Box::new(left),
+                right: Box::new(right),
+            }
+        }
+        left
+    }
+
+    /// `Logical and` expression parsing
+    fn logical_and_expr(&mut self) -> Expression {
+        let start_span = self.peek().span.clone();
+        let mut left = self.bitwise_or_expr();
+        while self.check(TokenKind::DoubleAmp) {
+            self.bump();
+            let right = self.bitwise_or_expr();
             let end_span = self.prev().span.clone();
             left = Expression::Bin {
                 span: start_span.clone() + end_span,
@@ -659,7 +725,7 @@ impl<'s> Parser<'s> {
         left
     }
 
-    /// Logical or expression parsing
+    /// `Logical or` expression parsing
     fn logical_or_expr(&mut self) -> Expression {
         let start_span = self.peek().span.clone();
         let mut left = self.logical_and_expr();

@@ -24,12 +24,12 @@ a way to define variable and to reassign it.
 
 Variable definition:
 ```geko
-let id = value
+let id = value;
 ```
 
 Variable assignment:
 ```
-id = value
+id = value;
 ```
 
 ### Binary operations
@@ -50,13 +50,13 @@ id = value
 `Geko` supports following compound operators:
 
 ```
-id += value
-id -= value
-id *= value
-id /= value
-id %= value
-id &= value
-id |= value
+id += value;
+id -= value;
+id *= value;
+id /= value;
+id %= value;
+id &= value;
+id |= value;
 ```
 
 ### Value examples
@@ -82,9 +82,9 @@ Here's an example on how you can define function in `Geko`:
 ```geko
 fn fib(x) {
   if x <= 1 {
-    return x
+    return x;
   } else {
-    return fib(x - 1) + fib(x - 2)
+    return fib(x - 1) + fib(x - 2);
   }
 }
 ```
@@ -95,18 +95,18 @@ that reference types will be copied deeply.
 
 ```geko
 fn a() {
-  let x = 1
+  let x = 1;
   fn b() {
-    x += 1
+    x += 1;
   }
-  b() // x = 2, because x is in root environment
-  return b
+  b(); // x = 2, because x is in root environment
+  return b;
 }
 
-let b = a() // x got copied when function called, so `x = 1`, instead of `x = 2`
-b() // x = 2
-b() // x = 3
-b() // x = 4
+let b = a(); // x got copied when function called, so `x = 1`, instead of `x = 2`
+b(); // x = 2
+b(); // x = 3
+b(); // x = 4
 ```
 
 ### Classes or custom data types
@@ -115,16 +115,16 @@ Geko supports custom data types. Here is example:
 ```
 type Dog {
   fn init() {
-    self.food = 3
-    self.water = 3
+    self.food = 3;
+    self.water = 3;
   }
   fn get_food() {
-    return self.food
+    return self.food;
   }
 }
-let dog = Dog()
-let a = dog.get_food()
-let b = dog.food
+let dog = Dog();
+let a = dog.get_food();
+let b = dog.food;
 # a == b
 ```
 
@@ -159,38 +159,34 @@ Geko loops examples:
 For loop with range examples.
 You can use any expression instead of numbers in range.
 ```
-use io
-
 for i in 0..100 {
-  io.println(i)
+  println(i);
 }
 
 for i in 100..0 {
-  io.println(i)
+  println(i);
 }
 
 for i in 0..=100 {
-  io.println(i)
+  println(i);
 }
 
 for i in 100..=0 {
-  io.println(i)
+  println(i)
 }
 ```
 
 While loop examples. You can see, that `Geko` supports `continue` and `break` keywords
 ```
-use io
-
-let i = 0
+let i = 0;
 while true {
   if i == 100 {
-    continue
-    i -= 200
+    continue;
+    i -= 200;
   }
-  i += 1
+  i += 1;
   if i == -199 {
-    break
+    break;
   }
 }
 ```
@@ -199,10 +195,7 @@ while true {
 
 If examples:
 ```
-use io for input
-use convert for int
-
-let a = input()
+let a = scan();
 if int(a) > 5 {
   ...
 } else if int(a) < 5 {
