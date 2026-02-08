@@ -1,0 +1,13 @@
+[package]
+name = "geko_tests"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+insta = "1.46.3"
+geko_common = { path = "../geko_common" }
+geko_lex = { path = "../geko_lex" }
+geko_parse = { path = "../geko_parse" }
+geko_ast = { path = "../geko_ast" }
+geko_rt = { path = "../geko_rt" }
+miette = { git = "https://github.com/geko-rs/miette", features = ["fancy"] }

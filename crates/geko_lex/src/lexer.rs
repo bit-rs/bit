@@ -198,21 +198,28 @@ impl<'s> Lexer<'s> {
         self.advance();
     }
 
-    /// Skips whitespaces
-    fn skip_whitespaces(&mut self) {
-        while self.is_whitespace() {
-            self.advance();
-        }
-    }
-
-    /// Skips comments
-    fn skip_comments(&mut self) {
-        while self.current == Some('#') {
-            if self.next == Some('[') {
-                self.skip_multiline_comment();
-            } else {
-                self.skip_comment();
+    /// Skips whitespaces and comments
+    fn skip_trivia(&mut self) {
+        loop {
+            // Skipping whitespaces
+            while self.is_whitespace() {
+                self.advance();
             }
+
+            // Skipping comments
+            if self.current == Some('#') {
+                // Skipping multiline comment
+                if self.next == Some('[') {
+                    self.skip_multiline_comment();
+                }
+                // Skipping single line comment
+                else {
+                    self.skip_comment();
+                }
+                continue;
+            }
+
+            break;
         }
     }
 
@@ -254,9 +261,8 @@ impl<'s> Iterator for Lexer<'s> {
     type Item = Token;
 
     fn next(&mut self) -> Option<Self::Item> {
-        // Skipping whitespaces
-        self.skip_whitespaces();
-        self.skip_comments();
+        // Skipping trivia chars
+        self.skip_trivia();
 
         // Matching current and next
         match (self.current, self.next) {
