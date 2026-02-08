@@ -732,6 +732,7 @@ impl<'s> Parser<'s> {
                         expected: tk,
                         src: self.source.clone(),
                         span: it.span.1.clone().into(),
+                        prev: self.prev().span.1.clone().into(),
                     })
                 }
             }

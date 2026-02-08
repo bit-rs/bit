@@ -17,6 +17,8 @@ pub enum ParseError {
         src: Arc<NamedSource<String>>,
         #[label("got unexpected token here...")]
         span: SourceSpan,
+        #[label("while parsing that...")]
+        prev: SourceSpan,
     },
     /// Unexpected expr token
     #[error("unexpected expression token `{got:?}`.")]
