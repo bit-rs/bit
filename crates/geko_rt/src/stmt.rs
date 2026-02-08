@@ -4,17 +4,18 @@ use crate::{
     error::RuntimeError,
     flow::{ControlFlow, Flow},
     interpreter::Interpreter,
+    io,
     refs::{EnvRef, Ref},
     value::{Callable, Closure, Function, Type, Value},
 };
 use geko_ast::{
     atom::{self, AssignOp, BinaryOp},
     expr::Expression,
-    stmt::{Block, Statement},
+    stmt::{Block, Statement, UsageKind},
 };
 use geko_common::bail;
 use geko_lex::token::Span;
-use std::cell::RefCell;
+use std::{cell::RefCell, collections::HashMap};
 
 /// Implementation
 impl Interpreter {
@@ -285,6 +286,69 @@ impl Interpreter {
         Err(ControlFlow::Break)
     }
 
+    /// Executes use
+    fn exec_use(&mut self, span: &Span, path: &String, kind: &UsageKind) -> Flow<()> {
+        // Resolving use path
+        let path = io::resolve_use_path(path);
+        let name = path.file_stem().unwrap_or("unknown").to_string();
+
+        // Loading module
+        let module = self.interpret_module(path);
+
+        // Checking usage kind
+        match kind {
+            UsageKind::As(name) => self
+                .env
+                .borrow_mut()
+                .define(span, &name, Value::Module(module)),
+            UsageKind::For(items) => {
+                // Crawling items
+                let items: HashMap<String, Value> = {
+                    let module = module.borrow();
+                    let env = module.env.borrow();
+                    items
+                        .iter()
+                        .map(|name| {
+                            (
+                                name.clone(),
+                                match env.lookup(name) {
+                                    Some(value) => value,
+                                    None => bail!(RuntimeError::UndefinedField {
+                                        name: name.clone(),
+                                        src: span.0.clone(),
+                                        span: span.1.clone().into()
+                                    }),
+                                },
+                            )
+                        })
+                        .collect()
+                };
+                // Defining items
+                items
+                    .into_iter()
+                    .for_each(|(k, v)| self.env.borrow_mut().define(span, &k, v));
+            }
+            UsageKind::All => {
+                // Crawling items
+                let items: HashMap<String, Value> = {
+                    let module = module.borrow();
+                    let env = module.env.borrow();
+                    env.variables.clone()
+                };
+                // Defining items
+                items
+                    .into_iter()
+                    .for_each(|(k, v)| self.env.borrow_mut().define(span, &k, v));
+            }
+            UsageKind::Just => self
+                .env
+                .borrow_mut()
+                .define(span, &name, Value::Module(module)),
+        }
+
+        Ok(())
+    }
+
     /// Executes statement
     pub fn exec(&mut self, stmt: &Statement) -> Flow<()> {
         // Matching statement
@@ -328,6 +392,7 @@ impl Interpreter {
                 Ok(())
             }
             Statement::Block(block) => self.exec_block(block, true),
+            Statement::Use { span, path, kind } => self.exec_use(span, path, kind),
             Statement::For { .. } => todo!(),
         }
     }

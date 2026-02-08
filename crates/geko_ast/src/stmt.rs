@@ -5,6 +5,19 @@ use crate::{
 };
 use geko_lex::token::Span;
 
+/// Usage
+#[derive(Debug, Clone)]
+pub enum UsageKind {
+    // As `name`
+    As(String),
+    // For `items`
+    For(Vec<String>),
+    // For every item
+    All,
+    // Just import
+    Just,
+}
+
 /// Statement
 #[derive(Debug, Clone)]
 pub enum Statement {
@@ -70,6 +83,12 @@ pub enum Statement {
     Expr(Expression),
     // Block
     Block(Box<Block>),
+    // Use statement
+    Use {
+        span: Span,
+        path: String,
+        kind: UsageKind,
+    },
 }
 
 /// Implementation
@@ -91,7 +110,8 @@ impl Statement {
             | Statement::Break(_)
             | Statement::Return { .. }
             | Statement::Expr(_)
-            | Statement::Set { .. } => true,
+            | Statement::Set { .. }
+            | Statement::Use { .. } => true,
         }
     }
 }

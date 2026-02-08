@@ -8,7 +8,7 @@ use std::collections::HashMap;
 #[derive(Default, Debug)]
 pub struct Environment {
     /// Variables map
-    variables: HashMap<String, Value>,
+    pub variables: HashMap<String, Value>,
     /// Enclosing
     enclosing: Option<EnvRef>,
 }

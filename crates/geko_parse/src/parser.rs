@@ -1,10 +1,9 @@
-use std::sync::Arc;
-
 /// Import
+use crate::errors::ParseError;
 use geko_ast::{
     atom::{AssignOp, BinaryOp, Function, Lit, UnaryOp},
     expr::{Expression, Range},
-    stmt::{Block, Statement},
+    stmt::{Block, Statement, UsageKind},
 };
 use geko_common::bail;
 use geko_lex::{
@@ -12,8 +11,7 @@ use geko_lex::{
     token::{Token, TokenKind},
 };
 use miette::NamedSource;
-
-use crate::errors::ParseError;
+use std::sync::Arc;
 
 /// Parser converts a stream of tokens
 /// produced by the lexer into an abstract syntax tree (AST).
@@ -279,6 +277,49 @@ impl<'s> Parser<'s> {
         }
     }
 
+    /// Use statement
+    fn use_stmt(&mut self) -> Statement {
+        let start_span = self.peek().span.clone();
+        self.expect(TokenKind::Use);
+
+        // Import path
+        let mut path = String::new();
+        path.push_str(&self.expect(TokenKind::Id).lexeme);
+        while self.check(TokenKind::Slash) {
+            self.bump();
+            path.push_str(&self.expect(TokenKind::Id).lexeme);
+        }
+
+        // Import kind
+        let kind = if self.check(TokenKind::As) {
+            self.bump();
+            UsageKind::As(self.expect(TokenKind::Id).lexeme)
+        } else if self.check(TokenKind::For) {
+            self.bump();
+            if self.check(TokenKind::Star) {
+                self.bump();
+                UsageKind::All
+            } else {
+                let mut items = Vec::new();
+                items.push(self.expect(TokenKind::Id).lexeme);
+                while self.check(TokenKind::Comma) {
+                    self.bump();
+                    items.push(self.expect(TokenKind::Id).lexeme);
+                }
+                UsageKind::For(items)
+            }
+        } else {
+            UsageKind::Just
+        };
+        let end_span = self.prev().span.clone();
+
+        Statement::Use {
+            span: start_span + end_span,
+            path,
+            kind,
+        }
+    }
+
     /// Satement parsing
     fn stmt(&mut self) -> Statement {
         // Parsing statement
@@ -293,7 +334,7 @@ impl<'s> Parser<'s> {
             TokenKind::Continue => self.continue_stmt(),
             TokenKind::Break => self.break_stmt(),
             TokenKind::Id => self.assignment_stmt(),
-            TokenKind::Use => todo!(),
+            TokenKind::Use => self.use_stmt(),
             _ => Statement::Expr(self.expr()),
         };
         // If statement requires semicolon
