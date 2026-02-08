@@ -80,7 +80,7 @@ Examples of the values:
 Here's an example on how you can define function in `Geko`:
 
 ```geko
-let fib = |x| {
+fn fib(x) {
   if x <= 1 {
     return x
   } else {
