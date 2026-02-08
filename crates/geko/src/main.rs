@@ -14,5 +14,7 @@ fn main() {
         )
     }));
     let mut interpreter = Interpreter::new();
-    let _ = interpreter.interpret_module(Utf8PathBuf::from("/home/vyacheslav/geko/b.gk"));
+    let _ = interpreter.interpret_module(Utf8PathBuf::from(
+        "/home/vyacheslav/geko/examples/imports/b.gk",
+    ));
 }
