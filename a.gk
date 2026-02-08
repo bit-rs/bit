@@ -1,3 +1,5 @@
+let text = "Hello, ";
+
 fn hello(name) {
-    println("Hello, " + name);
+    println(text + name);
 }
