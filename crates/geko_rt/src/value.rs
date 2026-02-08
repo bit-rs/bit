@@ -1,6 +1,7 @@
 /// Imports
 use crate::refs::{EnvRef, MutRef, Ref};
 use geko_ast::stmt::Block;
+use geko_lex::token::Span;
 use std::{collections::HashMap, fmt::Display, rc::Rc};
 
 /// Native function value
@@ -9,7 +10,7 @@ pub struct Native {
     /// Function parameters arity
     pub arity: usize,
     /// Native function
-    pub function: Box<fn(Vec<Value>) -> Value>,
+    pub function: Box<fn(&Span, Vec<Value>) -> Value>,
 }
 
 /// Function value
@@ -123,7 +124,7 @@ impl Display for Value {
             Value::Type(typ) => write!(f, "Type({})", typ.name),
             Value::Module(_) => write!(f, "Module"),
             Value::Instance(instance) => write!(f, "Instance({})", instance.borrow().type_of.name),
-            Value::Null => todo!(),
+            Value::Null => write!(f, "null"),
         }
     }
 }

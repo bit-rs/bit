@@ -417,7 +417,7 @@ impl Interpreter {
         self.env = EnvRef::new(RefCell::new(Environment::default()));
 
         // Executing
-        let result = (*native.function)(args);
+        let result = (*native.function)(span, args);
 
         // Popping environment
         self.env = previous;
