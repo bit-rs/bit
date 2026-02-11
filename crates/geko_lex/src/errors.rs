@@ -5,7 +5,7 @@ use thiserror::Error;
 
 /// Lexer error
 #[derive(Error, Diagnostic, Debug)]
-pub enum LexError {
+pub enum LexError<'a> {
     /// Unexpected char
     #[error("unexpected character `{ch}`.")]
     #[diagnostic(code(lex::unexpected_char))]
@@ -32,6 +32,25 @@ pub enum LexError {
         #[source_code]
         src: Arc<NamedSource<String>>,
         #[label("this float number seems to be invalid.")]
+        span: SourceSpan,
+    },
+    /// Invalid escape sequence
+    #[error("invalid escape sequence.")]
+    #[diagnostic(code(lex::invalid_escape_sequence), help("{cause}"))]
+    InvalidEscapeSequence {
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("this escape sequence isn't valid.")]
+        span: SourceSpan,
+        cause: &'a str,
+    },
+    /// Unknown escape sequence
+    #[error("unknown escape sequence.")]
+    #[diagnostic(code(lex::unknown_escape_sequence))]
+    UnknownEscapeSequence {
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("this escape sequence isn't valid.")]
         span: SourceSpan,
     },
 }

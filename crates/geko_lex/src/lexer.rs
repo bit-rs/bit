@@ -63,6 +63,151 @@ impl<'s> Lexer<'s> {
         )
     }
 
+    /// Scans unicode codepoint.
+    fn scan_unicode_codepoint(&mut self, small: bool) -> char {
+        // Bumping `u`
+        let start_location = self.idx;
+        self.advance();
+
+        // Calculating amount of hex digits
+        let hex_digits_amount = if small { 4 } else { 8 };
+
+        if self.current != Some('{') {
+            bail!(LexError::InvalidEscapeSequence {
+                src: self.source.clone(),
+                span: (start_location..self.idx).into(),
+                cause: "expected unicode codepoint start `{`."
+            })
+        }
+        self.advance();
+
+        let mut buffer = String::new();
+        for _ in 0..hex_digits_amount {
+            match self.current {
+                Some(ch) => {
+                    if !ch.is_ascii_hexdigit() {
+                        bail!(LexError::InvalidEscapeSequence {
+                            src: self.source.clone(),
+                            span: (start_location..self.idx).into(),
+                            cause: "expected hex digit."
+                        })
+                    }
+                    self.advance();
+                    buffer.push(ch);
+                }
+                None => bail!(LexError::InvalidEscapeSequence {
+                    src: self.source.clone(),
+                    span: (start_location..self.idx).into(),
+                    cause: "unexpected eof."
+                }),
+            }
+        }
+
+        if self.current != Some('}') {
+            bail!(LexError::InvalidEscapeSequence {
+                src: self.source.clone(),
+                span: (start_location..self.idx).into(),
+                cause: "expected unicode codepoint end `}`."
+            })
+        }
+        self.advance();
+
+        let result = match char::from_u32(u32::from_str_radix(&buffer, 16).expect("Invalid hex")) {
+            Some(c) => c,
+            None => {
+                bail!(LexError::InvalidEscapeSequence {
+                    src: self.source.clone(),
+                    span: (start_location..self.idx).into(),
+                    cause: "failed to convert `unciode char` into `u32`."
+                })
+            }
+        };
+        result
+    }
+
+    /// Scans byte codepoint.
+    fn scan_byte_codepoint(&mut self) -> char {
+        // Bumping `x`
+        let start_location = self.idx;
+        self.advance();
+
+        if self.current != Some('{') {
+            bail!(LexError::InvalidEscapeSequence {
+                src: self.source.clone(),
+                span: (start_location..self.idx).into(),
+                cause: "expected byte codepoint start `{`."
+            })
+        }
+        self.advance();
+
+        let mut buffer = String::new();
+        for _ in 0..2 {
+            match self.current {
+                Some(ch) => {
+                    if !ch.is_ascii_hexdigit() {
+                        bail!(LexError::InvalidEscapeSequence {
+                            src: self.source.clone(),
+                            span: (start_location..self.idx).into(),
+                            cause: "expected hex digit."
+                        })
+                    }
+                    self.advance();
+                    buffer.push(ch);
+                }
+                None => bail!(LexError::InvalidEscapeSequence {
+                    src: self.source.clone(),
+                    span: (start_location..self.idx).into(),
+                    cause: "unexpected eof."
+                }),
+            }
+        }
+
+        if self.current != Some('}') {
+            bail!(LexError::InvalidEscapeSequence {
+                src: self.source.clone(),
+                span: (start_location..self.idx).into(),
+                cause: "expected byte codepoint end `}`."
+            })
+        }
+        self.advance();
+
+        let result = match char::from_u32(u32::from_str_radix(&buffer, 16).expect("Invalid hex")) {
+            Some(c) => c,
+            None => {
+                bail!(LexError::InvalidEscapeSequence {
+                    src: self.source.clone(),
+                    span: (start_location..self.idx).into(),
+                    cause: "failed to convert `unciode char` into `u32`."
+                })
+            }
+        };
+        result
+    }
+
+    /// Advances escape sequence.
+    fn advance_escape_sequence(&mut self) -> char {
+        // `\` char
+        self.advance();
+        // Reading next character.
+        let ch = self.current;
+        self.advance();
+        // Checking character kind.
+        match ch {
+            Some('n') => '\n',
+            Some('r') => '\r',
+            Some('"') => '"',
+            Some('`') => '`',
+            Some('\\') => '\\',
+            Some('u') => self.scan_unicode_codepoint(true),
+            Some('U') => self.scan_unicode_codepoint(false),
+            Some('x') => self.scan_byte_codepoint(),
+            _ => bail!(LexError::UnknownEscapeSequence {
+                src: self.source.clone(),
+                span: (self.idx - 1..self.idx).into()
+            }),
+        }
+    }
+
     /// Advances string
     fn advance_string(&mut self) -> Token {
         // Advancing `"`
@@ -72,14 +217,17 @@ impl<'s> Lexer<'s> {
         let mut buffer = String::new();
         // Building string before reaching `"`
         while self.current != Some('"') {
-            buffer.push(self.current.unwrap());
-            self.advance();
-            // Checking for end of file
-            if self.is_eof() {
-                bail!(LexError::UnclosedStringQuotes {
+            // Checking for next char
+            match &self.current {
+                Some('\\') => buffer.push(self.advance_escape_sequence()),
+                Some(_) => {
+                    buffer.push(self.current.unwrap());
+                    self.advance();
+                }
+                None => bail!(LexError::UnclosedStringQuotes {
                     src: self.source.clone(),
                     span: (start..self.idx).into(),
-                })
+                }),
             }
         }
         // Advancing `"`
