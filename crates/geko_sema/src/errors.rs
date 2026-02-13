@@ -25,8 +25,8 @@ pub enum SemaError {
         span: SourceSpan,
     },
     /// Return outside function
-    #[error("couldn't use `return` statement outside of loop.")]
-    #[diagnostic(code(sema::continue_outside_fn))]
+    #[error("couldn't use `return` statement outside of function.")]
+    #[diagnostic(code(sema::return_outside_fn))]
     ReturnOutsideFn {
         #[source_code]
         src: Arc<NamedSource<String>>,
