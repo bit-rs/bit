@@ -43,7 +43,7 @@ pub enum RuntimeError {
         span: SourceSpan,
     },
     /// Invalid binary op
-    #[error("could not use `{op}` with {a} and {b}")]
+    #[error("couldn't use `{op}` with {a} and {b}")]
     #[diagnostic(code(rt::invalid_binary_op))]
     InvalidBinaryOp {
         op: BinaryOp,
@@ -55,7 +55,7 @@ pub enum RuntimeError {
         span: SourceSpan,
     },
     /// Invalid unary op
-    #[error("could not use `{op}` with {value}")]
+    #[error("couldn't use `{op}` with {value}")]
     #[diagnostic(code(rt::invalid_unary_op))]
     InvalidUnaryOp {
         op: UnaryOp,
@@ -65,8 +65,8 @@ pub enum RuntimeError {
         #[label("here...")]
         span: SourceSpan,
     },
-    /// Could not resolve field
-    #[error("could not resolve fields in {value}")]
+    /// Couldn't resolve fields
+    #[error("couldn't resolve fields in {value}")]
     #[diagnostic(code(rt::could_not_resolve_fields))]
     CouldNotResolveFields {
         value: Value,
@@ -75,8 +75,8 @@ pub enum RuntimeError {
         #[label("here...")]
         span: SourceSpan,
     },
-    /// Could not call value
-    #[error("could not call {value}")]
+    /// Couldn't call a value
+    #[error("couldn't call {value}")]
     #[diagnostic(code(rt::could_not_call))]
     CouldNotCall {
         value: Value,

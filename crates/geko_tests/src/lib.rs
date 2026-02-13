@@ -3,3 +3,5 @@ mod assertion;
 mod lex;
 #[cfg(test)]
 mod parse;
+#[cfg(test)]
+mod sema;
