@@ -3,7 +3,7 @@ use miette::{Diagnostic, NamedSource, SourceSpan};
 use std::sync::Arc;
 use thiserror::Error;
 
-/// Senantic analysis error
+/// Semantic analysis error
 #[derive(Error, Diagnostic, Debug)]
 pub enum SemaError {
     /// Break outside loop
