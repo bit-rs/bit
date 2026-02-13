@@ -73,30 +73,22 @@ impl Interpreter {
         ast
     }
 
-    /// Executes module
-    fn exec_module(&mut self, path: Utf8PathBuf) -> MutRef<Module> {
+    /// Executes module into given environment
+    fn exec_module_into(&mut self, path: Utf8PathBuf, env: EnvRef) {
         // Loading module
         let block = self.parse_module(&path);
 
         // Pushing scope
         let previous = self.env.clone();
-        self.env = EnvRef::new(RefCell::new(Environment::default()));
+        self.env = env;
 
         // Executing statements
         for stmt in &block.statements {
             let _ = self.exec(stmt);
         }
 
-        // Creating module
-        let module = MutRef::new(RefCell::new(Module {
-            env: self.env.clone(),
-        }));
-
         // Popping scope
         self.env = previous;
-
-        // Done
-        module
     }
 
     /// Loads and executes module, if not already executed.
@@ -107,10 +99,13 @@ impl Interpreter {
             Some(module) => module,
             // If not, executing it and saving to modules registry
             None => {
+                // Creating environment and module
+                let env = EnvRef::new(RefCell::new(Environment::default()));
+                let module = MutRef::new(RefCell::new(Module { env: env.clone() }));
+                // Registering module before executing it
+                self.modules.set(path.clone(), module.clone());
                 // Executing module
-                let module = self.exec_module(path.clone());
-                // Saving
-                self.modules.set(path, module.clone());
+                self.exec_module_into(path.clone(), env);
                 // Done
                 module
             }
