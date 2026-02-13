@@ -5,7 +5,7 @@ members = [
     "crates/geko_common",
     "crates/geko_lex",
     "crates/geko_parse",
-    "crates/geko_rt", "crates/geko_tests",
+    "crates/geko_rt", "crates/geko_sema", "crates/geko_tests",
 ]
 resolver = "3"
 doctest = false

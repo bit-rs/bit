@@ -1,8 +1,7 @@
-use std::fmt::Display;
-
 /// Imports
 use crate::stmt::Block;
 use geko_lex::token::Span;
+use std::fmt::Display;
 
 /// Assignment operator
 #[derive(Debug, Clone, Copy)]

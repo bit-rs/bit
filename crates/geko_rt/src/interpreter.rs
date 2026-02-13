@@ -13,6 +13,7 @@ use geko_ast::stmt::Block;
 use geko_common::bail;
 use geko_lex::{lexer::Lexer, token::Span};
 use geko_parse::parser::Parser;
+use geko_sema::Analyzer;
 use miette::NamedSource;
 use std::{cell::RefCell, sync::Arc};
 
@@ -64,6 +65,11 @@ impl Interpreter {
 
         // Parsing module text into AST
         let ast = parser.parse();
+
+        // Performing semantic analysis
+        let mut analyzer = Analyzer::default();
+        analyzer.analyze_module(&ast);
+
         ast
     }
 
