@@ -30,3 +30,19 @@ fn test_sema_3() {
         "#
     )
 }
+
+// Note: should bail
+#[test]
+fn test_sema_4() {
+    assert_sema!(
+        r#"
+        fn outer() {
+            while true {
+                fn inner() {
+                    break;
+                }
+            }
+        }
+        "#
+    )
+}
