@@ -74,13 +74,13 @@ impl Interpreter {
     }
 
     /// Executes module
-    pub fn exec_module(&mut self, path: Utf8PathBuf) -> MutRef<Module> {
+    fn exec_module(&mut self, path: Utf8PathBuf) -> MutRef<Module> {
         // Loading module
         let block = self.parse_module(&path);
 
         // Pushing scope
         let previous = self.env.clone();
-        self.env = EnvRef::new(RefCell::new(Environment::new(previous.clone())));
+        self.env = EnvRef::new(RefCell::new(Environment::default()));
 
         // Executing statements
         for stmt in &block.statements {
