@@ -113,10 +113,12 @@ impl Analyzer {
     }
 
     /// Checks if scopes stack has loop in hierarchy
-    fn hierarchy_has_loop(&mut self) -> bool {
+    fn hierarchy_has_loop(&self) -> bool {
         for node in self.stack.iter().rev() {
-            if let ScopeKind::Loop = node {
-                return true;
+            match node {
+                ScopeKind::Loop => return true,
+                ScopeKind::Function => break,
+                _ => {}
             }
         }
         false
