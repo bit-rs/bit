@@ -73,8 +73,8 @@ impl Interpreter {
         ast
     }
 
-    /// Executes module
-    fn exec_module(&mut self, path: Utf8PathBuf, env: EnvRef) -> MutRef<Module> {
+    /// Executes module into given environment
+    fn exec_module_into(&mut self, path: Utf8PathBuf, env: EnvRef) {
         // Loading module
         let block = self.parse_module(&path);
 
@@ -87,16 +87,8 @@ impl Interpreter {
             let _ = self.exec(stmt);
         }
 
-        // Creating module
-        let module = MutRef::new(RefCell::new(Module {
-            env: self.env.clone(),
-        }));
-
         // Popping scope
         self.env = previous;
-
-        // Done
-        module
     }
 
     /// Loads and executes module, if not already executed.
@@ -113,7 +105,7 @@ impl Interpreter {
                 // Registering module before executing it
                 self.modules.set(path.clone(), module.clone());
                 // Executing module
-                let module = self.exec_module(path.clone(), env);
+                self.exec_module_into(path.clone(), env);
                 // Done
                 module
             }
