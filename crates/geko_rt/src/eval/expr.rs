@@ -1,11 +1,11 @@
 /// Imports
 use crate::{
-    env::Environment,
+    rt::env::Environment,
+    rt::value::{Bound, Callable, Closure, Instance, Native, Type, Value},
     error::RuntimeError,
-    flow::{ControlFlow, Flow},
+    rt::flow::{ControlFlow, Flow},
     interpreter::Interpreter,
     refs::{EnvRef, MutRef, Ref},
-    value::{Bound, Callable, Closure, Instance, Native, Type, Value},
 };
 use geko_ast::{
     atom::{BinaryOp, Lit, UnaryOp},
@@ -191,7 +191,7 @@ impl Interpreter {
             Ok(value)
         }
         // Builtins environment
-        else if let Some(value) = self.builtins.borrow().lookup(name) {
+        else if let Some(value) = self.builtins.env.borrow().lookup(name) {
             Ok(value)
         }
         // Otherwise, raising error

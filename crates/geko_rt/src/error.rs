@@ -1,5 +1,5 @@
 /// Imports
-use crate::value::Value;
+use crate::rt::value::Value;
 use geko_ast::atom::{BinaryOp, UnaryOp};
 use miette::{Diagnostic, NamedSource, SourceSpan};
 use std::sync::Arc;
@@ -13,7 +13,7 @@ unsafe impl Sync for Value {}
 #[derive(Error, Diagnostic, Debug)]
 pub enum RuntimeError {
     /// Undefined variable
-    #[error("variable `{name}` is not defined.")]
+    #[error("variable `{name}` is not defined")]
     #[diagnostic(code(rt::undefined_variable))]
     UndefinedVariable {
         name: String,
@@ -23,7 +23,7 @@ pub enum RuntimeError {
         span: SourceSpan,
     },
     /// Undefined field
-    #[error("field `{name}` is not defined.")]
+    #[error("field `{name}` is not defined")]
     #[diagnostic(code(rt::undefined_field))]
     UndefinedField {
         name: String,
@@ -33,7 +33,7 @@ pub enum RuntimeError {
         span: SourceSpan,
     },
     /// Variable is already defined
-    #[error("variable `{name}` is already defined.")]
+    #[error("variable `{name}` is already defined")]
     #[diagnostic(code(rt::already_defined_variable))]
     AlreadyDefinedVariable {
         name: String,
@@ -101,6 +101,16 @@ pub enum RuntimeError {
     IncorrectArity {
         params: usize,
         args: usize,
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("here...")]
+        span: SourceSpan,
+    },
+    /// Failed to find module
+    #[error("failed to find module `{name}`")]
+    #[diagnostic(code(rt::failed_to_find_module))]
+    FailedToFindModule {
+        name: String,
         #[source_code]
         src: Arc<NamedSource<String>>,
         #[label("here...")]
