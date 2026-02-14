@@ -10,7 +10,7 @@ use std::{cell::RefCell, rc::Rc};
 fn sin() -> Ref<Native> {
     return Ref::new(Native {
         arity: 1,
-        function: Box::new(|_, values| match values.get(0).unwrap() {
+        function: Box::new(|_, _, values| match values.get(0).unwrap() {
             Value::Int(int) => Value::Float(f64::sin(*int as f64)),
             Value::Float(float) => Value::Float(f64::sin(*float)),
             _ => panic!("not a number."),
@@ -22,7 +22,7 @@ fn sin() -> Ref<Native> {
 fn cos() -> Ref<Native> {
     return Ref::new(Native {
         arity: 1,
-        function: Box::new(|_, values| match values.get(0).unwrap() {
+        function: Box::new(|_, _, values| match values.get(0).unwrap() {
             Value::Int(int) => Value::Float(f64::cos(*int as f64)),
             Value::Float(float) => Value::Float(f64::cos(*float)),
             _ => panic!("not a number."),

@@ -420,7 +420,7 @@ impl<I: IO> Interpreter<I> {
         self.env = EnvRef::new(RefCell::new(Environment::default()));
 
         // Executing
-        let result = (*native.function)(span, args);
+        let result = (*native.function)(&mut self.io, span, args);
 
         // Popping environment
         self.env = previous;
