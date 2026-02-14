@@ -1,12 +1,13 @@
 /// Imports
 use crate::{
-    env::Environment,
     refs::{EnvRef, Ref},
-    value::{Callable, Native, Value},
+    rt::env::Environment,
+    rt::value::{Callable, Native, Value},
 };
 use std::{
     cell::RefCell,
     io::{self, Write},
+    rc::Rc,
 };
 
 /// Print definition
@@ -44,11 +45,11 @@ pub fn readln() -> Ref<Native> {
     });
 }
 
-/// Provides builtins
-pub fn provide_builtins() -> EnvRef {
+/// Provides env
+pub fn provide_env() -> EnvRef {
     let mut env = Environment::default();
     env.force_define("print", Value::Callable(Callable::Native(print())));
     env.force_define("println", Value::Callable(Callable::Native(println())));
     env.force_define("readln", Value::Callable(Callable::Native(readln())));
-    EnvRef::new(RefCell::new(env))
+    Rc::new(RefCell::new(env))
 }

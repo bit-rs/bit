@@ -1,12 +1,12 @@
 /// Imports
 use crate::{
-    env::Environment,
     error::RuntimeError,
-    flow::{ControlFlow, Flow},
     interpreter::Interpreter,
     io,
     refs::{EnvRef, Ref},
-    value::{Callable, Closure, Function, Type, Value},
+    rt::env::Environment,
+    rt::flow::{ControlFlow, Flow},
+    rt::value::{Callable, Closure, Function, Type, Value},
 };
 use geko_ast::{
     atom::{self, AssignOp, BinaryOp},
@@ -287,13 +287,22 @@ impl Interpreter {
     }
 
     /// Executes use
-    fn exec_use(&mut self, span: &Span, path: &String, kind: &UsageKind) -> Flow<()> {
+    fn exec_use(&mut self, span: &Span, name: &str, kind: &UsageKind) -> Flow<()> {
         // Resolving use path
-        let path = io::resolve_use_path(path);
-        let name = path.file_stem().unwrap_or("unknown").to_string();
-
-        // Loading module
-        let module = self.interpret_module(path);
+        let module = {
+            // Resolving fs path
+            match io::resolve_use_path(name) {
+                Some(path) => self.interpret_module(name, path),
+                None => match self.load_builtin_module(name) {
+                    Some(module) => module,
+                    None => bail!(RuntimeError::FailedToFindModule {
+                        name: name.to_string(),
+                        src: span.0.clone(),
+                        span: span.1.clone().into()
+                    }),
+                },
+            }
+        };
 
         // Checking usage kind
         match kind {

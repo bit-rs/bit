@@ -1,12 +1,12 @@
 /// Imports
 use crate::{
-    builtins,
-    env::Environment,
+    builtins::{self, Builtins},
+    rt::env::Environment,
     error::RuntimeError,
     io,
     modules::Modules,
     refs::{EnvRef, MutRef},
-    value::{Module, Value},
+    rt::value::{Module, Value},
 };
 use camino::Utf8PathBuf;
 use geko_ast::stmt::Block;
@@ -20,7 +20,7 @@ use std::{cell::RefCell, sync::Arc};
 /// Interpreter
 pub struct Interpreter {
     /// Builtins environment
-    pub(crate) builtins: EnvRef,
+    pub(crate) builtins: Builtins,
     /// Current environment
     pub(crate) env: EnvRef,
     /// Modules registry
@@ -91,10 +91,10 @@ impl Interpreter {
         self.env = previous;
     }
 
-    /// Loads and executes module, if not already executed.
-    pub fn interpret_module(&mut self, path: Utf8PathBuf) -> MutRef<Module> {
+    /// Loads and executes module, if module with same name is not already executed.
+    pub fn interpret_module(&mut self, name: &str, path: Utf8PathBuf) -> MutRef<Module> {
         // Checking module is already loaded
-        match self.modules.get(&path) {
+        match self.modules.get(&name) {
             // If already loaded, returning it
             Some(module) => module,
             // If not, executing it and saving to modules registry
@@ -103,12 +103,17 @@ impl Interpreter {
                 let env = EnvRef::new(RefCell::new(Environment::default()));
                 let module = MutRef::new(RefCell::new(Module { env: env.clone() }));
                 // Registering module before executing it
-                self.modules.set(path.clone(), module.clone());
+                self.modules.set(name.to_string(), module.clone());
                 // Executing module
                 self.exec_module_into(path.clone(), env);
                 // Done
                 module
             }
         }
+    }
+
+    /// Loads builtin module
+    pub fn load_builtin_module(&mut self, name: &str) -> Option<MutRef<Module>> {
+        self.builtins.modules.get(name).cloned()
     }
 }
