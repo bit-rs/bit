@@ -56,6 +56,7 @@ impl IO for CliIO {
 
     // Flushes stream
     fn flush(&self) {
-        io::stdout().flush().unwrap();
+        let _ = io::stdout().flush();
+    }
     }
 }
