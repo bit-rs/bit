@@ -1,12 +1,7 @@
 /// Imports
 use camino::Utf8PathBuf;
-use geko_common::bail;
 use miette::Diagnostic;
-use std::{
-    fs,
-    io::{self, ErrorKind},
-    path::PathBuf,
-};
+use std::{io, path::PathBuf};
 use thiserror::Error;
 
 /// IO error
@@ -24,45 +19,27 @@ pub enum IOError {
     #[error("failed to get current working directory due io error: {0}")]
     #[diagnostic(code(io::cwd_not_available))]
     CwdNotAvailable(io::Error),
+    /// Something not supported
+    #[error("`{0}` is not supported due platform limitations")]
+    #[diagnostic(code(io::not_supported))]
+    NotSupported(&'static str),
 }
 
-/// Reads file
-pub(crate) fn read(path: &Utf8PathBuf) -> String {
-    // Reading module
-    match fs::read_to_string(&path) {
-        Ok(text) => text,
-        Err(_) => bail!(IOError::FileNotFound(path.clone())),
-    }
-}
+/// IO trait representation
+pub trait IO {
+    /// Reads input
+    fn input(&self) -> String;
 
-/// Resolves use path.
-///
-/// Returns `None` if path isn't exists or fs isn't available.
-/// Otherwise returns `Some(Utf8PathBuf)`
-///
-pub(crate) fn resolve_use_path(path: &str) -> Option<Utf8PathBuf> {
-    // Retrieving current directory
-    match std::env::current_dir() {
-        // Note: from_path_buf with reference is not implemented.
-        Ok(cwd) => match Utf8PathBuf::from_path_buf(cwd.clone()) {
-            Ok(mut dir) => {
-                // Appending path to cwd
-                dir.push(Utf8PathBuf::from(format!("{path}.gk")));
-                // If path exists
-                if dir.exists() {
-                    Some(dir)
-                } // If not
-                else {
-                    None
-                }
-            }
-            Err(_) => bail!(IOError::NonUtf8Path(cwd)),
-        },
-        Err(err) => match err.kind() {
-            // If fs operations are not supported (wasm)
-            ErrorKind::Unsupported => None,
-            // Reporting other errors
-            _ => bail!(IOError::CwdNotAvailable(err)),
-        },
-    }
+    /// Writes output
+    fn output(&self, text: &str);
+
+    /// Reads file
+    fn read(&self, path: &Utf8PathBuf) -> String;
+
+    /// Resolves path by inserting `cwd`.
+    ///
+    /// Returns `None` if path isn't exists or fs isn't available.
+    /// Otherwise returns `Some(Utf8PathBuf)`
+    ///
+    fn resolve(&self, path: &str) -> Option<Utf8PathBuf>;
 }

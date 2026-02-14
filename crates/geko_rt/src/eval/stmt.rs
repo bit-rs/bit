@@ -2,11 +2,13 @@
 use crate::{
     error::RuntimeError,
     interpreter::Interpreter,
-    io,
+    io::IO,
     refs::{EnvRef, Ref},
-    rt::env::Environment,
-    rt::flow::{ControlFlow, Flow},
-    rt::value::{Callable, Closure, Function, Type, Value},
+    rt::{
+        env::Environment,
+        flow::{ControlFlow, Flow},
+        value::{Callable, Closure, Function, Type, Value},
+    },
 };
 use geko_ast::{
     atom::{self, AssignOp, BinaryOp},
@@ -18,7 +20,7 @@ use geko_lex::token::Span;
 use std::{cell::RefCell, collections::HashMap};
 
 /// Implementation
-impl Interpreter {
+impl<I: IO> Interpreter<I> {
     /// Executes while statement
     fn exec_while(&mut self, span: &Span, condition: &Expression, block: &Block) -> Flow<()> {
         // Evaluating condition value
@@ -291,8 +293,8 @@ impl Interpreter {
         // Resolving use path
         let module = {
             // Resolving fs path
-            match io::resolve_use_path(name) {
-                Some(path) => self.interpret_module(name, path),
+            match self.io.resolve(name) {
+                Some(path) => self.interpret_module(name, &self.io.read(&path)),
                 None => match self.load_builtin_module(name) {
                     Some(module) => module,
                     None => bail!(RuntimeError::FailedToFindModule {

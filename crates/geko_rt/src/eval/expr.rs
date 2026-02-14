@@ -1,11 +1,14 @@
 /// Imports
 use crate::{
-    rt::env::Environment,
-    rt::value::{Bound, Callable, Closure, Instance, Native, Type, Value},
     error::RuntimeError,
-    rt::flow::{ControlFlow, Flow},
     interpreter::Interpreter,
+    io::IO,
     refs::{EnvRef, MutRef, Ref},
+    rt::{
+        env::Environment,
+        flow::{ControlFlow, Flow},
+        value::{Bound, Callable, Closure, Instance, Native, Type, Value},
+    },
 };
 use geko_ast::{
     atom::{BinaryOp, Lit, UnaryOp},
@@ -16,7 +19,7 @@ use geko_lex::token::Span;
 use std::{cell::RefCell, collections::HashMap};
 
 /// Implementation
-impl Interpreter {
+impl<I: IO> Interpreter<I> {
     /// Evaluates literal expression
     pub(crate) fn eval_lit(&self, lit: &Lit) -> Flow<Value> {
         // Matching literal
