@@ -3,7 +3,7 @@ mod builtins;
 mod error;
 mod eval;
 pub mod interpreter;
-mod io;
+pub mod io;
 mod modules;
 mod refs;
 mod rt;
