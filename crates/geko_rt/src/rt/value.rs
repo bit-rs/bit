@@ -1,5 +1,8 @@
 /// Imports
-use crate::refs::{EnvRef, MutRef, Ref};
+use crate::{
+    io::IO,
+    refs::{EnvRef, MutRef, Ref},
+};
 use geko_ast::stmt::Block;
 use geko_lex::token::Span;
 use std::{collections::HashMap, fmt::Display, rc::Rc};
@@ -10,7 +13,7 @@ pub struct Native {
     /// Function parameters arity
     pub arity: usize,
     /// Native function
-    pub function: Box<fn(&Span, Vec<Value>) -> Value>,
+    pub function: Box<fn(&dyn IO, &Span, Vec<Value>) -> Value>,
 }
 
 /// Function value

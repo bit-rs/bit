@@ -33,4 +33,9 @@ impl IO for WasmIO {
     fn resolve(&self, _: &str) -> Option<Utf8PathBuf> {
         None
     }
+
+    // Flush implementation
+    fn flush(&self) {
+        // needless
+    }
 }

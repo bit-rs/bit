@@ -4,19 +4,15 @@ use crate::{
     rt::env::Environment,
     rt::value::{Callable, Native, Value},
 };
-use std::{
-    cell::RefCell,
-    io::{self, Write},
-    rc::Rc,
-};
+use std::{cell::RefCell, rc::Rc};
 
 /// Print definition
 pub fn print() -> Ref<Native> {
     return Ref::new(Native {
         arity: 1,
-        function: Box::new(|_, values| {
-            print!("{}", values.get(0).unwrap());
-            io::stdout().flush().unwrap();
+        function: Box::new(|io, _, values| {
+            io.output(&format!("{}", values.get(0).unwrap()));
+            io.flush();
             Value::Null
         }),
     });
@@ -26,8 +22,9 @@ pub fn print() -> Ref<Native> {
 pub fn println() -> Ref<Native> {
     return Ref::new(Native {
         arity: 1,
-        function: Box::new(|_, values| {
-            println!("{}", values.get(0).unwrap());
+        function: Box::new(|io, _, values| {
+            io.output(&format!("{}\n", values.get(0).unwrap()));
+            io.flush();
             Value::Null
         }),
     });
@@ -37,11 +34,7 @@ pub fn println() -> Ref<Native> {
 pub fn readln() -> Ref<Native> {
     return Ref::new(Native {
         arity: 0,
-        function: Box::new(|_, _| {
-            let mut line = String::new();
-            let _ = io::stdin().read_line(&mut line);
-            Value::String(line)
-        }),
+        function: Box::new(|io, _, _| Value::String(io.input())),
     });
 }
 
