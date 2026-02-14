@@ -58,5 +58,4 @@ impl IO for CliIO {
     fn flush(&self) {
         let _ = io::stdout().flush();
     }
-    }
 }
