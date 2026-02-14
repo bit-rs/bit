@@ -4,11 +4,7 @@ use crate::{
     rt::env::Environment,
     rt::value::{Callable, Native, Value},
 };
-use std::{
-    cell::RefCell,
-    io::{self, Write},
-    rc::Rc,
-};
+use std::{cell::RefCell, rc::Rc};
 
 /// Print definition
 pub fn print() -> Ref<Native> {
@@ -16,7 +12,7 @@ pub fn print() -> Ref<Native> {
         arity: 1,
         function: Box::new(|io, _, values| {
             io.output(&format!("{}", values.get(0).unwrap()));
-            io::stdout().flush().unwrap();
+            io.flush();
             Value::Null
         }),
     });
@@ -28,6 +24,7 @@ pub fn println() -> Ref<Native> {
         arity: 1,
         function: Box::new(|io, _, values| {
             io.output(&format!("{}\n", values.get(0).unwrap()));
+            io.flush();
             Value::Null
         }),
     });

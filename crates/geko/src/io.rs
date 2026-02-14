@@ -2,7 +2,10 @@
 use camino::Utf8PathBuf;
 use geko_common::bail;
 use geko_rt::io::{IO, IOError};
-use std::{fs, io};
+use std::{
+    fs,
+    io::{self, Write},
+};
 
 /// Cli IO implementation
 pub struct CliIO;
@@ -49,5 +52,10 @@ impl IO for CliIO {
             },
             Err(err) => bail!(IOError::CwdNotAvailable(err)),
         }
+    }
+
+    // Flushes stream
+    fn flush(&self) {
+        io::stdout().flush().unwrap();
     }
 }

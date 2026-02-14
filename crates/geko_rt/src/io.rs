@@ -42,4 +42,7 @@ pub trait IO {
     /// Otherwise returns `Some(Utf8PathBuf)`
     ///
     fn resolve(&self, path: &str) -> Option<Utf8PathBuf>;
+
+    /// Flushes stream
+    fn flush(&self);
 }
