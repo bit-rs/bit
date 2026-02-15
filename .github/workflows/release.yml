@@ -50,6 +50,10 @@ jobs:
             cargo-tool: cargo
     steps:
       - uses: actions/checkout@v6
+      
+      - name: Install cross
+        run: cargo install cross --force
+      
       - name: Build binary
         run: |
           if [[ "${{ matrix.cargo-tool }}" == "cross" ]]; then
@@ -57,6 +61,7 @@ jobs:
           else
             cargo build --release --target ${{ matrix.target }}
           fi
+          
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
