@@ -56,14 +56,7 @@ jobs:
         id: tag
         run: |
           TAG="nightly-$(date +'%Y%m%d-%H%M%S')"
-          git config user.name "github-actions"
-          git config user.email "github-actions@github.com"
-          git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git
-          git tag $TAG
-          git push origin $TAG
           echo "tag=$TAG" >> $GITHUB_OUTPUT
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install cross
         run: cargo install cross --force
@@ -79,8 +72,8 @@ jobs:
       - name: Upload to Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ steps.tag.outputs.tag }}
-          files: "target/${{ matrix.target }}/release/geko*"
+          tag_name: ${{ steps.tag.outputs.tag }}  # используется только локальный тег
+          files: "target/${{ matrix.target }}/release/my_interpreter*"
           overwrite_files: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
