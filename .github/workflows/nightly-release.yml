@@ -1,0 +1,50 @@
+name: Nightly Release
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    env:
+      VERSION: nightly-$(date +'%Y-%m-%d')
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Install Rust nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+
+      - name: Install cross
+        run: cargo install cross
+
+      - name: Build binaries
+        run: |
+          mkdir -p release
+          targets=(
+            "x86_64-unknown-linux-gnu"
+            "armv7-unknown-linux-gnueabihf"
+            "aarch64-unknown-linux-gnu"
+            "x86_64-unknown-freebsd"
+            "x86_64-pc-windows-gnu"
+            "i686-pc-windows-gnu"
+          )
+          for t in "${targets[@]}"; do
+            echo "Building $t..."
+            cross build --release --target $t
+            cp target/$t/release/geko release/geko-$t
+          done
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
