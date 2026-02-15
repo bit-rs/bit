@@ -9,12 +9,14 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    env:
-      VERSION: nightly-$(date +'%Y-%m-%d')
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Set nightly version
+        run: |
+          echo "NIGHTLY_TAG=nightly-$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
+          echo "NIGHTLY_TITLE=🌛 Nightly Build $(date +'%Y-%m-%d %H:%M')" >> $GITHUB_ENV
 
       - name: Install Rust nightly
         uses: actions-rs/toolchain@v1
@@ -43,8 +45,8 @@ jobs:
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: nightly-${{ github.run_number }}
-          name: 🌛 Nightly Build ${{ github.run_number }}
+          tag_name: ${{ env.NIGHTLY_TAG }}
+          name: ${{ env.NIGHTLY_TITLE }}
           files: release/*
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
