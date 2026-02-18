@@ -2,7 +2,6 @@
 use crate::{
     builtins::{self, Builtins},
     error::RuntimeError,
-    io::IO,
     modules::Modules,
     refs::{EnvRef, MutRef},
     rt::{
@@ -11,7 +10,7 @@ use crate::{
     },
 };
 use geko_ast::stmt::Block;
-use geko_common::bail;
+use geko_common::{bail, io::IO};
 use geko_lex::{lexer::Lexer, token::Span};
 use geko_parse::parser::Parser;
 use geko_sema::Analyzer;

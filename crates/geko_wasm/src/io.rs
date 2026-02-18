@@ -1,7 +1,9 @@
 /// Imports
 use camino::Utf8PathBuf;
-use geko_common::bail;
-use geko_rt::io::{IO, IOError};
+use geko_common::{
+    bail,
+    io::{IO, IOError},
+};
 use wasm_bindgen::prelude::wasm_bindgen;
 
 /// Wasm binds

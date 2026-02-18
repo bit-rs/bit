@@ -2,7 +2,6 @@
 use crate::{
     error::RuntimeError,
     interpreter::Interpreter,
-    io::IO,
     refs::{EnvRef, Ref},
     rt::{
         env::Environment,
@@ -15,7 +14,7 @@ use geko_ast::{
     expr::Expression,
     stmt::{Block, Statement, UsageKind},
 };
-use geko_common::bail;
+use geko_common::{bail, io::IO};
 use geko_lex::token::Span;
 use std::{cell::RefCell, collections::HashMap};
 

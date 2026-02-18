@@ -2,7 +2,6 @@
 use crate::{
     error::RuntimeError,
     interpreter::Interpreter,
-    io::IO,
     refs::{EnvRef, MutRef, Ref},
     rt::{
         env::Environment,
@@ -14,7 +13,7 @@ use geko_ast::{
     atom::{BinaryOp, Lit, UnaryOp},
     expr::Expression,
 };
-use geko_common::{bail, bug};
+use geko_common::{bail, bug, io::IO};
 use geko_lex::token::Span;
 use std::{cell::RefCell, collections::HashMap};
 

@@ -1,9 +1,7 @@
 /// Imports
-use crate::{
-    io::IO,
-    refs::{EnvRef, MutRef, Ref},
-};
+use crate::refs::{EnvRef, MutRef, Ref};
 use geko_ast::stmt::Block;
+use geko_common::io::IO;
 use geko_lex::token::Span;
 use std::{collections::HashMap, fmt::Display, rc::Rc};
 
