@@ -353,7 +353,12 @@ impl<I: IO> Interpreter<I> {
             UsageKind::Just => self
                 .env
                 .borrow_mut()
-                .define(span, &name, Value::Module(module)),
+                // Safety: `split()` returns iterator with at least 1 element
+                .define(
+                    span,
+                    &name.split("/").last().unwrap(),
+                    Value::Module(module),
+                ),
         }
 
         Ok(())
