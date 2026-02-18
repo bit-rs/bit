@@ -193,19 +193,26 @@ impl<'s> Parser<'s> {
     /// Type declaration parsing
     fn type_stmt(&mut self) -> Statement {
         let start_span = self.peek().span.clone();
+
+        // Parsing type name
         self.expect(TokenKind::Type);
-        let name = self.expect(TokenKind::Id).lexeme;
+        let name = self.expect(TokenKind::Id);
+        let name_span = start_span.clone() + name.span;
         self.expect(TokenKind::Lbrace);
+
+        // Parsing methods
         let mut methods = Vec::new();
         while !self.check(TokenKind::Rbrace) {
             methods.push(self.function())
         }
         self.expect(TokenKind::Rbrace);
+
         let end_span = self.prev().span.clone();
 
         Statement::Type {
             span: start_span + end_span,
-            name,
+            name_span,
+            name: name.lexeme,
             methods,
         }
     }
