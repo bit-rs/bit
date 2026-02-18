@@ -1,4 +1,10 @@
+/// Modules
+mod io;
+
+/// Imports
+use crate::io::CliIO;
 use camino::Utf8PathBuf;
+use geko_common::io::IO;
 use geko_rt::interpreter::Interpreter;
 
 fn main() {
@@ -13,9 +19,9 @@ fn main() {
                 .build(),
         )
     }));
-    let mut interpreter = Interpreter::new();
-    let _ = interpreter.interpret_module(
-        "a",
-        Utf8PathBuf::from("/home/vyacheslav/geko/examples/math/a.gk"),
-    );
+    let io = CliIO;
+    let path = Utf8PathBuf::from("/home/vyacheslav/geko/examples/math/a.gk");
+    let code = io.read(&path);
+    let mut interpreter = Interpreter::new(io);
+    let _ = interpreter.interpret_module("a", &code);
 }

@@ -1,0 +1,52 @@
+name: Nightly Release
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 3 * * *'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set nightly version
+        run: |
+          echo "NIGHTLY_TAG=nightly-$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
+          echo "NIGHTLY_TITLE=🌛 Nightly Build $(date +'%Y-%m-%d %H:%M')" >> $GITHUB_ENV
+
+      - name: Install Rust nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+
+      - name: Install cross
+        run: cargo install cross
+
+      - name: Build binaries
+        run: |
+          mkdir -p release
+          targets=(
+            "x86_64-unknown-linux-gnu"
+            "armv7-unknown-linux-gnueabihf"
+            "aarch64-unknown-linux-gnu"
+            "x86_64-unknown-freebsd"
+          )
+          for t in "${targets[@]}"; do
+            echo "Building $t..."
+            cross build --release --target $t
+            cp target/$t/release/geko release/geko-$t
+          done
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ env.NIGHTLY_TAG }}
+          name: ${{ env.NIGHTLY_TITLE }}
+          files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}

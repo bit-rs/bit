@@ -1,16 +1,16 @@
 /// Imports
 use crate::{
     builtins::{self, Builtins},
-    rt::env::Environment,
     error::RuntimeError,
-    io,
     modules::Modules,
     refs::{EnvRef, MutRef},
-    rt::value::{Module, Value},
+    rt::{
+        env::Environment,
+        value::{Module, Value},
+    },
 };
-use camino::Utf8PathBuf;
 use geko_ast::stmt::Block;
-use geko_common::bail;
+use geko_common::{bail, io::IO};
 use geko_lex::{lexer::Lexer, token::Span};
 use geko_parse::parser::Parser;
 use geko_sema::Analyzer;
@@ -18,23 +18,26 @@ use miette::NamedSource;
 use std::{cell::RefCell, sync::Arc};
 
 /// Interpreter
-pub struct Interpreter {
+pub struct Interpreter<I: IO> {
     /// Builtins environment
     pub(crate) builtins: Builtins,
     /// Current environment
     pub(crate) env: EnvRef,
     /// Modules registry
     pub(crate) modules: Modules,
+    /// IO
+    pub(crate) io: I,
 }
 
 /// Implementation
-impl Interpreter {
+impl<I: IO> Interpreter<I> {
     /// Creates new interpreter
-    pub fn new() -> Self {
+    pub fn new(io: I) -> Self {
         Interpreter {
             builtins: builtins::provide_builtins(),
             env: EnvRef::new(RefCell::new(Environment::default())),
             modules: Modules::default(),
+            io,
         }
     }
 
@@ -52,15 +55,12 @@ impl Interpreter {
     }
 
     /// Parses module
-    pub(crate) fn parse_module(&mut self, path: &Utf8PathBuf) -> Block {
-        // Reading module text
-        let text = io::read(path);
-
+    pub(crate) fn parse_module(&mut self, name: &str, content: &str) -> Block {
         // Creating named source
-        let src = Arc::new(NamedSource::new(path, text.to_string()));
+        let src = Arc::new(NamedSource::new(name, content.to_string()));
 
         // Creating lexer and parser
-        let lexer = Lexer::new(src.clone(), &text);
+        let lexer = Lexer::new(src.clone(), &content);
         let mut parser = Parser::new(src, lexer);
 
         // Parsing module text into AST
@@ -74,9 +74,9 @@ impl Interpreter {
     }
 
     /// Executes module into given environment
-    fn exec_module_into(&mut self, path: Utf8PathBuf, env: EnvRef) {
+    fn exec_module_into(&mut self, name: &str, content: &str, env: EnvRef) {
         // Loading module
-        let block = self.parse_module(&path);
+        let block = self.parse_module(name, content);
 
         // Pushing scope
         let previous = self.env.clone();
@@ -92,7 +92,7 @@ impl Interpreter {
     }
 
     /// Loads and executes module, if module with same name is not already executed.
-    pub fn interpret_module(&mut self, name: &str, path: Utf8PathBuf) -> MutRef<Module> {
+    pub fn interpret_module(&mut self, name: &str, content: &str) -> MutRef<Module> {
         // Checking module is already loaded
         match self.modules.get(&name) {
             // If already loaded, returning it
@@ -105,7 +105,7 @@ impl Interpreter {
                 // Registering module before executing it
                 self.modules.set(name.to_string(), module.clone());
                 // Executing module
-                self.exec_module_into(path.clone(), env);
+                self.exec_module_into(name, content, env);
                 // Done
                 module
             }

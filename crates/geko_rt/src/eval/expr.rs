@@ -1,22 +1,24 @@
 /// Imports
 use crate::{
-    rt::env::Environment,
-    rt::value::{Bound, Callable, Closure, Instance, Native, Type, Value},
     error::RuntimeError,
-    rt::flow::{ControlFlow, Flow},
     interpreter::Interpreter,
     refs::{EnvRef, MutRef, Ref},
+    rt::{
+        env::Environment,
+        flow::{ControlFlow, Flow},
+        value::{Bound, Callable, Closure, Instance, Native, Type, Value},
+    },
 };
 use geko_ast::{
     atom::{BinaryOp, Lit, UnaryOp},
     expr::Expression,
 };
-use geko_common::{bail, bug};
+use geko_common::{bail, bug, io::IO};
 use geko_lex::token::Span;
 use std::{cell::RefCell, collections::HashMap};
 
 /// Implementation
-impl Interpreter {
+impl<I: IO> Interpreter<I> {
     /// Evaluates literal expression
     pub(crate) fn eval_lit(&self, lit: &Lit) -> Flow<Value> {
         // Matching literal
@@ -417,7 +419,7 @@ impl Interpreter {
         self.env = EnvRef::new(RefCell::new(Environment::default()));
 
         // Executing
-        let result = (*native.function)(span, args);
+        let result = (*native.function)(&mut self.io, span, args);
 
         // Popping environment
         self.env = previous;

@@ -11,4 +11,3 @@ geko_ast = { path = "../geko_ast" }
 geko_sema = { path = "../geko_sema" }
 miette = { git = "https://github.com/geko-rs/miette", features = ["fancy"] }
 thiserror = "2.0.18"
-camino = "1.2.2"
