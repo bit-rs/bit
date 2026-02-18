@@ -70,7 +70,7 @@ impl<I: IO> Interpreter<I> {
     /// Executes type statement
     fn exec_type_decl(
         &mut self,
-        span: &Span,
+        name_span: &Span,
         name: &str,
         methods: &Vec<atom::Function>,
     ) -> Flow<()> {
@@ -94,7 +94,7 @@ impl<I: IO> Interpreter<I> {
         // Defining type in the environment
         self.env
             .borrow_mut()
-            .define(span, &name, Value::Type(type_ref));
+            .define(name_span, &name, Value::Type(type_ref));
 
         Ok(())
     }
@@ -375,10 +375,11 @@ impl<I: IO> Interpreter<I> {
                 else_,
             } => self.exec_if(span, condition, then, else_),
             Statement::Type {
-                span,
+                name_span,
                 name,
                 methods,
-            } => self.exec_type_decl(span, name, &methods),
+                ..
+            } => self.exec_type_decl(name_span, name, &methods),
             Statement::Function(function) => self.exec_function_decl(&function),
             Statement::Let { span, name, value } => self.exec_let_decl(span, name, value),
             Statement::Assign {

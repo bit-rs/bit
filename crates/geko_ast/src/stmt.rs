@@ -44,6 +44,7 @@ pub enum Statement {
     // Type declaration
     Type {
         span: Span,
+        name_span: Span,
         name: String,
         methods: Vec<Function>,
     },
