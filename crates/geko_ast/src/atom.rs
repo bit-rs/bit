@@ -97,6 +97,8 @@ pub enum Lit {
 pub struct Function {
     /// Function span
     pub span: Span,
+    /// Function signature span
+    pub sign_span: Span,
     /// Function name
     pub name: String,
     /// Function parameters

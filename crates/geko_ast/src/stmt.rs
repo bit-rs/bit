@@ -119,5 +119,6 @@ impl Statement {
 /// Represents block
 #[derive(Debug, Clone)]
 pub struct Block {
+    pub span: Span,
     pub statements: Vec<Statement>,
 }
