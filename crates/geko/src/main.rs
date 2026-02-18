@@ -4,7 +4,8 @@ mod io;
 /// Imports
 use crate::io::CliIO;
 use camino::Utf8PathBuf;
-use geko_rt::{interpreter::Interpreter, io::IO};
+use geko_common::io::IO;
+use geko_rt::interpreter::Interpreter;
 
 fn main() {
     let _ = miette::set_hook(Box::new(|_| {

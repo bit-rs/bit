@@ -130,7 +130,9 @@ dependencies = [
 name = "geko_common"
 version = "0.1.0"
 dependencies = [
+ "camino",
  "miette",
+ "thiserror",
 ]
 
 [[package]]
@@ -158,7 +160,6 @@ dependencies = [
 name = "geko_rt"
 version = "0.1.0"
 dependencies = [
- "camino",
  "geko_ast",
  "geko_common",
  "geko_lex",
