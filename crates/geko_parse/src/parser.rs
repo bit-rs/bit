@@ -8,7 +8,7 @@ use geko_ast::{
 use geko_common::bail;
 use geko_lex::{
     lexer::Lexer,
-    token::{Token, TokenKind},
+    token::{Span, Token, TokenKind},
 };
 use miette::NamedSource;
 use std::sync::Arc;
@@ -51,11 +51,28 @@ impl<'s> Parser<'s> {
 
     /// Parses module
     pub fn parse(&mut self) -> Block {
-        let mut statements = Vec::new();
-        while self.current.is_some() {
-            statements.push(self.stmt())
+        // If end of file
+        if self.current.is_none() {
+            Block {
+                span: Span(self.source.clone(), (0..0).into()),
+                statements: Vec::new(),
+            }
         }
-        Block { statements }
+        // Else
+        else {
+            // Parsing statements
+            let start_span = self.peek().span.clone();
+            let mut statements = Vec::new();
+            while self.current.is_some() {
+                statements.push(self.stmt());
+            }
+            let end_span = self.prev().span.clone();
+
+            Block {
+                span: start_span + end_span,
+                statements,
+            }
+        }
     }
 
     /// Range parsing
@@ -347,12 +364,19 @@ impl<'s> Parser<'s> {
     /// Block parsing
     fn block(&mut self) -> Block {
         let mut statements = Vec::new();
+
+        let start_span = self.peek().span.clone();
         self.expect(TokenKind::Lbrace);
         while !self.check(TokenKind::Rbrace) {
             statements.push(self.stmt());
         }
         self.expect(TokenKind::Rbrace);
-        Block { statements }
+        let end_span = self.peek().span.clone();
+
+        Block {
+            span: start_span + end_span,
+            statements,
+        }
     }
 
     /// Sep by parsing
@@ -474,6 +498,9 @@ impl<'s> Parser<'s> {
         // Parsing params
         let params = self.params();
 
+        // Signature span
+        let sign_span = start_span.clone() + self.prev().span.clone();
+
         // Parsing block
         let block = self.block();
 
@@ -484,6 +511,7 @@ impl<'s> Parser<'s> {
         Function {
             name,
             span: start_span + end_span,
+            sign_span,
             params,
             block,
         }
