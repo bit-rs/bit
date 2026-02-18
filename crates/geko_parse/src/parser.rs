@@ -371,7 +371,7 @@ impl<'s> Parser<'s> {
             statements.push(self.stmt());
         }
         self.expect(TokenKind::Rbrace);
-        let end_span = self.peek().span.clone();
+        let end_span = self.prev().span.clone();
 
         Block {
             span: start_span + end_span,

@@ -1,8 +1,11 @@
 ---
 source: crates/geko_tests/src/parse.rs
-expression: "format! (\"{:#?}\", parser.parse())"
+expression: result
 ---
 Block {
+    span: Span(
+        9..147,
+    ),
     statements: [
         Assign {
             span: Span(
