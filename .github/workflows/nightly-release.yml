@@ -5,18 +5,52 @@ on:
   schedule:
     - cron: '0 3 * * *'
 
+env:
+  PROJECT_NAME: geko
+
 jobs:
-  build:
+
+  # ----------------------------
+  # ✨ Release preparation
+  # ----------------------------
+  prepare-release:
     runs-on: ubuntu-latest
+    outputs:
+      NIGHTLY_TAG: ${{ steps.set-vars.outputs.NIGHTLY_TAG }}
+      NIGHTLY_TITLE: ${{ steps.set-vars.outputs.NIGHTLY_TITLE }}
 
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
 
       - name: Set nightly version
+        id: set-vars
         run: |
-          echo "NIGHTLY_TAG=nightly-$(date +'%Y-%m-%d-%H-%M-%S')" >> $GITHUB_ENV
-          echo "NIGHTLY_TITLE=🌛 Nightly Build $(date +'%Y-%m-%d %H:%M')" >> $GITHUB_ENV
+          NIGHTLY_TAG="nightly-$(date +'%Y-%m-%d-%H-%M-%S')"
+          NIGHTLY_TITLE="🌛 Nightly Build $(date +'%Y-%m-%d %H:%M')"
+          echo "NIGHTLY_TAG=$NIGHTLY_TAG" >> $GITHUB_ENV
+          echo "NIGHTLY_TITLE=$NIGHTLY_TITLE" >> $GITHUB_ENV
+          echo "::set-output name=NIGHTLY_TAG::$NIGHTLY_TAG"
+          echo "::set-output name=NIGHTLY_TITLE::$NIGHTLY_TITLE"
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.set-vars.outputs.NIGHTLY_TAG }}
+          name: ${{ steps.set-vars.outputs.NIGHTLY_TITLE }}
+          draft: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
+
+
+  # ----------------------------
+  # 🐧 Linux builds
+  # ----------------------------
+  build-linux:
+    runs-on: ubuntu-latest
+    needs: prepare-release
+
+    steps:
+      - uses: actions/checkout@v3
 
       - name: Install Rust nightly
         uses: actions-rs/toolchain@v1
@@ -27,7 +61,7 @@ jobs:
       - name: Install cross
         run: cargo install cross
 
-      - name: Build binaries
+      - name: Build Linux binaries
         run: |
           mkdir -p release
           targets=(
@@ -39,14 +73,77 @@ jobs:
           for t in "${targets[@]}"; do
             echo "Building $t..."
             cross build --release --target $t
-            cp target/$t/release/geko release/geko-$t
+            cp target/$t/release/${PROJECT_NAME} release/${PROJECT_NAME}-$t
           done
 
-      - name: Create GitHub Release
+      - name: Upload Linux binaries to release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ env.NIGHTLY_TAG }}
-          name: ${{ env.NIGHTLY_TITLE }}
+          tag_name: ${{ needs.prepare-release.outputs.NIGHTLY_TAG }}
+          files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
+
+
+  # ----------------------------
+  # 🪟 Windows builds
+  # ----------------------------
+  build-windows:
+    runs-on: windows-latest
+    needs: prepare-release
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+
+      - name: Build Windows binaries
+        run: |
+          cargo build --release --target x86_64-pc-windows-msvc
+          mkdir release
+          copy target\x86_64-pc-windows-msvc\release\geko.exe release\geko-x86_64-pc-windows-msvc.exe
+
+      - name: Upload Windows binaries to release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.prepare-release.outputs.NIGHTLY_TAG }}
+          files: release/*
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
+
+
+  # ----------------------------
+  # 🍎 macOS builds
+  # ----------------------------
+  build-macos:
+    runs-on: macos-latest
+    needs: prepare-release
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust nightly
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+
+      - name: Build macOS binaries
+        run: |
+          mkdir -p release
+          cargo build --release --target x86_64-apple-darwin
+          cargo build --release --target aarch64-apple-darwin
+          cp target/x86_64-apple-darwin/release/geko release/geko-x86_64-apple-darwin
+          cp target/aarch64-apple-darwin/release/geko release/geko-aarch64-apple-darwin
+
+      - name: Upload macOS binaries to release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ needs.prepare-release.outputs.NIGHTLY_TAG }}
           files: release/*
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
