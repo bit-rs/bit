@@ -2,6 +2,7 @@
 mod core;
 mod math;
 mod mods;
+mod is;
 
 /// Imports
 use crate::{

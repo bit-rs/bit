@@ -21,7 +21,7 @@ impl IO for CliIO {
 
     // Output implementation
     fn output(&self, text: &str) {
-        println!("{text}");
+        print!("{text}");
     }
 
     // Read implementation
