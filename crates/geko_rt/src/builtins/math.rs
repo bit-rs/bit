@@ -86,10 +86,15 @@ fn pow() -> Ref<Native> {
                 Value::Int(b) => {
                     // Positive exp
                     if *b >= 0 {
-                        Value::Int(
-                            a.checked_pow(*b as u32)
-                                .expect("Переполнение при возведении в степень"),
-                        )
+                        match a.checked_pow(*b as u32) {
+                            Some(result) => Value::Int(result),
+                            None => bail!(RuntimeError::Bail {
+                                text: "integer overflow in exponentiation".to_string(),
+                                src: span.0.clone(),
+                                span: span.1.clone().into()
+                            }),
+                        }
+                    }
                     }
                     // Negative exp
                     else {
