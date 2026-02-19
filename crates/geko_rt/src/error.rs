@@ -116,4 +116,14 @@ pub enum RuntimeError {
         #[label("here...")]
         span: SourceSpan,
     },
+    /// Bail
+    #[error("bail: {text}")]
+    #[diagnostic(code(rt::bail))]
+    Bail {
+        text: String,
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("bail occured here...")]
+        span: SourceSpan,
+    },
 }
