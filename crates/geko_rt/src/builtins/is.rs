@@ -88,7 +88,7 @@ fn instance() -> Ref<Native> {
     return Ref::new(Native {
         arity: 1,
         function: Box::new(|_, _, values| match values.get(0).unwrap() {
-            Value::Module(_) => Value::Bool(true),
+            Value::Instance(_) => Value::Bool(true),
             _ => Value::Bool(false),
         }),
     });
