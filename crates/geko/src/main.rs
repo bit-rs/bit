@@ -20,7 +20,7 @@ fn main() {
         )
     }));
     let io = CliIO;
-    let path = Utf8PathBuf::from("/home/vyacheslav/geko/examples/math/a.gk");
+    let path = Utf8PathBuf::from("/home/vyacheslav/geko/examples/is/test.gk");
     let code = io.read(&path);
     let mut interpreter = Interpreter::new(io);
     let _ = interpreter.interpret_module("a", &code);
