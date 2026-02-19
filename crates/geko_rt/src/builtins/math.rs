@@ -84,21 +84,40 @@ fn pow() -> Ref<Native> {
             Value::Int(a) => match values.get(1).unwrap() {
                 // Int exp
                 Value::Int(b) => {
-                    // Positive exp
+                    use std::convert::TryInto;
+
+                    // Positive exponent
                     if *b >= 0 {
-                        match a.checked_pow(*b as u32) {
+                        // Safe cast
+                        let b_u32: u32 = (*b).try_into().unwrap_or_else(|_| {
+                            bail!(RuntimeError::Bail {
+                                text: format!("exponent {} is too large", b),
+                                src: span.0.clone(),
+                                span: span.1.clone().into(),
+                            })
+                        });
+
+                        match a.checked_pow(b_u32) {
                             Some(result) => Value::Int(result),
                             None => bail!(RuntimeError::Bail {
-                                text: "integer overflow in exponentiation".to_string(),
+                                text: "int overflow in exp".to_string(),
                                 src: span.0.clone(),
                                 span: span.1.clone().into()
                             }),
                         }
                     }
-                    }
-                    // Negative exp
+                    // Negative exponent
                     else {
-                        Value::Float((*a as f64).powi(*b as i32))
+                        // Safe cast
+                        let b_i32: i32 = (*b).try_into().unwrap_or_else(|_| {
+                            bail!(RuntimeError::Bail {
+                                text: format!("exponent {} is too small", b),
+                                src: span.0.clone(),
+                                span: span.1.clone().into(),
+                            })
+                        });
+
+                        Value::Float((*a as f64).powi(b_i32))
                     }
                 }
                 // Float exp
