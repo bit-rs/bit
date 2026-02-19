@@ -108,7 +108,8 @@ fn type_of() -> Ref<Native> {
     });
 }
 
-/// Provides math module env
+/// Provides is module env
+pub fn provide_env() -> EnvRef {
 pub fn provide_env() -> EnvRef {
     let mut env = Environment::default();
     env.force_define("int", Value::Callable(Callable::Native(int())));
