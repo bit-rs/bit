@@ -123,7 +123,7 @@ pub enum RuntimeError {
         text: String,
         #[source_code]
         src: Arc<NamedSource<String>>,
-        #[label("bail occured here...")]
+        #[label("bail occurred here...")]
         span: SourceSpan,
     },
 }
