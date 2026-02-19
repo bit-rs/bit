@@ -1,5 +1,3 @@
-use geko_common::bail;
-
 /// Imports
 use crate::{
     error::RuntimeError,
@@ -9,6 +7,7 @@ use crate::{
         value::{Callable, Native, Value},
     },
 };
+use geko_common::bail;
 use std::{cell::RefCell, rc::Rc};
 
 /// Math sin

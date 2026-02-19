@@ -90,6 +90,11 @@ pub enum Statement {
         path: String,
         kind: UsageKind,
     },
+    // Bail statement
+    Bail {
+        span: Span,
+        message: Expression,
+    },
 }
 
 /// Implementation
@@ -112,7 +117,8 @@ impl Statement {
             | Statement::Return { .. }
             | Statement::Expr(_)
             | Statement::Set { .. }
-            | Statement::Use { .. } => true,
+            | Statement::Use { .. }
+            | Statement::Bail { .. } => true,
         }
     }
 }
