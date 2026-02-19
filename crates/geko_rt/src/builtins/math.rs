@@ -167,10 +167,10 @@ fn atg2() -> Ref<Native> {
         arity: 2,
         function: Box::new(|_, span, values| {
             match (values.get(0).unwrap(), values.get(1).unwrap()) {
-                (Value::Int(x), Value::Int(y)) => Value::Float(f64::atan2(*x as f64, *y as f64)),
-                (Value::Int(x), Value::Float(y)) => Value::Float(f64::atan2(*x as f64, *y)),
-                (Value::Float(x), Value::Int(y)) => Value::Float(f64::atan2(*x, *y as f64)),
-                (Value::Float(x), Value::Float(y)) => Value::Float(f64::atan2(*x, *y)),
+                (Value::Int(x), Value::Int(y)) => Value::Float(f64::atan2(*y as f64, *x as f64)),
+                (Value::Int(x), Value::Float(y)) => Value::Float(f64::atan2(*y, *x as f64)),
+                (Value::Float(x), Value::Int(y)) => Value::Float(f64::atan2(*y as f64, *x)),
+                (Value::Float(x), Value::Float(y)) => Value::Float(f64::atan2(*y, *x)),
                 _ => bail!(RuntimeError::Bail {
                     text: "not a number".to_string(),
                     src: span.0.clone(),
