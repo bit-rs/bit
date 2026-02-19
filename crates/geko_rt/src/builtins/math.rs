@@ -281,32 +281,26 @@ fn cbrt() -> Ref<Native> {
 fn log() -> Ref<Native> {
     return Ref::new(Native {
         arity: 2,
-        function: Box::new(|_, span, values| match values.get(0).unwrap() {
-            // Int log
-            Value::Int(a) => match values.get(1).unwrap() {
-                Value::Int(b) => Value::Int(a.ilog(*b) as i64),
-                Value::Float(b) => Value::Int(a.ilog(*b as i64) as i64),
+        function: Box::new(|_, span, values| {
+            let a = match values.get(0).unwrap() {
+                Value::Int(i) => *i as f64,
+                Value::Float(f) => *f,
                 _ => bail!(RuntimeError::Bail {
                     text: "not a number".to_string(),
                     src: span.0.clone(),
                     span: span.1.clone().into()
                 }),
-            },
-            // Float log
-            Value::Float(a) => match values.get(1).unwrap() {
-                Value::Int(b) => Value::Float(a.log(*b as f64)),
-                Value::Float(b) => Value::Float(a.log(*b)),
+            };
+            let b = match values.get(1).unwrap() {
+                Value::Int(i) => *i as f64,
+                Value::Float(f) => *f,
                 _ => bail!(RuntimeError::Bail {
                     text: "not a number".to_string(),
                     src: span.0.clone(),
                     span: span.1.clone().into()
                 }),
-            },
-            _ => bail!(RuntimeError::Bail {
-                text: "not a number".to_string(),
-                src: span.0.clone(),
-                span: span.1.clone().into()
-            }),
+            };
+            Value::Float(a.log(b))
         }),
     });
 }
