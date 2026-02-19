@@ -22,6 +22,7 @@ pub enum TokenKind {
     Break,       // `break` keyword
     As,          // `as` keyword
     Fn,          // `fn` keyword
+    Bail,        // `bail` keyword
     Comma,       // ,
     Dot,         // .
     Lbrace,      // {

@@ -364,6 +364,16 @@ impl<I: IO> Interpreter<I> {
         Ok(())
     }
 
+    /// Executes bail
+    fn exec_bail(&mut self, span: &Span, message: &Expression) -> Flow<()> {
+        let text = self.eval(message)?;
+        bail!(RuntimeError::Bail {
+            text: format!("{text}"),
+            src: span.0.clone(),
+            span: span.1.clone().into()
+        })
+    }
+
     /// Executes statement
     pub fn exec(&mut self, stmt: &Statement) -> Flow<()> {
         // Matching statement
@@ -409,6 +419,7 @@ impl<I: IO> Interpreter<I> {
             }
             Statement::Block(block) => self.exec_block(block, true),
             Statement::Use { span, path, kind } => self.exec_use(span, path, kind),
+            Statement::Bail { span, message } => self.exec_bail(span, message),
             Statement::For { .. } => todo!(),
         }
     }
