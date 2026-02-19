@@ -4,10 +4,20 @@ mod io;
 /// Imports
 use crate::io::CliIO;
 use camino::Utf8PathBuf;
+use clap::Parser;
 use geko_common::io::IO;
 use geko_rt::interpreter::Interpreter;
 
-fn main() {
+/// Arguments parser
+#[derive(Parser, Debug)]
+#[command(version, about, long_about = None)]
+struct Args {
+    /// Path to the file
+    path: Utf8PathBuf,
+}
+
+/// Prepares miette
+fn prepare_miette() {
     let _ = miette::set_hook(Box::new(|_| {
         Box::new(
             miette::MietteHandlerOpts::new()
@@ -19,9 +29,21 @@ fn main() {
                 .build(),
         )
     }));
+}
+
+/// Main
+fn main() {
+    // Preparing miette
+    prepare_miette();
+
+    // Parsing arguments
+    let path = Args::parse().path;
+
+    // Preparing IO
     let io = CliIO;
-    let path = Utf8PathBuf::from("/home/vyacheslav/geko/examples/is/test.gk");
+
+    // Interpreting
     let code = io.read(&path);
     let mut interpreter = Interpreter::new(io);
-    let _ = interpreter.interpret_module("a", &code);
+    let _ = interpreter.interpret_module(path.file_stem().unwrap_or("<unknown>"), &code);
 }
