@@ -386,11 +386,36 @@ fn clamp() -> Ref<Native> {
         function: Box::new(|_, span, values| match values.get(0).unwrap() {
             // Int clamp
             Value::Int(x) => match (values.get(1).unwrap(), values.get(2).unwrap()) {
-                (Value::Int(a), Value::Int(b)) => Value::Int(*x.clamp(a, b)),
-                (Value::Int(a), Value::Float(b)) => Value::Int(*x.clamp(a, &(*b as i64))),
-                (Value::Float(a), Value::Int(b)) => Value::Int(*x.clamp(&(*a as i64), b)),
+                (Value::Int(a), Value::Int(b)) => {
+                    if a > b {
+                        bail!(RuntimeError::Bail {
+                            text: "clamp: min must be <= max".to_string(),
+                            src: span.0.clone(),
+                            span: span.1.clone().into()
+                        })
+                    }
+                    Value::Int(*x.clamp(a, b))
+                }
+                (Value::Int(a), Value::Float(b)) | (Value::Float(b), Value::Int(a)) => {
+                    let (min, max) = (*a as f64, *b);
+                    if min > max {
+                        bail!(RuntimeError::Bail {
+                            text: "clamp: min must be <= max".to_string(),
+                            src: span.0.clone(),
+                            span: span.1.clone().into()
+                        })
+                    }
+                    Value::Float((*x as f64).clamp(min, max))
+                }
                 (Value::Float(a), Value::Float(b)) => {
-                    Value::Int(*x.clamp(&(*a as i64), &(*b as i64)))
+                    if a > b {
+                        bail!(RuntimeError::Bail {
+                            text: "clamp: min must be <= max".to_string(),
+                            src: span.0.clone(),
+                            span: span.1.clone().into()
+                        })
+                    }
+                    Value::Float((*x as f64).clamp(*a, *b))
                 }
                 _ => bail!(RuntimeError::Bail {
                     text: "not a number".to_string(),
@@ -400,10 +425,37 @@ fn clamp() -> Ref<Native> {
             },
             // Float clamp
             Value::Float(x) => match (values.get(1).unwrap(), values.get(2).unwrap()) {
-                (Value::Int(a), Value::Int(b)) => Value::Float(x.clamp((*a) as f64, (*b) as f64)),
-                (Value::Int(a), Value::Float(b)) => Value::Float(x.clamp((*a) as f64, *b)),
-                (Value::Float(a), Value::Int(b)) => Value::Float(x.clamp(*a, (*b) as f64)),
-                (Value::Float(a), Value::Float(b)) => Value::Float(x.clamp(*a, *b)),
+                (Value::Int(a), Value::Int(b)) => {
+                    if a > b {
+                        bail!(RuntimeError::Bail {
+                            text: "clamp: min must be <= max".to_string(),
+                            src: span.0.clone(),
+                            span: span.1.clone().into()
+                        })
+                    }
+                    Value::Float(x.clamp(*a as f64, *b as f64))
+                }
+                (Value::Int(a), Value::Float(b)) | (Value::Float(b), Value::Int(a)) => {
+                    let (min, max) = (*a as f64, *b);
+                    if min > max {
+                        bail!(RuntimeError::Bail {
+                            text: "clamp: min must be <= max".to_string(),
+                            src: span.0.clone(),
+                            span: span.1.clone().into()
+                        })
+                    }
+                    Value::Float(x.clamp(min, max))
+                }
+                (Value::Float(a), Value::Float(b)) => {
+                    if a > b {
+                        bail!(RuntimeError::Bail {
+                            text: "clamp: min must be <= max".to_string(),
+                            src: span.0.clone(),
+                            span: span.1.clone().into()
+                        })
+                    }
+                    Value::Float(x.clamp(*a, *b))
+                }
                 _ => bail!(RuntimeError::Bail {
                     text: "not a number".to_string(),
                     src: span.0.clone(),
@@ -472,7 +524,14 @@ fn abs() -> Ref<Native> {
     return Ref::new(Native {
         arity: 1,
         function: Box::new(|_, span, values| match values.get(0).unwrap() {
-            Value::Int(int) => Value::Int(int.abs()),
+            Value::Int(int) => match int.checked_abs() {
+                Some(result) => Value::Int(result),
+                None => bail!(RuntimeError::Bail {
+                    text: "int overflow in abs".to_string(),
+                    src: span.0.clone(),
+                    span: span.1.clone().into()
+                }),
+            },
             Value::Float(float) => Value::Float(float.abs()),
             _ => bail!(RuntimeError::Bail {
                 text: "not a number".to_string(),
