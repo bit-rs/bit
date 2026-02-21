@@ -1,7 +1,8 @@
 /// Imports
 use std::{
     fmt::Debug,
-    ops::{Add, Range}, sync::Arc,
+    ops::{Add, Range},
+    sync::Arc,
 };
 
 use miette::NamedSource;
@@ -59,6 +60,7 @@ pub enum TokenKind {
     PercentEq,   // %=
     BarEq,       // |=
     AmpersandEq, // &=
+    Arrow,       // ->
     DoubleDot,   // ..
     Number,      // any number
     String,      // "quoted text"

@@ -436,6 +436,7 @@ impl<'s> Iterator for Lexer<'s> {
             (Some('.'), Some('.')) => Some(self.advance_twice_with(TokenKind::DoubleDot, "..")),
             (Some('>'), Some('=')) => Some(self.advance_twice_with(TokenKind::Ge, ">=")),
             (Some('<'), Some('=')) => Some(self.advance_twice_with(TokenKind::Le, "<=")),
+            (Some('-'), Some('>')) => Some(self.advance_twice_with(TokenKind::Arrow, "->")),
             (Some('&'), _) => Some(self.advance_with(TokenKind::Ampersand, "&")),
             (Some('|'), _) => Some(self.advance_with(TokenKind::Bar, "|")),
             (Some('^'), _) => Some(self.advance_with(TokenKind::Caret, "^")),
