@@ -1,5 +1,5 @@
 /// Imports
-use crate::atom::{Param, TypeHint};
+use crate::{atom::{Param, TypeHint}, stmt::Block};
 use common::token::Span;
 
 /// Represents struct field
@@ -40,13 +40,19 @@ pub struct Function {
     pub name: String,
     pub generics: Vec<String>,
     pub params: Vec<Param>,
+    pub block: Block,
 }
 
 /// Top-level item kind
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ItemKind {
+    /// Struct item
     Struct(Struct),
+    
+    /// Enum item
     Enum(Enum),
+    
+    /// Function item
     Function(Function),
 }
 
