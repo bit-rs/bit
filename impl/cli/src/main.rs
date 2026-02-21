@@ -20,6 +20,11 @@ fn main() {
 fn hello() {
     println("Hi!")
 }
+
+struct House {
+  street: u16,
+  id: u64,
+}
 "#;
     let file = Arc::new(NamedSource::new("test.b", sources.to_string()));
     let lexer = Lexer::new(file.clone(), sources);

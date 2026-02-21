@@ -7,9 +7,13 @@ use common::token::TokenKind;
 impl<'s> Parser<'s> {
     /// Parses generic args
     fn generic_args(&mut self) -> Vec<TypeHint> {
-        self.sep_by(TokenKind::Lt, TokenKind::Gt, TokenKind::Comma, |p| {
-            p.type_hint()
-        })
+        if self.check(TokenKind::Lt) {
+            self.sep_by(TokenKind::Lt, TokenKind::Gt, TokenKind::Comma, |p| {
+                p.type_hint()
+            })
+        } else {
+            Vec::new()
+        }
     }
 
     /// Parses generic params
