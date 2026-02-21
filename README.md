@@ -7,7 +7,7 @@
 
 ```bit
 fn main() {
-    let name = readln!("Your name?: ")
+    let name = readln!("Your name?: ");
     println!("Hello, " <> name);
 }
 ```
