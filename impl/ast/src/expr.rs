@@ -5,11 +5,8 @@ use common::token::Span;
 /// Literal
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Lit {
-    /// Int
-    Int(String),
-
-    /// Float
-    Float(String),
+    /// Number
+    Number(String),
 
     /// String
     String(String),
@@ -23,71 +20,71 @@ pub enum Lit {
 pub enum UnOp {
     // -
     Neg,
-    
+
     // !
     Bang,
-    
+
     // *
     Deref,
-    
+
     // &
     Ref,
-    
+
     // &mut
-    MutRef
+    MutRef,
 }
 
 /// Binary operation
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum BinOp {
     // +
-    Plus,
-    
+    Add,
+
     // -
     Sub,
-    
+
     // *
     Mul,
-    
+
     // /
     Div,
-    
+
     // %
     Mod,
-    
+
     // &&
     And,
-    
+
     // ||
     Or,
-    
+
     // &
     BitAnd,
-    
+
     // |
     BitOr,
-    
+
     // ^
     Xor,
-    
+
     // ==
     Eq,
-    
+
     // !=
     Ne,
-    
+
     // >=
     Ge,
-    
+
     // <=
     Le,
-    
+
     // >
     Gt,
-    
+
     // <
     Lt,
-    
+
     // <>
     Concat,
 }

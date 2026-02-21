@@ -26,26 +26,40 @@ impl<'s> Parser<'s> {
 
     /// Break statement
     fn break_stmt(&mut self) -> StmtKind {
+        // Bumping `break`
+        self.bump();
         StmtKind::Break
     }
 
     /// Continue statement
     fn continue_stmt(&mut self) -> StmtKind {
+        // Bumping `continue`
+        self.bump();
         StmtKind::Continue
     }
 
     /// Return statement
     fn return_stmt(&mut self) -> StmtKind {
-        let start_span = self.peek().span.clone();
-        self.expect(TokenKind::Return);
+        // Bumping `return`
+        self.bump();
+
         if self.check(TokenKind::Semi) {
-            let end_span = self.prev().span.clone();
             StmtKind::Return(None)
         } else {
             let value = self.expr();
-            let end_span = self.prev().span.clone();
             StmtKind::Return(Some(value))
         }
+    }
+
+    /// While statement
+    fn while_stmt(&mut self) -> StmtKind {
+        // Bumping `while`
+        self.bump();
+
+        let expr = self.expr();
+        let block = self.block();
+
+        StmtKind::While(expr, block)
     }
 
     /// Statement kind parsing
@@ -71,7 +85,7 @@ impl<'s> Parser<'s> {
     }
 
     /// Satement parsing
-    fn stmt(&mut self) -> StmtKind {}
+    fn stmt(&mut self) -> Stmt {}
 
     /// Block parsing
     pub fn block(&mut self) -> Block {
