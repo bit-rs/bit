@@ -3,11 +3,12 @@
 
 ### Examples
 
-`!` after identifier means it is an intrisic.
+`!` after identifier means it is an intrinsic.
 
 ```bit
 fn main() {
-    println!("Hello, world!");
+    let name = readln!("Your name?: ")
+    println!("Hello, " <> name);
 }
 ```
 
