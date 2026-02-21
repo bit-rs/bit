@@ -15,7 +15,7 @@ pub enum Lit {
     String(String),
 
     /// Bool
-    Bool(String),
+    Bool(bool),
 }
 
 /// Unary operation
