@@ -1,6 +1,6 @@
 /// Imports
 use crate::{Parser, errors::ParseError};
-use ast::expr::{BinOp, Expr, ExprKind, Lit, UnOp};
+use ast::expr::{AssignOp, BinOp, Expr, ExprKind, Lit, UnOp};
 use common::token::{Span, TokenKind};
 use macros::{bail, bug};
 
@@ -68,6 +68,76 @@ impl<'s> Parser<'s> {
         result
     }
 
+    /// If expression parsing
+    fn if_expr(&mut self) -> Expr {
+        // Bumping `if`
+        let start_span = self.peek().span.clone();
+        self.bump();
+
+        // Parsing if block
+        let expr = self.expr();
+        let block = {
+            let block = self.block();
+            self.mk_expr(block.span.clone(), ExprKind::Block(Box::new(block)))
+        };
+
+        // Parsing else block
+        if self.check(TokenKind::Else) {
+            self.bump();
+
+            let branch = if self.check(TokenKind::If) {
+                self.if_expr()
+            } else {
+                let block = self.block();
+                self.mk_expr(block.span.clone(), ExprKind::Block(Box::new(block)))
+            };
+
+            let end_span = self.prev().span.clone();
+            self.mk_expr(
+                start_span + end_span,
+                ExprKind::If(Box::new(expr), Box::new(block), Some(Box::new(branch))),
+            )
+        } else {
+            let end_span = self.prev().span.clone();
+            self.mk_expr(
+                start_span + end_span,
+                ExprKind::If(Box::new(expr), Box::new(block), None),
+            )
+        }
+    }
+
+    /// Closure expression parsing
+    fn closure_expr(&mut self) -> Expr {
+        let start_span = self.peek().span.clone();
+
+        // If arguments presented
+        if self.check(TokenKind::Bar) {
+            // Collecting params
+            let params = self.sep_by(TokenKind::Bar, TokenKind::Bar, TokenKind::Comma, |p| {
+                p.expect(TokenKind::Id).lexeme
+            });
+
+            let body = self.expr();
+            let end_span = self.prev().span.clone();
+
+            self.mk_expr(
+                start_span + end_span,
+                ExprKind::Closure(params, Box::new(body)),
+            )
+        } else {
+            // Bumping double bar `||`
+            self.bump();
+
+            let body = self.expr();
+            let end_span = self.prev().span.clone();
+
+            self.mk_expr(
+                start_span + end_span,
+                ExprKind::Closure(Vec::new(), Box::new(body)),
+            )
+        }
+    }
+
     /// Atom expression parsing
     fn atom(&mut self) -> Expr {
         let tk = self.peek().clone();
@@ -93,6 +163,8 @@ impl<'s> Parser<'s> {
                 )
             }
             TokenKind::Id => self.variable(),
+            TokenKind::If => self.if_expr(),
+            TokenKind::Bar | TokenKind::DoubleBar => self.closure_expr(),
             _ => bail!(ParseError::UnexpectedExprToken {
                 got: tk.kind,
                 src: self.source.clone(),
@@ -340,8 +412,47 @@ impl<'s> Parser<'s> {
         left
     }
 
+    /// `Assign` expression parsing
+    fn assign_expr(&mut self) -> Expr {
+        let start_span = self.peek().span.clone();
+        let mut left = self.logical_or_expr();
+
+        while self.check(TokenKind::Eq)
+            | self.check(TokenKind::AmpersandEq)
+            | self.check(TokenKind::BarEq)
+            | self.check(TokenKind::PlusEq)
+            | self.check(TokenKind::MinusEq)
+            | self.check(TokenKind::StarEq)
+            | self.check(TokenKind::SlashEq)
+            | self.check(TokenKind::PercentEq)
+            | self.check(TokenKind::CaretEq)
+        {
+            let op = match self.bump().kind {
+                TokenKind::Eq => AssignOp::Eq,
+                TokenKind::AmpersandEq => AssignOp::AndEq,
+                TokenKind::BarEq => AssignOp::OrEq,
+                TokenKind::PlusEq => AssignOp::AddEq,
+                TokenKind::MinusEq => AssignOp::SubEq,
+                TokenKind::StarEq => AssignOp::MulEq,
+                TokenKind::SlashEq => AssignOp::DivEq,
+                TokenKind::PercentEq => AssignOp::ModEq,
+                TokenKind::CaretEq => AssignOp::XorEq,
+                _ => unreachable!(),
+            };
+
+            let right = self.logical_or_expr();
+            let end_span = self.prev().span.clone();
+
+            left = self.mk_expr(
+                start_span.clone() + end_span,
+                ExprKind::Assign(Box::new(left), op, Box::new(right)),
+            )
+        }
+
+        left
+    }
     /// Parses expression
     pub fn expr(&mut self) -> Expr {
-        self.logical_or_expr()
+        self.assign_expr()
     }
 }

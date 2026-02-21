@@ -21,10 +21,10 @@ pub enum ParseError {
         prev: SourceSpan,
     },
     /// Unexpected expr token
-    #[error("unexpected expression token `{got:?}`.")]
+    #[error("unexpected expression token `{got:?}`")]
     #[diagnostic(
         code(parse::unexpected_expr_tk),
-        help("token {got:?} can't be start of the expression.")
+        help("token {got:?} can't be start of the expression")
     )]
     UnexpectedExprToken {
         got: TokenKind,
@@ -34,10 +34,10 @@ pub enum ParseError {
         span: SourceSpan,
     },
     /// Unexpected item token
-    #[error("unexpected item token `{got:?}`.")]
+    #[error("unexpected item token `{got:?}`")]
     #[diagnostic(
         code(parse::unexpected_item_tk),
-        help("token {got:?} can't be start of the top-level item.")
+        help("token {got:?} can't be start of the top-level item")
     )]
     UnexpectedItemToken {
         got: TokenKind,
@@ -47,7 +47,7 @@ pub enum ParseError {
         span: SourceSpan,
     },
     /// Unexpected end of file
-    #[error("unexpected end of file.")]
+    #[error("unexpected end of file")]
     #[diagnostic(code(parse::unexpected_eof))]
     UnexpectedEof {
         #[source_code]
@@ -55,16 +55,16 @@ pub enum ParseError {
         #[label("while parsing that...")]
         span: SourceSpan,
     },
-    /// Invalid usage of assignment operator
-    #[error("invalid use of assignment operator.")]
+    /// Expected semicolon
+    #[error("expected semicolon after non-closing statement")]
     #[diagnostic(
-        code(lex::invalid_use_of_assignment_op),
-        help("assignment op-s can be used only with variable expressions.")
+        code(parse::expected_semicolon),
+        help("the semicolon can be omitted only after last statement in the block")
     )]
-    InvalidUseOfAssignOp {
+    ExpectedSemicolon {
         #[source_code]
         src: Arc<NamedSource<String>>,
-        #[label("variable expression was expected.")]
-        first_span: SourceSpan,
+        #[label("expected semicolon after that")]
+        span: SourceSpan,
     },
 }

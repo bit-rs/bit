@@ -1,5 +1,5 @@
 /// Imports
-use crate::{atom::Mutability, expr::Expr, pat::Pat};
+use crate::{atom::Mutability, expr::Expr};
 use common::token::Span;
 
 /// For range
@@ -29,9 +29,6 @@ pub enum StmtKind {
     /// Let definition
     Let(String, Mutability, Expr),
 
-    /// Assignment
-    Assign(Pat, Expr),
-
     /// Return statement
     Return(Option<Expr>),
 
@@ -40,6 +37,21 @@ pub enum StmtKind {
 
     /// Expr with trailing semi-colon
     Semi(Expr),
+}
+
+/// Implementation
+impl StmtKind {
+    /// Returns true if statement requires semicolon after it
+    pub fn requires_semi(&self) -> bool {
+        match self {
+            StmtKind::Break
+            | StmtKind::Continue
+            | StmtKind::Let(_, _, _)
+            | StmtKind::Return(_)
+            | StmtKind::Semi(_) => true,
+            StmtKind::While(_, _) | StmtKind::For(_, _, _) | StmtKind::Expr(_) => false,
+        }
+    }
 }
 
 /// Represents statement
@@ -53,4 +65,5 @@ pub struct Stmt {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Block {
     pub stmts: Vec<Stmt>,
+    pub span: Span,
 }

@@ -15,7 +15,7 @@ impl<'s> Parser<'s> {
         let name = self.expect(TokenKind::Id).lexeme;
         self.expect(TokenKind::Colon);
         let hint = self.type_hint();
-        let end_span = self.peek().span.clone();
+        let end_span = self.prev().span.clone();
 
         Field {
             span: start_span + end_span,
@@ -62,7 +62,7 @@ impl<'s> Parser<'s> {
         } else {
             Vec::new()
         };
-        let end_span = self.peek().span.clone();
+        let end_span = self.prev().span.clone();
 
         Variant {
             span: start_span + end_span,

@@ -34,6 +34,37 @@ pub enum UnOp {
     MutRef,
 }
 
+/// Assignment operation
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum AssignOp {
+    // +=
+    AddEq,
+
+    // -=
+    SubEq,
+
+    // *=
+    MulEq,
+
+    // /=
+    DivEq,
+
+    // %=
+    ModEq,
+
+    // &=
+    AndEq,
+
+    // |=
+    OrEq,
+
+    // ^=
+    XorEq,
+
+    // =
+    Eq,
+}
+
 /// Binary operation
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum BinOp {
@@ -102,7 +133,7 @@ pub enum ExprKind {
     Bin(BinOp, Box<Expr>, Box<Expr>),
 
     /// If operation (condition, then, else)
-    If(Box<Expr>, Box<Expr>, Box<Expr>),
+    If(Box<Expr>, Box<Expr>, Option<Box<Expr>>),
 
     /// Call expr (e.g `foo(arg, arg, ..n)` )
     Call(Box<Expr>, Vec<Expr>),
@@ -118,6 +149,9 @@ pub enum ExprKind {
 
     /// Closure expr (e.g `|param, param, ..n| ...`)
     Closure(Vec<String>, Box<Expr>),
+
+    /// Assignment expr (e.g `a = b`)
+    Assign(Box<Expr>, AssignOp, Box<Expr>),
 
     /// Block
     Block(Box<Block>),

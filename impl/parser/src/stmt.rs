@@ -1,7 +1,11 @@
 /// Imports
-use crate::Parser;
-use ast::stmt::{Block, Range, StmtKind};
+use crate::{Parser, errors::ParseError};
+use ast::{
+    atom::Mutability,
+    stmt::{Block, Range, Stmt, StmtKind},
+};
 use common::token::TokenKind;
+use macros::bail;
 
 /// Implementation
 impl<'s> Parser<'s> {
@@ -15,11 +19,11 @@ impl<'s> Parser<'s> {
         if self.check(TokenKind::Eq) {
             self.bump();
             let to = self.expr();
-            let end_span = self.peek().span.clone();
+            let end_span = self.prev().span.clone();
             Range::IncludeLast(start_span + end_span, from, to)
         } else {
             let to = self.expr();
-            let end_span = self.peek().span.clone();
+            let end_span = self.prev().span.clone();
             Range::ExcludeLast(start_span + end_span, from, to)
         }
     }
@@ -62,21 +66,60 @@ impl<'s> Parser<'s> {
         StmtKind::While(expr, block)
     }
 
+    /// For statement
+    fn for_stmt(&mut self) -> StmtKind {
+        // Bumping `for`
+        self.bump();
+
+        let var = self.expect(TokenKind::Id).lexeme;
+        self.expect(TokenKind::In);
+        let range = self.range();
+        let block = self.block();
+
+        StmtKind::For(var, range, block)
+    }
+
+    /// Let statement
+    fn let_stmt(&mut self) -> StmtKind {
+        // Bumping `let`
+        self.bump();
+
+        // Checking binding mutability
+        let mutability = if self.check(TokenKind::Mut) {
+            self.bump();
+            Mutability::Mut
+        } else {
+            Mutability::Immut
+        };
+
+        let name = self.expect(TokenKind::Id).lexeme;
+        self.expect(TokenKind::Eq);
+        let expr = self.expr();
+
+        StmtKind::Let(name, mutability, expr)
+    }
+
     /// Statement kind parsing
     fn stmt_kind(&mut self) -> StmtKind {
         // Parsing statement
-        let kind = match self.peek().kind {
+        let tk = self.peek().clone();
+        let kind = match tk.kind {
             TokenKind::For => self.for_stmt(),
             TokenKind::While => self.while_stmt(),
-            TokenKind::If => self.if_stmt(),
             TokenKind::Let => self.let_stmt(),
             TokenKind::Return => self.return_stmt(),
             TokenKind::Continue => self.continue_stmt(),
             TokenKind::Break => self.break_stmt(),
-            TokenKind::Id => self.assignment(),
-            TokenKind::Use => self.use_stmt(),
-            _ => Statement::Expr(self.expr()),
+            _ if self.check(TokenKind::Semi) => StmtKind::Semi(self.expr()),
+            _ if self.check(TokenKind::Rbrace) || self.current.is_none() => {
+                StmtKind::Expr(self.expr())
+            }
+            _ => bail!(ParseError::ExpectedSemicolon {
+                src: self.source.clone(),
+                span: tk.span.1.into()
+            }),
         };
+
         // If statement requires semicolon
         if kind.requires_semi() {
             self.expect(TokenKind::Semi);
@@ -85,16 +128,32 @@ impl<'s> Parser<'s> {
     }
 
     /// Satement parsing
-    fn stmt(&mut self) -> Stmt {}
+    fn stmt(&mut self) -> Stmt {
+        let start_span = self.peek().span.clone();
+        let kind = self.stmt_kind();
+        let end_span = self.prev().span.clone();
+
+        Stmt {
+            span: start_span + end_span,
+            kind,
+        }
+    }
 
     /// Block parsing
     pub fn block(&mut self) -> Block {
+        let start_span = self.peek().span.clone();
         let mut stmts = Vec::new();
+
         self.expect(TokenKind::Lbrace);
         while !self.check(TokenKind::Rbrace) {
             stmts.push(self.stmt());
         }
         self.expect(TokenKind::Rbrace);
-        Block { stmts }
+        let end_span = self.prev().span.clone();
+
+        Block {
+            span: start_span + end_span,
+            stmts,
+        }
     }
 }
