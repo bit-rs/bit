@@ -66,6 +66,7 @@ version = "0.1.0"
 dependencies = [
  "lexer",
  "miette 7.6.0 (git+https://github.com/bit-rs/miette)",
+ "parser",
 ]
 
 [[package]]

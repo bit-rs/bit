@@ -451,6 +451,7 @@ impl<'s> Parser<'s> {
 
         left
     }
+
     /// Parses expression
     pub fn expr(&mut self) -> Expr {
         self.assign_expr()

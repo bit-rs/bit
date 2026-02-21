@@ -14,9 +14,13 @@ impl<'s> Parser<'s> {
 
     /// Parses generic params
     pub fn generic_params(&mut self) -> Vec<String> {
-        self.sep_by(TokenKind::Lt, TokenKind::Gt, TokenKind::Comma, |p| {
-            p.expect(TokenKind::Id).lexeme
-        })
+        if self.check(TokenKind::Lt) {
+            self.sep_by(TokenKind::Lt, TokenKind::Gt, TokenKind::Comma, |p| {
+                p.expect(TokenKind::Id).lexeme
+            })
+        } else {
+            Vec::new()
+        }
     }
 
     /// Parses params

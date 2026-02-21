@@ -2,6 +2,7 @@ use std::sync::Arc;
 
 use lexer::Lexer;
 use miette::NamedSource;
+use parser::Parser;
 
 fn main() {
     let _ = miette::set_hook(Box::new(|_| {
@@ -15,8 +16,13 @@ fn main() {
                 .build(),
         )
     }));
-    let sources = "1.3.2";
+    let sources = r#"
+fn hello() {
+    println("Hi!")
+}
+"#;
     let file = Arc::new(NamedSource::new("test.b", sources.to_string()));
-    let mut lexer = Lexer::new(file, sources);
-    println!("{:?}", lexer.next());
+    let lexer = Lexer::new(file.clone(), sources);
+    let mut parser = Parser::new(file, lexer);
+    println!("{:#?}", parser.parse());
 }
