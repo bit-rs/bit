@@ -1,4 +1,10 @@
-/// Parser converts a stream of tokens
+/// Imports
+use common::token::Token;
+use lexer::Lexer;
+use miette::NamedSource;
+use std::sync::Arc;
+
+/// Parser is struct that converts a stream of tokens
 /// produced by the lexer into an abstract syntax tree (AST).
 pub struct Parser<'s> {
     /// Named source of the file
@@ -646,7 +652,7 @@ impl<'s> Parser<'s> {
                     true
                 } else {
                     false
-
+                }
             }
             None => false,
         }

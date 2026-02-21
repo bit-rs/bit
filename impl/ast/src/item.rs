@@ -1,5 +1,8 @@
 /// Imports
-use crate::{atom::{Param, TypeHint}, stmt::Block};
+use crate::{
+    atom::{Param, TypeHint},
+    stmt::Block,
+};
 use common::token::Span;
 
 /// Represents struct field
@@ -43,17 +46,36 @@ pub struct Function {
     pub block: Block,
 }
 
+/// Top-level use kind
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum UseKind {
+    /// `as $name`
+    As(String),
+    /// `for ...`
+    For(Vec<String>)
+}
+
+/// Top-level use
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Use {
+    /// Use kind
+    kind: UseKind,
+}
+
 /// Top-level item kind
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ItemKind {
     /// Struct item
     Struct(Struct),
-    
+
     /// Enum item
     Enum(Enum),
-    
+
     /// Function item
     Function(Function),
+    
+    /// Use item
+    Use(Use),
 }
 
 /// Top-level item
@@ -61,4 +83,10 @@ pub enum ItemKind {
 pub struct Item {
     pub kind: ItemKind,
     pub span: Span,
+}
+
+/// Module
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Module {
+    pub items: Vec<Item>,
 }
