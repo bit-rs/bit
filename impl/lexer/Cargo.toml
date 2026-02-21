@@ -1,0 +1,11 @@
+[package]
+name = "lexer"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+codespan-reporting = "0.13.1"
+id-arena = "2.3.0"
+miette = { git = "https://github.com/bit-rs/miette" }
+thiserror = "2.0.18"
+macros = { path = "../macros" }

@@ -1,5 +1,5 @@
 ### 🛰️ Bit
-... is Low-level programming language for building efficient software.
+... is `WIP` low-level programming language for building efficient software.
 
 ### Examples
 
