@@ -18,6 +18,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "320119579fcad9c21884f5c4861d16174d0e06250625266f50fe6898340abefa"
 
 [[package]]
+name = "ast"
+version = "0.1.0"
+dependencies = [
+ "common",
+]
+
+[[package]]
 name = "backtrace"
 version = "0.3.76"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -75,6 +82,9 @@ dependencies = [
 [[package]]
 name = "common"
 version = "0.1.0"
+dependencies = [
+ "miette 7.6.0 (git+https://github.com/bit-rs/miette)",
+]
 
 [[package]]
 name = "errno"
@@ -109,6 +119,7 @@ name = "lexer"
 version = "0.1.0"
 dependencies = [
  "codespan-reporting",
+ "common",
  "id-arena",
  "macros",
  "miette 7.6.0 (git+https://github.com/bit-rs/miette)",
@@ -213,6 +224,10 @@ name = "owo-colors"
 version = "4.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c6901729fa79e91a0913333229e9ca5dc725089d1c363b2f4b4760709dc4a52"
+
+[[package]]
+name = "parser"
+version = "0.1.0"
 
 [[package]]
 name = "proc-macro2"

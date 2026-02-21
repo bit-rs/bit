@@ -1,13 +1,10 @@
 /// Modules
 #[allow(unused_assignments)]
 mod errors;
-pub mod token;
 
 /// Imports
-use crate::{
-    errors::LexError,
-    token::{Span, Token, TokenKind},
-};
+use crate::errors::LexError;
+use common::token::{Span, Token, TokenKind};
 use macros::bail;
 use miette::NamedSource;
 use std::{str::Chars, sync::Arc};

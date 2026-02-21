@@ -86,7 +86,7 @@ impl Token {
 }
 
 /// Represents span
-#[derive(PartialEq, Clone, Eq)]
+#[derive(Clone, PartialEq, Eq, Hash)]
 pub struct Span(pub Arc<NamedSource<String>>, pub Range<usize>);
 
 /// Debug implementation
