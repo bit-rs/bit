@@ -17,6 +17,10 @@ pub enum TypeHint {
         name: String,
         generics: Vec<TypeHint>,
     },
+    /// Ref type
+    Ref(Box<TypeHint>),
+    /// Mut ref type
+    MutRef(Box<TypeHint>),
     /// Unit type
     Unit,
     /// Not known

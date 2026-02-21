@@ -20,13 +20,21 @@ pub enum Lit {
 
 /// Unary operation
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum UnaryOp {
+pub enum UnOp {
     // -
     Neg,
+    
     // !
     Bang,
+    
     // *
     Deref,
+    
+    // &
+    Ref,
+    
+    // &mut
+    MutRef
 }
 
 /// Binary operation
@@ -34,36 +42,52 @@ pub enum UnaryOp {
 pub enum BinOp {
     // +
     Plus,
+    
     // -
     Sub,
+    
     // *
     Mul,
+    
     // /
     Div,
+    
     // %
     Mod,
+    
     // &&
     And,
+    
     // ||
     Or,
+    
     // &
     BitAnd,
+    
     // |
     BitOr,
+    
     // ^
     Xor,
+    
     // ==
     Eq,
+    
     // !=
     Ne,
+    
     // >=
     Ge,
+    
     // <=
     Le,
+    
     // >
     Gt,
+    
     // <
     Lt,
+    
     // <>
     Concat,
 }
@@ -75,7 +99,7 @@ pub enum ExprKind {
     Lit(Lit),
 
     /// Unary opreation (unary, expr)
-    Unary(UnaryOp, Box<Expr>),
+    Unary(UnOp, Box<Expr>),
 
     /// Binary operation (bin, lhs, rhs)
     Bin(BinOp, Box<Expr>, Box<Expr>),
