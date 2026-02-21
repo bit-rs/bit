@@ -1,18 +1,3 @@
-/// Import
-use crate::errors::ParseError;
-use claw_ast::{
-    Module,
-    expr::Expression,
-    stmt::{Block, Statement},
-};
-use claw_common::bail;
-use claw_lex::{
-    lexer::Lexer,
-    token::{Token, TokenKind},
-};
-use miette::NamedSource;
-use std::sync::Arc;
-
 /// Parser converts a stream of tokens
 /// produced by the lexer into an abstract syntax tree (AST).
 pub struct Parser<'s> {
@@ -95,67 +80,6 @@ impl<'s> Parser<'s> {
             self.if_stmt()
         } else {
             Expression::Block(self.block())
-        }
-    }
-
-    /// If statement parsing
-    fn if_stmt(&mut self) -> Statement {
-        let start_span = self.peek().span.clone();
-
-        self.expect(TokenKind::If);
-        let condition = self.expr();
-        let then = self.block();
-        let else_ = if self.check(TokenKind::Else) {
-            Some(Box::new(self.else_branch()))
-        } else {
-            None
-        };
-
-        let end_span = self.prev().span.clone();
-
-        Statement::If {
-            span: start_span + end_span,
-            condition,
-            then,
-            else_,
-        }
-    }
-
-    /// Let statement parsing
-    fn let_stmt(&mut self) -> Statement {
-        let start_span = self.peek().span.clone();
-
-        self.expect(TokenKind::Let);
-        let name = self.expect(TokenKind::Id).lexeme;
-        self.expect(TokenKind::Eq);
-        let value = self.expr();
-
-        let end_span = self.prev().span.clone();
-
-        Statement::Let {
-            span: start_span + end_span,
-            name,
-            value,
-        }
-    }
-
-    /// Type declaration parsing
-    fn type_stmt(&mut self) -> Statement {
-        let start_span = self.peek().span.clone();
-        self.expect(TokenKind::Type);
-        let name = self.expect(TokenKind::Id).lexeme;
-        self.expect(TokenKind::Lbrace);
-        let mut methods = Vec::new();
-        while !self.check(TokenKind::Rbrace) {
-            methods.push(self.function())
-        }
-        self.expect(TokenKind::Rbrace);
-        let end_span = self.prev().span.clone();
-
-        Statement::Type {
-            span: start_span + end_span,
-            name,
-            methods,
         }
     }
 

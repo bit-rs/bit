@@ -1,4 +1,5 @@
 /// Assignment pattern
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Pat {
     /// Deref
     Deref(Box<Pat>),

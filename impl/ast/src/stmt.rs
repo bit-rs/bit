@@ -1,5 +1,5 @@
 /// Imports
-use crate::expr::Expr;
+use crate::{expr::Expr, pat::Pat};
 use common::token::Span;
 
 /// For range
@@ -28,6 +28,9 @@ pub enum StmtKind {
 
     /// Let definition
     Let(String, Expr),
+    
+    /// Assignment
+    Assign(Pat, Expr),
 
     /// Return statement
     Return(Option<Expr>),
