@@ -3,11 +3,11 @@
 
 ### Examples
 
-```bit
-use std/io as io
+`!` after identifier means it is an intrisic.
 
+```bit
 fn main() {
-    io.println("Hello, world!");
+    println!("Hello, world!");
 }
 ```
 
