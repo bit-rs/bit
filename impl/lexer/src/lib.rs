@@ -303,7 +303,8 @@ impl<'s> Lexer<'s> {
             "true" => TokenKind::Bool,
             "false" => TokenKind::Bool,
             "fn" => TokenKind::Fn,
-            "bail" => TokenKind::Bail,
+            "mut" => TokenKind::Mut,
+            "pub" => TokenKind::Pub,
             _ => TokenKind::Id,
         }
     }
@@ -454,6 +455,7 @@ impl<'s> Iterator for Lexer<'s> {
             (Some(']'), _) => Some(self.advance_with(TokenKind::Rbracket, "]")),
             (Some('('), _) => Some(self.advance_with(TokenKind::Lparen, "(")),
             (Some(')'), _) => Some(self.advance_with(TokenKind::Rparen, ")")),
+            (Some(':'), _) => Some(self.advance_with(TokenKind::Colon, ":")),
             (Some(';'), _) => Some(self.advance_with(TokenKind::Semi, ";")),
             (Some('"'), _) => Some(self.advance_string()),
             (Some(ch), _) => {

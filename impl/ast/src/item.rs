@@ -1,6 +1,6 @@
 /// Imports
 use crate::{
-    atom::{Param, TypeHint},
+    atom::{Param, Publicity, TypeHint},
     stmt::Block,
 };
 use common::token::Span;
@@ -26,7 +26,7 @@ pub struct Struct {
 pub struct Variant {
     pub span: Span,
     pub name: String,
-    pub fields: Vec<Field>,
+    pub params: Vec<TypeHint>,
 }
 
 /// Represents enum top-level item
@@ -43,6 +43,7 @@ pub struct Function {
     pub name: String,
     pub generics: Vec<String>,
     pub params: Vec<Param>,
+    pub ret: TypeHint,
     pub block: Block,
 }
 
@@ -51,15 +52,19 @@ pub struct Function {
 pub enum UseKind {
     /// `as $name`
     As(String),
+
     /// `for ...`
-    For(Vec<String>)
+    For(Vec<String>),
+
+    /// Just import
+    Just,
 }
 
 /// Top-level use
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Use {
-    /// Use kind
-    kind: UseKind,
+    pub path: String,
+    pub kind: UseKind,
 }
 
 /// Top-level item kind
@@ -73,7 +78,7 @@ pub enum ItemKind {
 
     /// Function item
     Function(Function),
-    
+
     /// Use item
     Use(Use),
 }
@@ -81,6 +86,7 @@ pub enum ItemKind {
 /// Top-level item
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Item {
+    pub publicity: Publicity,
     pub kind: ItemKind,
     pub span: Span,
 }

@@ -1,6 +1,20 @@
 /// Imports
 use common::token::Span;
 
+/// Represents item publicity
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum Publicity {
+    Pub,
+    Private,
+}
+
+/// Represents declaration mutability
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum Mutability {
+    Mut,
+    Immut,
+}
+
 /// Represents type hint
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum TypeHint {
@@ -17,12 +31,18 @@ pub enum TypeHint {
         name: String,
         generics: Vec<TypeHint>,
     },
+    /// Function type
+    Function {
+        span: Span,
+        params: Vec<TypeHint>,
+        ret: Box<TypeHint>,
+    },
     /// Ref type
-    Ref(Box<TypeHint>),
+    Ref(Span, Box<TypeHint>),
     /// Mut ref type
-    MutRef(Box<TypeHint>),
+    MutRef(Span, Box<TypeHint>),
     /// Unit type
-    Unit,
+    Unit(Span),
     /// Not known
     Infer,
 }

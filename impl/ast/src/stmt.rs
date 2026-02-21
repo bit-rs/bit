@@ -1,5 +1,5 @@
 /// Imports
-use crate::{expr::Expr, pat::Pat};
+use crate::{atom::Mutability, expr::Expr, pat::Pat};
 use common::token::Span;
 
 /// For range
@@ -27,8 +27,8 @@ pub enum StmtKind {
     Continue,
 
     /// Let definition
-    Let(String, Expr),
-    
+    Let(String, Mutability, Expr),
+
     /// Assignment
     Assign(Pat, Expr),
 

@@ -1,5 +1,13 @@
+/// Modules
+mod atom;
+#[allow(unused_assignments)]
+mod errors;
+mod item;
+mod stmt;
+
 /// Imports
-use common::token::Token;
+use ast::{expr::Expr, item::Module};
+use common::token::{Token, TokenKind};
 use lexer::Lexer;
 use miette::NamedSource;
 use std::sync::Arc;
@@ -52,205 +60,6 @@ impl<'s> Parser<'s> {
         }
     }
 
-    /// Range parsing
-    fn range(&mut self) -> Range {
-        let start_span = self.peek().span.clone();
-        let from = self.expr();
-        self.expect(TokenKind::DoubleDot);
-
-        // If `=` given
-        if self.check(TokenKind::Eq) {
-            self.bump();
-            let to = self.expr();
-            let end_span = self.peek().span.clone();
-            Range::IncludeLast {
-                span: start_span + end_span,
-                from,
-                to,
-            }
-        } else {
-            let to = self.expr();
-            let end_span = self.peek().span.clone();
-            Range::ExcludeLast {
-                span: start_span + end_span,
-                from,
-                to,
-            }
-        }
-    }
-
-    /// Else branch
-    fn else_branch(&mut self) -> Expression {
-        self.expect(TokenKind::Else);
-        if self.check(TokenKind::If) {
-            self.if_stmt()
-        } else {
-            Expression::Block(self.block())
-        }
-    }
-
-    /// Assignment statement
-    fn assignment_stmt(&mut self) -> Statement {
-        let start_span = self.peek().span.clone();
-        let variable = self.variable();
-        // Checking for ssignment operator
-        let op = match self.peek().kind {
-            TokenKind::PlusEq => Some(AssignOp::Add),
-            TokenKind::MinusEq => Some(AssignOp::Sub),
-            TokenKind::StarEq => Some(AssignOp::Mul),
-            TokenKind::SlashEq => Some(AssignOp::Div),
-            TokenKind::PercentEq => Some(AssignOp::Mod),
-            TokenKind::AmpersandEq => Some(AssignOp::BitAnd),
-            TokenKind::BarEq => Some(AssignOp::BitOr),
-            TokenKind::CaretEq => Some(AssignOp::Xor),
-            TokenKind::Eq => Some(AssignOp::Assign),
-            _ => None,
-        };
-        // Checking assignment operator existence
-        match op {
-            // If operator found
-            Some(op) => {
-                // Bumping operator
-                self.bump();
-                let value = self.expr();
-                let end_span = self.prev().span.clone();
-                match variable {
-                    Expression::Variable { name, .. } => Statement::Assign {
-                        span: start_span + end_span,
-                        name,
-                        op,
-                        value,
-                    },
-                    Expression::Field {
-                        name, container, ..
-                    } => Statement::Set {
-                        span: start_span + end_span,
-                        container: *container,
-                        name,
-                        op,
-                        value,
-                    },
-                    _ => bail!(ParseError::InvalidUseOfAssignOp {
-                        src: self.source.clone(),
-                        first_span: (start_span + end_span).1.into()
-                    }),
-                }
-            }
-            // Else
-            None => Statement::Expr(variable),
-        }
-    }
-
-    /// Break statement
-    fn break_stmt(&mut self) -> Statement {
-        let span = self.expect(TokenKind::Break).span;
-        Statement::Break(span)
-    }
-
-    /// Continue statement
-    fn continue_stmt(&mut self) -> Statement {
-        let span = self.expect(TokenKind::Continue).span;
-        Statement::Continue(span)
-    }
-
-    /// Return statement
-    fn return_stmt(&mut self) -> Statement {
-        let start_span = self.peek().span.clone();
-        self.expect(TokenKind::Return);
-        if self.check(TokenKind::Semi) {
-            let end_span = self.prev().span.clone();
-            Statement::Return {
-                span: start_span + end_span,
-                expr: None,
-            }
-        } else {
-            let value = self.expr();
-            let end_span = self.prev().span.clone();
-            Statement::Return {
-                span: start_span + end_span,
-                expr: Some(value),
-            }
-        }
-    }
-
-    /// Use statement
-    fn use_stmt(&mut self) -> Statement {
-        let start_span = self.peek().span.clone();
-        self.expect(TokenKind::Use);
-
-        // Import path
-        let mut path = String::new();
-        path.push_str(&self.expect(TokenKind::Id).lexeme);
-        while self.check(TokenKind::Slash) {
-            self.bump();
-            path.push_str(&self.expect(TokenKind::Id).lexeme);
-        }
-
-        // Import kind
-        let kind = if self.check(TokenKind::As) {
-            self.bump();
-            UsageKind::As(self.expect(TokenKind::Id).lexeme)
-        } else if self.check(TokenKind::For) {
-            self.bump();
-            if self.check(TokenKind::Star) {
-                self.bump();
-                UsageKind::All
-            } else {
-                let mut items = Vec::new();
-                items.push(self.expect(TokenKind::Id).lexeme);
-                while self.check(TokenKind::Comma) {
-                    self.bump();
-                    items.push(self.expect(TokenKind::Id).lexeme);
-                }
-                UsageKind::For(items)
-            }
-        } else {
-            UsageKind::Just
-        };
-        let end_span = self.prev().span.clone();
-
-        Statement::Use {
-            span: start_span + end_span,
-            path,
-            kind,
-        }
-    }
-
-    /// Satement parsing
-    fn stmt(&mut self) -> Statement {
-        // Parsing statement
-        let stmt = match self.peek().kind {
-            TokenKind::For => self.for_stmt(),
-            TokenKind::While => self.while_stmt(),
-            TokenKind::If => self.if_stmt(),
-            TokenKind::Let => self.let_stmt(),
-            TokenKind::Type => self.type_stmt(),
-            TokenKind::Fn => Statement::Function(self.function()),
-            TokenKind::Return => self.return_stmt(),
-            TokenKind::Continue => self.continue_stmt(),
-            TokenKind::Break => self.break_stmt(),
-            TokenKind::Id => self.assignment_stmt(),
-            TokenKind::Use => self.use_stmt(),
-            _ => Statement::Expr(self.expr()),
-        };
-        // If statement requires semicolon
-        if stmt.requires_semi() {
-            self.expect(TokenKind::Semi);
-        }
-        stmt
-    }
-
-    /// Block parsing
-    fn block(&mut self) -> Block {
-        let mut statements = Vec::new();
-        self.expect(TokenKind::Lbrace);
-        while !self.check(TokenKind::Rbrace) {
-            statements.push(self.stmt());
-        }
-        self.expect(TokenKind::Rbrace);
-        Block { statements }
-    }
-
     /// Sep by parsing
     pub(crate) fn sep_by<T>(
         &mut self,
@@ -280,8 +89,28 @@ impl<'s> Parser<'s> {
         items
     }
 
+    /// Sep by parsing without open or close tokens
+    pub(crate) fn sep_by_2<T>(
+        &mut self,
+        sep: TokenKind,
+        mut parse_item: impl FnMut(&mut Self) -> T,
+    ) -> Vec<T> {
+        let mut items = Vec::new();
+
+        loop {
+            items.push(parse_item(self));
+            if self.check(sep.clone()) {
+                self.expect(sep.clone());
+            } else {
+                break;
+            }
+        }
+
+        items
+    }
+
     /// Arguments parsing
-    pub(crate) fn args(&mut self) -> Vec<Expression> {
+    pub(crate) fn args(&mut self) -> Vec<Expr> {
         self.sep_by(
             TokenKind::Lparen,
             TokenKind::Rparen,
@@ -293,16 +122,6 @@ impl<'s> Parser<'s> {
     /// Single parameter parsing
     fn param(&mut self) -> String {
         let name = self.expect(TokenKind::Id).lexeme;
-    }
-
-    /// Parameters parsing
-    pub(crate) fn params(&mut self) -> Vec<String> {
-        self.sep_by(
-            TokenKind::Lparen,
-            TokenKind::Rparen,
-            TokenKind::Comma,
-            |s| s.param(),
-        )
     }
 
     /// Variable parsing
