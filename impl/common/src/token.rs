@@ -104,7 +104,7 @@ impl Add for Span {
     fn add(self, rhs: Self) -> Self::Output {
         // Checking that files are same
         if self.0 != rhs.0 {
-            panic!("attemp to perform `+` operation on two spans from different files.")
+            panic!("attempt to perform `+` operation on two spans from different files.")
         }
 
         // Calculating new span range
