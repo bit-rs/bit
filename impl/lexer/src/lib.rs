@@ -378,34 +378,22 @@ impl<'s> Lexer<'s> {
 
     /// Is whitespace
     fn is_whitespace(&mut self) -> bool {
-        match self.current {
-            Some(' ') | Some('\n') | Some('\t') | Some('\r') => true,
-            _ => false,
-        }
+        matches!(self.current, Some(' ') | Some('\n') | Some('\t') | Some('\r'))
     }
 
     /// Is id letter
     fn is_id_letter(&mut self) -> bool {
-        match self.current {
-            Some(it) if it.is_ascii_alphabetic() || it == '_' => true,
-            _ => false,
-        }
+        matches!(self.current, Some(it) if it.is_ascii_alphabetic() || it == '_')
     }
 
     /// Is digit
     fn is_digit(&mut self) -> bool {
-        match self.current {
-            Some(it) if it.is_ascii_digit() => true,
-            _ => false,
-        }
+        matches!(self.current, Some(it) if it.is_ascii_digit())
     }
 
     /// Is end of file
     fn is_eof(&mut self) -> bool {
-        match self.current {
-            Some(_) => false,
-            None => true,
-        }
+        self.current.is_none()
     }
 }
 
