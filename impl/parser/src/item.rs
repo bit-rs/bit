@@ -129,12 +129,12 @@ impl<'s> Parser<'s> {
         let mut module = String::new();
 
         // First id
-        module.push_str(&self.expect(TokenKind::Id).lexeme.clone());
+        module.push_str(&self.expect(TokenKind::Id).lexeme);
 
         while self.check(TokenKind::Slash) {
             self.expect(TokenKind::Slash);
             module.push('/');
-            module.push_str(&self.expect(TokenKind::Id).lexeme.clone());
+            module.push_str(&self.expect(TokenKind::Id).lexeme);
         }
 
         module
