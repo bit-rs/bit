@@ -301,6 +301,7 @@ impl<'s> Lexer<'s> {
             "false" => TokenKind::Bool,
             "fn" => TokenKind::Fn,
             "bail" => TokenKind::Bail,
+            "null" => TokenKind::Null,
             _ => TokenKind::Id,
         }
     }
