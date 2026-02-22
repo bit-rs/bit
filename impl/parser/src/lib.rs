@@ -109,12 +109,12 @@ impl<'s> Parser<'s> {
         items
     }
 
-    /// Checks, does token match or not.
+    /// Checks, does token match or not
     pub(crate) fn check(&self, tk: TokenKind) -> bool {
         self.current.as_ref().map(|x| x.kind == tk).unwrap_or_default()
     }
 
-    /// Retrieves current token.
+    /// Retrieves current token
     pub(crate) fn peek(&self) -> &Token {
         match &self.current {
             Some(tk) => tk,
