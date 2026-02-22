@@ -65,7 +65,7 @@ name = "cli"
 version = "0.1.0"
 dependencies = [
  "lexer",
- "miette 7.6.0 (git+https://github.com/bit-rs/miette)",
+ "miette",
  "parser",
 ]
 
@@ -77,14 +77,14 @@ checksum = "af491d569909a7e4dee0ad7db7f5341fef5c614d5b8ec8cf765732aba3cff681"
 dependencies = [
  "serde",
  "termcolor",
- "unicode-width 0.2.2",
+ "unicode-width",
 ]
 
 [[package]]
 name = "common"
 version = "0.1.0"
 dependencies = [
- "miette 7.6.0 (git+https://github.com/bit-rs/miette)",
+ "miette",
 ]
 
 [[package]]
@@ -123,7 +123,7 @@ dependencies = [
  "common",
  "id-arena",
  "macros",
- "miette 7.6.0 (git+https://github.com/bit-rs/miette)",
+ "miette",
  "thiserror",
 ]
 
@@ -143,7 +143,7 @@ checksum = "df1d3c3b53da64cf5760482273a98e575c651a67eec7f77df96b5b642de8f039"
 name = "macros"
 version = "0.1.0"
 dependencies = [
- "miette 7.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "miette",
 ]
 
 [[package]]
@@ -155,41 +155,19 @@ checksum = "f8ca58f447f06ed17d5fc4043ce1b10dd205e060fb3ce5b979b8ed8e59ff3f79"
 [[package]]
 name = "miette"
 version = "7.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5f98efec8807c63c752b5bd61f862c165c115b0a35685bdcfd9238c7aeb592b7"
-dependencies = [
- "cfg-if",
- "miette-derive 7.6.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "unicode-width 0.1.14",
-]
-
-[[package]]
-name = "miette"
-version = "7.6.0"
 source = "git+https://github.com/bit-rs/miette#8313aabec9173dbb2c6e0505652236101725d25e"
 dependencies = [
  "backtrace",
  "backtrace-ext",
  "cfg-if",
- "miette-derive 7.6.0 (git+https://github.com/bit-rs/miette)",
+ "miette-derive",
  "owo-colors",
  "supports-color",
  "supports-hyperlinks",
  "supports-unicode",
  "terminal_size",
  "textwrap",
- "unicode-width 0.2.2",
-]
-
-[[package]]
-name = "miette-derive"
-version = "7.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db5b29714e950dbb20d5e6f74f9dcec4edbcc1067bb7f8ed198c097b8c1a818b"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
+ "unicode-width",
 ]
 
 [[package]]
@@ -234,7 +212,7 @@ dependencies = [
  "common",
  "lexer",
  "macros",
- "miette 7.6.0 (git+https://github.com/bit-rs/miette)",
+ "miette",
  "thiserror",
 ]
 
@@ -363,7 +341,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c13547615a44dc9c452a8a534638acdf07120d4b6847c8178705da06306a3057"
 dependencies = [
  "unicode-linebreak",
- "unicode-width 0.2.2",
+ "unicode-width",
 ]
 
 [[package]]
@@ -392,6 +370,18 @@ version = "0.1.0"
 dependencies = [
  "common",
  "id-arena",
+ "macros",
+ "miette",
+]
+
+[[package]]
+name = "tycheck"
+version = "0.1.0"
+dependencies = [
+ "common",
+ "id-arena",
+ "macros",
+ "tir",
 ]
 
 [[package]]
@@ -405,12 +395,6 @@ name = "unicode-linebreak"
 version = "0.1.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3b09c83c3c29d37506a3e260c08c03743a6bb66a9cd432c6934ab501a190571f"
-
-[[package]]
-name = "unicode-width"
-version = "0.1.14"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
 
 [[package]]
 name = "unicode-width"

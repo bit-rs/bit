@@ -1,10 +1,10 @@
 [package]
-name = "tir"
+name = "tycheck"
 version = "0.1.0"
 edition = "2024"
 
 [dependencies]
+tir = { path = "../tir" }
 id-arena = "2.3.0"
 common = { path = "../common" }
 macros = { path = "../macros" }
-miette = { git = "https://github.com/bit-rs/miette" }

@@ -1,8 +1,9 @@
 /// Imports
-use crate::adt::{Enum, Struct};
+use crate::def::{AdtDef, FnDef};
 use id_arena::Id;
 
 /// Defines primitive signed integer type
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum IntTy {
     I8,
     I16,
@@ -11,6 +12,7 @@ pub enum IntTy {
 }
 
 /// Defines primitive unsigned integer type
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum UIntTy {
     U8,
     U16,
@@ -19,12 +21,14 @@ pub enum UIntTy {
 }
 
 /// Defines primitive floating-point type
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum FloatTy {
     F32,
     F64,
 }
 
 /// Defines type variable
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum TyVar {
     /// Unbound type variable
     Unbound,
@@ -44,6 +48,7 @@ pub type GenericArgs = Vec<Ty>;
 
 /// Defines the type used by type system
 /// and typed intermediate representation (TIR)
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Ty {
     /// A primitive signed integer type. For example, `i32`.
     Int(IntTy),
@@ -54,7 +59,7 @@ pub enum Ty {
     /// A primitive floating-point type. For example, `f64`.
     Float(FloatTy),
 
-    /// A primitive string slic type.
+    /// A primitive string slice type.
     String,
 
     /// A primitive char type.
@@ -63,16 +68,24 @@ pub enum Ty {
     /// A primitive boolean type
     Bool,
 
-    /// An enum type
-    Enum(Id<Enum>, GenericArgs),
+    /// `()` — unit type
+    Unit,
 
-    /// An struct type
-    Struct(Id<Struct>, GenericArgs),
+    /// An adt type
+    Adt(Id<AdtDef>, GenericArgs),
 
-    /// An generic type that pointee to index
-    /// in generic args vector
+    /// Function type
+    Fn(Id<FnDef>, GenericArgs),
+
+    /// Generic parameter type `T`, `K`
     Generic(usize),
+    
+    /// An inference type variable
+    Var(Id<TyVar>),
 
-    // An inference type variable
-    Infer(Id<TyVar>),
+    /// Shared reference `&T`
+    Ref(Box<Ty>),
+
+    /// Mutable reference `&mut T`
+    MutRef(Box<Ty>),
 }
