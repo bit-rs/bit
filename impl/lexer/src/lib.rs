@@ -100,7 +100,7 @@ impl<'s> Lexer<'s> {
                 None => bail!(LexError::InvalidEscapeSequence {
                     src: self.source.clone(),
                     span: (start_location..self.idx).into(),
-                    cause: "unexpected eof."
+                    cause: "unexpected EOF."
                 }),
             }
         }
@@ -120,7 +120,7 @@ impl<'s> Lexer<'s> {
                 bail!(LexError::InvalidEscapeSequence {
                     src: self.source.clone(),
                     span: (start_location..self.idx).into(),
-                    cause: "failed to convert `unciode char` into `u32`."
+                    cause: "failed to convert `unicode char` into `u32`."
                 })
             }
         };
@@ -159,7 +159,7 @@ impl<'s> Lexer<'s> {
                 None => bail!(LexError::InvalidEscapeSequence {
                     src: self.source.clone(),
                     span: (start_location..self.idx).into(),
-                    cause: "unexpected eof."
+                    cause: "unexpected EOF."
                 }),
             }
         }
@@ -179,7 +179,7 @@ impl<'s> Lexer<'s> {
                 bail!(LexError::InvalidEscapeSequence {
                     src: self.source.clone(),
                     span: (start_location..self.idx).into(),
-                    cause: "failed to convert `unciode char` into `u32`."
+                    cause: "failed to convert `unicode char` into `u32`."
                 })
             }
         };
