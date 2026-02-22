@@ -45,14 +45,14 @@ impl TyCx {
     }
 
     /// Returns ADT by id
-    pub fn adt(&mut self, id: Id<AdtDef>) -> &AdtDef {
+    pub fn adt(&self, id: Id<AdtDef>) -> &AdtDef {
         self.adt
             .get(id)
             .unwrap_or_else(|| bug!("adt not found by id."))
     }
 
     /// Returns function by id
-    pub fn _fn(&mut self, id: Id<FnDef>) -> &FnDef {
+    pub fn _fn(&self, id: Id<FnDef>) -> &FnDef {
         self.functions
             .get(id)
             .unwrap_or_else(|| bug!("fn not found by id."))
@@ -243,20 +243,12 @@ impl<'tcx> InferCx<'tcx> {
     pub fn fresh(&mut self) -> Id<TyVar> {
         self.type_variables.alloc(TyVar::Unbound)
     }
+
     /// Creates fresh vector of generic arguments
     /// with fresh type variables: `Ty::Var(TyVar::Unbound(...))`
     ///
     pub fn mk_fresh(&mut self, generics: &[GenericParam]) -> GenericArgs {
-        FresheningCx::new(self).mk_generics(generics, Vec::new())
-    }
-
-    /// Creates fresh vector of generic arguments
-    /// with fresh type variables:
-    ///  `Ty::Var(TyVar::Unbound(...))`
-    ///  *unless an explicit substitution is already provided*
-    ///
-    pub fn mk_fresh_m(&mut self, generics: &[GenericParam], m: &[Ty]) -> GenericArgs {
-        FresheningCx::new(self).mk_generics(generics, m)
+        (0..generics.len()).map(|_| Ty::Var(self.fresh())).collect()
     }
 
     /// Generates fresh type variable bound to given type.
@@ -283,42 +275,14 @@ impl<'tcx> InferCx<'tcx> {
     /// - `ty: Ty`
     ///   The type that we using to apply substitution
     ///
-    pub fn apply(&self, typ: Ty) -> Ty {
-        match typ {
+    pub fn apply(&self, ty: Ty) -> Ty {
+        match ty {
             Ty::Var(id) => match self.get(id) {
-                TyVar::Unbound => typ,
+                TyVar::Unbound | TyVar::Float | TyVar::Int => ty,
                 TyVar::Bound(typ) => typ.clone(),
             },
-            Ty::Enum(id, args) => Typ::Enum(
-                id,
-                GenericArgs {
-                    subtitutions: args
-                        .subtitutions
-                        .iter()
-                        .map(|it| (*it.0, self.apply(it.1.clone())))
-                        .collect(),
-                },
-            ),
-            Typ::Struct(id, args) => Typ::Struct(
-                id,
-                GenericArgs {
-                    subtitutions: args
-                        .subtitutions
-                        .iter()
-                        .map(|it| (*it.0, self.apply(it.1.clone())))
-                        .collect(),
-                },
-            ),
-            Typ::Function(id, args) => Typ::Function(
-                id,
-                GenericArgs {
-                    subtitutions: args
-                        .subtitutions
-                        .iter()
-                        .map(|it| (*it.0, self.apply(it.1.clone())))
-                        .collect(),
-                },
-            ),
+            Ty::Adt(def, args) => Ty::Adt(def, args.into_iter().map(|it| self.apply(it)).collect()),
+            Ty::Fn(def, args) => Ty::Fn(def, args.into_iter().map(|it| self.apply(it)).collect()),
             other => other,
         }
     }
@@ -328,137 +292,42 @@ impl<'tcx> InferCx<'tcx> {
     pub fn is_rigid(&self, id: usize) -> bool {
         self.generics.is_rigid(id)
     }
-}
 
-/// A temporary instantiation context used to replace generic types with
-/// fresh inference variables.
-///
-/// This context performs the *α-renaming* (freshening) of generic parameters
-/// when entering an instantiation site — for example, when calling a generic
-/// function or constructing a generic struct/enum.
-///
-/// In practice, `FresheningCx` converts:
-///
-/// - `Typ::Generic(id)` → a fresh `Typ::Unbound(...)`
-///   *unless an explicit substitution is already provided*
-///
-/// - recursively transforms function types, ADTs (`Struct`, `Enum`) and their
-///   generic arguments.
-///
-/// The context stores two important pieces of data:
-///
-/// - A reference to the `InferCx`, used for allocating fresh
-///   inference variables.
-/// - A local `mapping: HashMap<usize, Typ>` that maps **generic parameter IDs**
-///   to the *fresh inference variables* that now stand for them.
-///
-/// `FresheningCx` is short-lived: it exists only for the duration of a single
-/// instantiation (e.g. one function call).
-pub struct FresheningCx<'icx, 'tcx> {
-    /// Reference to the inference cx
-    icx: &'icx mut InferCx<'tcx>,
-
-    /// A mapping of **generic parameter IDs** (`Generic(id)`) to the fresh
-    /// inference variables created during this instantiation.
-    ///
-    /// This ensures that generic parameters remain consistent:
-    /// `{g(n) -> u(m)}`, reused everywhere within a single instantiation.
-    mapping: IndexMap<usize, Typ>,
-}
-
-/// Implementation
-impl<'icx, 'tcx> FresheningCx<'icx, 'tcx> {
-    /// Creates new freshening context
-    pub fn new(icx: &'icx mut InferCx<'tcx>) -> Self {
-        Self {
-            icx,
-            mapping: IndexMap::new(),
+    /// Returns substituted field if type is struct
+    pub fn field(&self, ty: Ty, name: String) -> Option<Ty> {
+        match ty {
+            Ty::Adt(id, generics) => match self.tcx.adt(id) {
+                AdtDef::Struct(s) => match s.fields.iter().find(|f| f.name == name) {
+                    Some(f) => Some(self.subst(f.ty.clone(), &generics)),
+                    None => None,
+                },
+                _ => None,
+            },
+            _ => None,
         }
     }
 
-    /// Performs freshening of the type
-    pub fn fresh(icx: &'icx mut InferCx<'tcx>, typ: Typ) -> Typ {
-        let mut fcx = Self {
-            icx,
-            mapping: IndexMap::new(),
-        };
-        fcx.mk_ty(typ)
-    }
-
-    /// Creates new hydration context with given mapping
-    pub fn fresh_m(icx: &'icx mut InferCx<'tcx>, typ: Typ, mapping: IndexMap<usize, Typ>) -> Typ {
-        let mut fcx = Self { icx, mapping };
-        fcx.mk_ty(typ)
-    }
-
-    /// Instantiates type by replacing
-    /// Generic(id) -> Unbound($id)
-    pub fn mk_ty(&mut self, t: Typ) -> Typ {
-        match t {
-            Typ::Prelude(_) | Typ::Unit | Typ::Var(_) => t,
-            Typ::Generic(id) => {
-                // If typ is already specified
-                if let Some(typ) = self.mapping.get(&id) {
-                    typ.clone()
-                } else if self.icx.is_rigid(id) {
-                    Typ::Generic(id)
-                } else {
-                    let fresh = Typ::Var(self.icx.fresh());
-                    self.mapping.insert(id, fresh.clone());
-                    fresh
-                }
-            }
-            Typ::Function(id, args) => {
-                let args = args
-                    .subtitutions
-                    .iter()
-                    .map(|(k, v)| (*k, self.mk_ty(v.clone())))
-                    .collect();
-                let generics = self.mk_generics(&self.icx.tcx.function(id).generics.clone(), args);
-
-                Typ::Function(id, generics)
-            }
-            Typ::Struct(id, args) => {
-                let args = args
-                    .subtitutions
-                    .iter()
-                    .map(|(k, v)| (*k, self.mk_ty(v.clone())))
-                    .collect();
-                let generics = self.mk_generics(&self.icx.tcx.struct_(id).generics.clone(), args);
-
-                Typ::Struct(id, generics)
-            }
-            Typ::Enum(id, args) => {
-                let args = args
-                    .subtitutions
-                    .iter()
-                    .map(|(k, v)| (*k, self.mk_ty(v.clone())))
-                    .collect();
-                let generics = self.mk_generics(&self.icx.tcx.enum_(id).generics.clone(), args);
-
-                Typ::Enum(id, generics)
-            }
-        }
-    }
-
-    /// Instantiates generics with args
-    /// Generic(id) -> Unbound($id) | Given substitution
-    pub fn mk_generics(
-        &mut self,
-        params: &[GenericParameter],
-        args: IndexMap<usize, Typ>,
-    ) -> GenericArgs {
-        GenericArgs {
-            subtitutions: params
-                .iter()
-                .map(|p| {
-                    let generic_id = p.id;
-                    match args.get(&generic_id) {
-                        Some(s) => (generic_id, s.clone()),
-                        None => (generic_id, Typ::Var(self.icx.fresh())),
-                    }
-                })
-                .collect(),
+    /// Replaces `Generic(i)` with `args[i]` type
+    fn subst(&self, ty: Ty, args: &GenericArgs) -> Ty {
+        match ty {
+            Ty::Generic(i) => args.get(i).cloned().unwrap_or(Ty::Generic(i)),
+            Ty::Adt(id, inner_args) => Ty::Adt(
+                id,
+                inner_args
+                    .into_iter()
+                    .map(|a| self.subst(a, args))
+                    .collect(),
+            ),
+            Ty::Fn(id, inner_args) => Ty::Fn(
+                id,
+                inner_args
+                    .into_iter()
+                    .map(|a| self.subst(a, args))
+                    .collect(),
+            ),
+            Ty::Ref(inner) => Ty::Ref(Box::new(self.subst(*inner, args))),
+            Ty::MutRef(inner) => Ty::MutRef(Box::new(self.subst(*inner, args))),
+            other => other,
         }
     }
 }
