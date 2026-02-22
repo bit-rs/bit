@@ -7,6 +7,8 @@ use tir::{
     ty::{GenericArgs, Ty, TyVar},
 };
 
+use crate::errors::TypeError;
+
 /// Type context.
 ///
 /// `TyCx` owns and stores all type-level definitions used by the compiler,
@@ -244,6 +246,18 @@ impl<'tcx> InferCx<'tcx> {
         self.type_variables.alloc(TyVar::Unbound)
     }
 
+    /// Generates fresh int type variable.
+    ///
+    pub fn fresh_int(&mut self) -> Id<TyVar> {
+        self.type_variables.alloc(TyVar::Int)
+    }
+
+    /// Generates fresh float type variable.
+    ///
+    pub fn fresh_float(&mut self) -> Id<TyVar> {
+        self.type_variables.alloc(TyVar::Float)
+    }
+
     /// Creates fresh vector of generic arguments
     /// with fresh type variables: `Ty::Var(TyVar::Unbound(...))`
     ///
@@ -270,11 +284,6 @@ impl<'tcx> InferCx<'tcx> {
     }
 
     /// Applies a substitutions for the given type
-    ///
-    /// # Parameters
-    /// - `ty: Ty`
-    ///   The type that we using to apply substitution
-    ///
     pub fn apply(&self, ty: Ty) -> Ty {
         match ty {
             Ty::Var(id) => match self.get(id) {
@@ -308,7 +317,7 @@ impl<'tcx> InferCx<'tcx> {
     }
 
     /// Replaces `Generic(i)` with `args[i]` type
-    fn subst(&self, ty: Ty, args: &GenericArgs) -> Ty {
+    pub fn subst(&self, ty: Ty, args: &GenericArgs) -> Ty {
         match ty {
             Ty::Generic(i) => args.get(i).cloned().unwrap_or(Ty::Generic(i)),
             Ty::Adt(id, inner_args) => Ty::Adt(
@@ -328,6 +337,120 @@ impl<'tcx> InferCx<'tcx> {
             Ty::Ref(inner) => Ty::Ref(Box::new(self.subst(*inner, args))),
             Ty::MutRef(inner) => Ty::MutRef(Box::new(self.subst(*inner, args))),
             other => other,
+        }
+    }
+
+    /// Unifies two types
+    pub fn unify(&mut self, t1: Ty, t2: Ty) -> Result<(), TypeError> {
+        // Applying substitutions
+        let t1 = self.apply(t1);
+        let t2 = self.apply(t2);
+
+        // Matching types
+        match (t1, t2) {
+            // Same primitive types
+            (Ty::Int(a), Ty::Int(b)) if a == b => Ok(()),
+            (Ty::UInt(a), Ty::UInt(b)) if a == b => Ok(()),
+            (Ty::Float(a), Ty::Float(b)) if a == b => Ok(()),
+            (Ty::Bool, Ty::Bool) => Ok(()),
+            (Ty::Char, Ty::Char) => Ok(()),
+            (Ty::String, Ty::String) => Ok(()),
+            (Ty::Unit, Ty::Unit) => Ok(()),
+
+            // Rigid generics
+            (Ty::Generic(a), Ty::Generic(b)) if a == b => Ok(()),
+            (Ty::Generic(_), other) | (other, Ty::Generic(_)) => {
+                Err(TypeError::RigidMismatch(other))
+            }
+
+            // ADT, unifying args
+            (Ty::Adt(a_id, a_args), Ty::Adt(b_id, b_args)) if a_id == b_id => {
+                for (a, b) in a_args.into_iter().zip(b_args) {
+                    self.unify(a, b)?;
+                }
+                Ok(())
+            }
+
+            // References
+            (Ty::Ref(a), Ty::Ref(b)) => self.unify(*a, *b),
+            (Ty::MutRef(a), Ty::MutRef(b)) => self.unify(*a, *b),
+
+            // Functions, unifying args
+            (Ty::Fn(a_id, a_args), Ty::Fn(b_id, b_args)) if a_id == b_id => {
+                for (a, b) in a_args.into_iter().zip(b_args) {
+                    self.unify(a, b)?;
+                }
+                Ok(())
+            }
+
+            // Type variables
+            (Ty::Var(id), ty) => self.unify_var(id, ty),
+            (ty, Ty::Var(id)) => self.unify_var(id, ty),
+
+            // Anything else
+            (t1, t2) => Err(TypeError::Mismatch(t1, t2)),
+        }
+    }
+
+    /// Unifies type variable and type
+    fn unify_var(&mut self, id: Id<TyVar>, ty: Ty) -> Result<(), TypeError> {
+        match self.get(id).clone() {
+            // Variable already bound, unifying
+            TyVar::Bound(bound) => self.unify(bound, ty),
+
+            // Int literal, ty should be int variant
+            TyVar::Int => match ty {
+                Ty::Int(_) | Ty::UInt(_) => {
+                    self.substitute(id, ty);
+                    Ok(())
+                }
+                Ty::Var(other) => {
+                    self.substitute(other, Ty::Var(id));
+                    Ok(())
+                }
+                other => Err(TypeError::Mismatch(Ty::Var(id), other)),
+            },
+
+            // Float literal, ty should be float variant
+            TyVar::Float => match ty {
+                Ty::Float(_) => {
+                    self.substitute(id, ty);
+                    Ok(())
+                }
+                Ty::Var(other) => {
+                    self.substitute(other, Ty::Var(id));
+                    Ok(())
+                }
+                other => Err(TypeError::Mismatch(Ty::Var(id), other)),
+            },
+
+            // Unbound variable
+            TyVar::Unbound => {
+                // Performing occurs check: restricts infinite types like `T = Vec<T>`
+                if self.occurs(id, &ty) {
+                    return Err(TypeError::InfiniteType);
+                }
+                self.substitute(id, ty);
+                Ok(())
+            }
+        }
+    }
+
+    /// Occurs check: is it an `id` variable inside ty?
+    fn occurs(&self, id: Id<TyVar>, ty: &Ty) -> bool {
+        match ty {
+            Ty::Var(other) => {
+                if *other == id {
+                    return true;
+                }
+                match self.get(*other) {
+                    TyVar::Bound(inner) => self.occurs(id, inner),
+                    _ => false,
+                }
+            }
+            Ty::Adt(_, args) | Ty::Fn(_, args) => args.iter().any(|a| self.occurs(id, a)),
+            Ty::Ref(inner) | Ty::MutRef(inner) => self.occurs(id, inner),
+            _ => false,
         }
     }
 }

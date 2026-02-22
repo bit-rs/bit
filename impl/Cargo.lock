@@ -378,9 +378,11 @@ dependencies = [
 name = "tycheck"
 version = "0.1.0"
 dependencies = [
+ "ast",
  "common",
  "id-arena",
  "macros",
+ "miette",
  "tir",
 ]
 
