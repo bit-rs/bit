@@ -37,3 +37,30 @@ pub struct Struct {
     /// Structure fields
     pub fields: Vec<Field>,
 }
+
+/// Defines enum variant
+pub struct Variant {
+    /// Span of the variant definition
+    pub span: Span,
+
+    /// Variant name
+    pub name: String,
+
+    /// Non-instantiated variant params
+    pub params: Vec<Ty>,
+}
+
+/// Defines enum type
+pub struct Enum {
+    /// Span of the enum definition
+    pub span: Span,
+
+    /// Enum name
+    pub name: String,
+
+    /// Enum generics
+    pub generics: Vec<Generic>,
+
+    /// Enum fields
+    pub fields: Vec<Variant>,
+}

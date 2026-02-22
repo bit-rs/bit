@@ -1,5 +1,5 @@
 /// Imports
-use crate::adt::Struct;
+use crate::adt::{Enum, Struct};
 use id_arena::Id;
 
 /// Defines primitive signed integer type
@@ -24,6 +24,24 @@ pub enum FloatTy {
     F64,
 }
 
+/// Defines type variable
+pub enum TyVar {
+    /// Unbound type variable
+    Unbound,
+
+    /// Int type variable
+    Int,
+
+    /// Float type variable
+    Float,
+
+    /// Bound type variable
+    Bound(Ty),
+}
+
+/// Represents generic arguments
+pub type GenericArgs = Vec<Ty>;
+
 /// Defines the type used by type system
 /// and typed intermediate representation (TIR)
 pub enum Ty {
@@ -46,10 +64,10 @@ pub enum Ty {
     Bool,
 
     /// An enum type
-    Enum(Id<EnumTy>, GenericArgs),
+    Enum(Id<Enum>, GenericArgs),
 
     /// An struct type
-    Struct(Id<StructTy>, GenericArgs),
+    Struct(Id<Struct>, GenericArgs),
 
     /// An generic type that pointee to index
     /// in generic args vector
