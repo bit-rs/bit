@@ -151,6 +151,16 @@ impl<'s> Parser<'s> {
                 self.bump();
                 self.mk_expr(tk.span, ExprKind::Lit(Lit::String(tk.lexeme)))
             }
+            TokenKind::Char => {
+                self.bump();
+                self.mk_expr(
+                    tk.span,
+                    ExprKind::Lit(Lit::Char(match tk.lexeme.chars().next() {
+                        Some(ch) => ch,
+                        _ => bug!("empty character literal"),
+                    })),
+                )
+            }
             TokenKind::Bool => {
                 self.bump();
                 self.mk_expr(

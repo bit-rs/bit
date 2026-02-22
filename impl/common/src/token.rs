@@ -1,11 +1,10 @@
 /// Imports
+use miette::NamedSource;
 use std::{
     fmt::Debug,
     ops::{Add, Range},
     sync::Arc,
 };
-
-use miette::NamedSource;
 
 /// Represents token kind
 #[derive(Debug, PartialEq, Clone, Eq)]
@@ -66,6 +65,7 @@ pub enum TokenKind {
     DoubleDot,   // ..
     Number,      // any number
     String,      // "quoted text"
+    Char,        // 'a'
     Id,          // identifier
     Bool,        // bool
 }

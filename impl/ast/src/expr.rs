@@ -11,6 +11,9 @@ pub enum Lit {
     /// String
     String(String),
 
+    /// Char
+    Char(char),
+
     /// Bool
     Bool(bool),
 }

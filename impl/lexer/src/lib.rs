@@ -190,9 +190,11 @@ impl<'s> Lexer<'s> {
     fn advance_escape_sequence(&mut self) -> char {
         // `\` char
         self.advance();
+
         // Reading next character.
         let ch = self.current;
         self.advance();
+
         // Checking character kind.
         match ch {
             Some('n') => '\n',
@@ -215,8 +217,10 @@ impl<'s> Lexer<'s> {
         // Advancing `"`
         self.advance();
         let start = self.idx;
+
         // Text buffer
         let mut buffer = String::new();
+
         // Building string before reaching `"`
         while self.current != Some('"') {
             // Checking for next char
@@ -232,6 +236,7 @@ impl<'s> Lexer<'s> {
                 }),
             }
         }
+
         // Advancing `"`
         self.advance();
         let end = self.idx;
@@ -239,6 +244,44 @@ impl<'s> Lexer<'s> {
             Span(self.source.clone(), start..end),
             TokenKind::String,
             buffer,
+        )
+    }
+
+    /// Advances character
+    fn advance_char(&mut self) -> Token {
+        // Advancing `'`
+        self.advance();
+        let start = self.idx;
+
+        // Checking for escape sequence
+        let ch = match self.current {
+            Some('\\') => self.advance_escape_sequence(),
+            Some(_) => {
+                let ch = self.current.unwrap();
+                self.advance();
+                ch
+            }
+            None => bail!(LexError::UnclosedCharQuotes {
+                src: self.source.clone(),
+                span: (start..self.idx).into(),
+            }),
+        };
+
+        // Advancing ending quote
+        if self.current == Some('\'') {
+            self.advance();
+        } else {
+            bail!(LexError::UnclosedCharQuotes {
+                src: self.source.clone(),
+                span: (start..self.idx).into(),
+            })
+        }
+        let end = self.idx;
+
+        Token::new(
+            Span(self.source.clone(), start..end),
+            TokenKind::String,
+            ch.to_string(),
         )
     }
 
@@ -378,7 +421,10 @@ impl<'s> Lexer<'s> {
 
     /// Is whitespace
     fn is_whitespace(&mut self) -> bool {
-        matches!(self.current, Some(' ') | Some('\n') | Some('\t') | Some('\r'))
+        matches!(
+            self.current,
+            Some(' ') | Some('\n') | Some('\t') | Some('\r')
+        )
     }
 
     /// Is id letter
@@ -446,6 +492,7 @@ impl<'s> Iterator for Lexer<'s> {
             (Some(':'), _) => Some(self.advance_with(TokenKind::Colon, ":")),
             (Some(';'), _) => Some(self.advance_with(TokenKind::Semi, ";")),
             (Some('"'), _) => Some(self.advance_string()),
+            (Some('\''), _) => Some(self.advance_char()),
             (Some(ch), _) => {
                 if self.is_digit() {
                     Some(self.advance_number())

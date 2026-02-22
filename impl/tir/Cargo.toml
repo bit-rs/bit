@@ -1,0 +1,8 @@
+[package]
+name = "tir"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+id-arena = "2.3.0"
+common = { path = "../common" }
