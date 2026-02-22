@@ -1,6 +1,7 @@
 /// Imports
 use crate::def::{AdtDef, FnDef};
 use id_arena::Id;
+use std::fmt::Debug;
 
 /// Defines primitive signed integer type
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -79,7 +80,7 @@ pub enum Ty {
 
     /// Generic parameter type `T`, `K`
     Generic(usize),
-    
+
     /// An inference type variable
     Var(Id<TyVar>),
 
@@ -88,4 +89,7 @@ pub enum Ty {
 
     /// Mutable reference `&mut T`
     MutRef(Box<Ty>),
+
+    /// A placeholder for a type which could not be computed
+    Error,
 }

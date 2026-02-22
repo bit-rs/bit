@@ -368,6 +368,7 @@ dependencies = [
 name = "tir"
 version = "0.1.0"
 dependencies = [
+ "ast",
  "common",
  "id-arena",
  "macros",
@@ -383,6 +384,7 @@ dependencies = [
  "id-arena",
  "macros",
  "miette",
+ "thiserror",
  "tir",
 ]
 

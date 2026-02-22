@@ -62,101 +62,43 @@ impl TyCx {
 }
 
 /// Represents a stack-based context for managing generic type parameters
-/// during type inference and hydration.
+/// during type inference and name resolution.
 ///
-/// The `GenericsCx` structure maintains a stack of generic scopes.
-/// Each scope (a `HashMap<usize>`) contains the names of generic type
-/// parameters that are currently in scope and their ID's.
-///
-/// This allows the type checker and hydrator to correctly resolve
-/// generic type names to their bound variables in nested or shadowed contexts.
-///
-/// # Fields
-///
-/// - `stack: Vec<HashMap<EcoString, usize>>` — A stack of scopes,
-///   where each scope holds the names of generics currently active within that scope.
-///
-/// - `last_generic_id: usize` — Last generic id, used to
-///   generate fresh UID's for generics.
-///
-/// # Notes
-/// - contains method checks generic name
-///   only in the last scope.
+/// Each scope corresponds to a single generic parameter list (e.g. a function
+/// or struct definition). Parameter names are stored in declaration order,
+/// so their index in the inner `Vec<String>` directly corresponds to `Generic(i)`.
 ///
 #[derive(Default, Debug)]
 pub struct GenericsCx {
-    stack: Vec<HashMap<String, usize>>,
-    last_generic_id: usize,
+    stack: Vec<Vec<String>>,
 }
 
 /// Implementation
 impl GenericsCx {
-    /// Pushes the scope onto the stack
-    /// and inserts given generic arguments
-    /// in it.
-    ///
-    /// # Parameters
-    /// - `generics: Vec<String>`
-    ///   Generic parameter names.
-    ///
-    /// # Returns
-    /// - `Vec<GenericParam>`
-    ///   Created generic parameters info
-    ///
-    pub fn push_scope(&mut self, generics: Vec<String>) -> Vec<GenericParam> {
-        let generics: HashMap<String, usize> =
-            generics.into_iter().map(|g| (g, self.fresh())).collect();
-        self.stack.push(generics.clone());
-        generics
-            .into_iter()
-            .map(|g| GenericParam { name: g.0, id: g.1 })
-            .collect()
+    /// Pushes a new scope onto the stack with the given generic parameter names.
+    pub fn push_scope(&mut self, generics: Vec<String>) {
+        self.stack.push(generics);
     }
 
-    /// Pushes a new scope consisting of **already constructed**
-    /// generic parameters (usually reconstructed from a type).
-    ///
-    /// # Parameters
-    /// - `generics: Vec<GenericParameter>`
-    ///   Generic parameters.
-    ///
-    pub fn re_push_scope(&mut self, generics: Vec<GenericParam>) {
-        self.stack
-            .push(generics.into_iter().map(|g| (g.name, g.id)).collect());
-    }
-
-    /// Pops scope from the stack
+    /// Pops the current scope from the stack.
     pub fn pop_scope(&mut self) {
         self.stack.pop();
     }
 
-    /// Returns generic ID by the name
-    /// from the last scope, if generic exists.
-    ///
-    /// # Parameters
-    /// - `name: &str`
-    ///   Name of the generic
-    ///
+    /// Resolves a generic parameter name to its index in the current scope.
     pub fn get(&self, name: &str) -> Option<usize> {
-        self.stack.last().and_then(|s| s.get(name).copied())
+        self.stack.last()?.iter().position(|g| g == name)
     }
 
-    /// Generates fresh unique id
-    /// for the generic type variable.
-    ///
-    #[inline]
-    pub fn fresh(&mut self) -> usize {
-        self.last_generic_id += 1;
-        self.last_generic_id
+    /// Checks whether the given generic index is rigid in the current scope,
+    /// i.e. it corresponds to a declared generic parameter.
+    pub fn is_rigid(&self, idx: usize) -> bool {
+        self.stack.last().is_some_and(|s| s.get(idx).is_some())
     }
 
-    /// Checks that generic is rigid
-    #[must_use]
-    #[inline]
-    pub fn is_rigid(&self, id: usize) -> bool {
-        self.stack
-            .last()
-            .is_some_and(|s| s.values().any(|g| g == &id))
+    /// Returns the name of a generic parameter by its index in the current scope.
+    pub fn name_of(&self, idx: usize) -> Option<String> {
+        self.stack.last()?.get(idx).cloned()
     }
 }
 
@@ -451,6 +393,51 @@ impl<'tcx> InferCx<'tcx> {
             Ty::Adt(_, args) | Ty::Fn(_, args) => args.iter().any(|a| self.occurs(id, a)),
             Ty::Ref(inner) | Ty::MutRef(inner) => self.occurs(id, inner),
             _ => false,
+        }
+    }
+
+    /// Pretty prints type
+    pub fn print_ty(&self, ty: &Ty) -> String {
+        match ty {
+            Ty::Int(i) => format!("{i}"),
+            Ty::UInt(u) => format!("{u}"),
+            Ty::Float(f) => format!("{f}"),
+            Ty::Bool => "bool".to_string(),
+            Ty::Char => "char".to_string(),
+            Ty::String => "str".to_string(),
+            Ty::Unit => "()".to_string(),
+            Ty::Var(_) => "_".to_string(),
+            Ty::Ref(inner) => format!("&{}", self.print_ty(inner)),
+            Ty::MutRef(inner) => format!("&mut {}", self.print_ty(inner)),
+            Ty::Generic(id) => self
+                .generics
+                .name_of(*id)
+                .unwrap_or_else(|| format!("T{id}")),
+            Ty::Adt(id, args) => {
+                let name = self.tcx.adt(*id).name().to_string();
+                if args.is_empty() {
+                    name
+                } else {
+                    let args = args
+                        .iter()
+                        .map(|a| self.print_ty(a))
+                        .collect::<Vec<_>>()
+                        .join(", ");
+                    format!("{name}<{args}>")
+                }
+            }
+            Ty::Fn(id, args) => {
+                let def = self.tcx._fn(*id);
+                let params = def
+                    .params
+                    .iter()
+                    .map(|p| self.print_ty(&p.ty))
+                    .collect::<Vec<_>>()
+                    .join(", ");
+                let ret = self.print_ty(&def.ret);
+                format!("fn({params}) -> {ret}")
+            }
+            Ty::Error => "error".to_string(),
         }
     }
 }

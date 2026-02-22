@@ -1,5 +1,6 @@
 /// Imports
 use crate::{atom::TypeHint, stmt::Block, ty::Ty};
+use ast::expr::{AssignOp, BinOp, UnOp};
 use common::token::Span;
 
 /// Literal
@@ -16,111 +17,6 @@ pub enum Lit {
 
     /// Bool
     Bool(bool),
-}
-
-/// Unary operation
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum UnOp {
-    // -
-    Neg,
-
-    // !
-    Bang,
-
-    // *
-    Deref,
-
-    // &
-    Ref,
-
-    // &mut
-    MutRef,
-}
-
-/// Assignment operation
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum AssignOp {
-    // +=
-    AddEq,
-
-    // -=
-    SubEq,
-
-    // *=
-    MulEq,
-
-    // /=
-    DivEq,
-
-    // %=
-    ModEq,
-
-    // &=
-    AndEq,
-
-    // |=
-    OrEq,
-
-    // ^=
-    XorEq,
-
-    // =
-    Eq,
-}
-
-/// Binary operation
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum BinOp {
-    // +
-    Add,
-
-    // -
-    Sub,
-
-    // *
-    Mul,
-
-    // /
-    Div,
-
-    // %
-    Mod,
-
-    // &&
-    And,
-
-    // ||
-    Or,
-
-    // &
-    BitAnd,
-
-    // |
-    BitOr,
-
-    // ^
-    Xor,
-
-    // ==
-    Eq,
-
-    // !=
-    Ne,
-
-    // >=
-    Ge,
-
-    // <=
-    Le,
-
-    // >
-    Gt,
-
-    // <
-    Lt,
-
-    // <>
-    Concat,
 }
 
 /// Expression kind
@@ -165,5 +61,5 @@ pub enum ExprKind {
 pub struct Expr {
     pub kind: ExprKind,
     pub span: Span,
-    pub ty: Ty
+    pub ty: Ty,
 }

@@ -1,21 +1,28 @@
 /// Imports
-use crate::cx::InferCx;
+use crate::{cx::InferCx, errors::TypeckError};
 use common::token::Span;
 use tir::{
-    expr::{Expr, ExprKind, Lit, UnOp},
+    expr::{Expr, ExprKind, Lit},
     ty::Ty,
 };
 
 /// Represents Typechecker
 pub struct TypeChecker<'tcx, 'icx> {
+    /// Inference context reference
     icx: &'icx mut InferCx<'tcx>,
+
+    /// Diagnostics vector
+    diagnostics: Vec<TypeckError>,
 }
 
 /// Implementation
 impl<'tcx, 'icx> TypeChecker<'tcx, 'icx> {
     /// Creates new type checker
     pub fn new(icx: &'icx mut InferCx<'tcx>) -> Self {
-        Self { icx }
+        Self {
+            icx,
+            diagnostics: Vec::new(),
+        }
     }
 
     /// Infers literal expression
@@ -55,70 +62,36 @@ impl<'tcx, 'icx> TypeChecker<'tcx, 'icx> {
     }
 
     /// Infers unary expression
-    pub fn infer_unary(&mut self, span: Span, un_op: UnOp, expr: ast::expr::Expr) -> Expr {
+    pub fn infer_unary(
+        &mut self,
+        span: Span,
+        un_op: ast::expr::UnOp,
+        expr: ast::expr::Expr,
+    ) -> Expr {
         // Inferring the expr
         let expr = self.infer_expr(expr);
 
-        // Matching type
-        match (un_op, &expr.ty) {
-            (UnOp::Neg, Ty::Int(int_ty)) => Expr {
-                span,
-                kind: ExprKind::Unary(un_op, Box::new(expr)),
-                ty: Ty::Int(*int_ty),
-            },
-            (UnOp::Neg, Ty::UInt(uint_ty)) => bail!(),
+        // Calculating type
+        let ty = match (un_op, &expr.ty) {
+            (UnOp::Neg, Ty::Int(int_ty)) => Ty::Int(*int_ty),
+            (UnOp::Neg, Ty::UInt(uint_ty)) => Ty::UInt(*uint_ty),
             (UnOp::Neg, Ty::Float(float_ty)) => Expr {
                 span,
                 kind: ExprKind::Unary(un_op, Box::new(expr)),
                 ty: Ty::Int(*float_ty),
             },
-            (UnOp::Bang, Ty::Bool) => todo!(),
-            (UnOp::Bang, Ty::Unit) => todo!(),
-            (UnOp::Bang, Ty::Adt(id, items)) => todo!(),
-            (UnOp::Bang, Ty::Fn(id, items)) => todo!(),
-            (UnOp::Bang, Ty::Generic(_)) => todo!(),
-            (UnOp::Bang, Ty::Var(id)) => todo!(),
-            (UnOp::Bang, Ty::Ref(ty)) => todo!(),
-            (UnOp::Bang, Ty::MutRef(ty)) => todo!(),
-            (UnOp::Deref, Ty::Int(int_ty)) => todo!(),
-            (UnOp::Deref, Ty::UInt(uint_ty)) => todo!(),
-            (UnOp::Deref, Ty::Float(float_ty)) => todo!(),
-            (UnOp::Deref, Ty::String) => todo!(),
-            (UnOp::Deref, Ty::Char) => todo!(),
-            (UnOp::Deref, Ty::Bool) => todo!(),
-            (UnOp::Deref, Ty::Unit) => todo!(),
-            (UnOp::Deref, Ty::Adt(id, items)) => todo!(),
-            (UnOp::Deref, Ty::Fn(id, items)) => todo!(),
-            (UnOp::Deref, Ty::Generic(_)) => todo!(),
-            (UnOp::Deref, Ty::Var(id)) => todo!(),
-            (UnOp::Deref, Ty::Ref(ty)) => todo!(),
-            (UnOp::Deref, Ty::MutRef(ty)) => todo!(),
-            (UnOp::Ref, Ty::Int(int_ty)) => todo!(),
-            (UnOp::Ref, Ty::UInt(uint_ty)) => todo!(),
-            (UnOp::Ref, Ty::Float(float_ty)) => todo!(),
-            (UnOp::Ref, Ty::String) => todo!(),
-            (UnOp::Ref, Ty::Char) => todo!(),
-            (UnOp::Ref, Ty::Bool) => todo!(),
-            (UnOp::Ref, Ty::Unit) => todo!(),
-            (UnOp::Ref, Ty::Adt(id, items)) => todo!(),
-            (UnOp::Ref, Ty::Fn(id, items)) => todo!(),
-            (UnOp::Ref, Ty::Generic(_)) => todo!(),
-            (UnOp::Ref, Ty::Var(id)) => todo!(),
-            (UnOp::Ref, Ty::Ref(ty)) => todo!(),
-            (UnOp::Ref, Ty::MutRef(ty)) => todo!(),
-            (UnOp::MutRef, Ty::Int(int_ty)) => todo!(),
-            (UnOp::MutRef, Ty::UInt(uint_ty)) => todo!(),
-            (UnOp::MutRef, Ty::Float(float_ty)) => todo!(),
-            (UnOp::MutRef, Ty::String) => todo!(),
-            (UnOp::MutRef, Ty::Char) => todo!(),
-            (UnOp::MutRef, Ty::Bool) => todo!(),
-            (UnOp::MutRef, Ty::Unit) => todo!(),
-            (UnOp::MutRef, Ty::Adt(id, items)) => todo!(),
-            (UnOp::MutRef, Ty::Fn(id, items)) => todo!(),
-            (UnOp::MutRef, Ty::Generic(_)) => todo!(),
-            (UnOp::MutRef, Ty::Var(id)) => todo!(),
-            (UnOp::MutRef, Ty::Ref(ty)) => todo!(),
-            (UnOp::MutRef, Ty::MutRef(ty)) => todo!(),
+            (op, ty) => self.diagnostics.push(TypeckError::InvalidUnaryOp {
+                src: span.0,
+                span: span.1,
+                op: un_op,
+                ty,
+            }),
+        };
+
+        Expr {
+            span,
+            kind: ExprKind::Unary(, Box::new(expr)),
+            ty,
         }
     }
 
