@@ -1,5 +1,8 @@
 /// Imports
 use ast::expr::UnOp;
+use miette::{Diagnostic, NamedSource, SourceSpan};
+use std::sync::Arc;
+use thiserror::Error;
 use tir::ty::Ty;
 
 /// Types error
@@ -25,6 +28,6 @@ pub enum TypeckError {
         #[label("here...")]
         span: SourceSpan,
         op: UnOp,
-        ty: Ty,
+        ty: String,
     },
 }

@@ -4,7 +4,7 @@ use id_arena::Id;
 use std::fmt::Debug;
 
 /// Defines primitive signed integer type
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum IntTy {
     I8,
     I16,
@@ -13,7 +13,7 @@ pub enum IntTy {
 }
 
 /// Defines primitive unsigned integer type
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum UIntTy {
     U8,
     U16,
@@ -22,7 +22,7 @@ pub enum UIntTy {
 }
 
 /// Defines primitive floating-point type
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash, Copy)]
 pub enum FloatTy {
     F32,
     F64,

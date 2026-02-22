@@ -1,13 +1,11 @@
 /// Imports
+use crate::errors::TypeError;
 use id_arena::{Arena, Id};
 use macros::bug;
-use std::collections::HashMap;
 use tir::{
     def::{AdtDef, FnDef, GenericParam},
     ty::{GenericArgs, Ty, TyVar},
 };
-
-use crate::errors::TypeError;
 
 /// Type context.
 ///
@@ -399,9 +397,9 @@ impl<'tcx> InferCx<'tcx> {
     /// Pretty prints type
     pub fn print_ty(&self, ty: &Ty) -> String {
         match ty {
-            Ty::Int(i) => format!("{i}"),
-            Ty::UInt(u) => format!("{u}"),
-            Ty::Float(f) => format!("{f}"),
+            Ty::Int(i) => format!("{i:?}"),
+            Ty::UInt(u) => format!("{u:?}"),
+            Ty::Float(f) => format!("{f:?}"),
             Ty::Bool => "bool".to_string(),
             Ty::Char => "char".to_string(),
             Ty::String => "str".to_string(),
@@ -431,7 +429,7 @@ impl<'tcx> InferCx<'tcx> {
                 let params = def
                     .params
                     .iter()
-                    .map(|p| self.print_ty(&p.ty))
+                    .map(|p| self.print_ty(&self.subst(p.clone(), args)))
                     .collect::<Vec<_>>()
                     .join(", ");
                 let ret = self.print_ty(&def.ret);

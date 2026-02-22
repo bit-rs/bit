@@ -71,6 +71,17 @@ pub enum AdtDef {
     Enum(EnumDef),
 }
 
+/// Implementation
+impl AdtDef {
+    // Returns ADT name
+    pub fn name(&self) -> String {
+        match self {
+            AdtDef::Struct(struct_def) => struct_def.name.clone(),
+            AdtDef::Enum(enum_def) => enum_def.name.clone(),
+        }
+    }
+}
+
 /// Represents function definition in types context
 pub struct FnDef {
     /// Span of the enum definition

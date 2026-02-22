@@ -1,5 +1,6 @@
 /// Imports
 use crate::{cx::InferCx, errors::TypeckError};
+use ast::expr::{BinOp, UnOp};
 use common::token::Span;
 use tir::{
     expr::{Expr, ExprKind, Lit},
@@ -62,44 +63,48 @@ impl<'tcx, 'icx> TypeChecker<'tcx, 'icx> {
     }
 
     /// Infers unary expression
-    pub fn infer_unary(
-        &mut self,
-        span: Span,
-        un_op: ast::expr::UnOp,
-        expr: ast::expr::Expr,
-    ) -> Expr {
+    pub fn infer_unary(&mut self, span: Span, un_op: UnOp, expr: ast::expr::Expr) -> Expr {
         // Inferring the expr
         let expr = self.infer_expr(expr);
 
         // Calculating type
-        let ty = match (un_op, &expr.ty) {
+        let ty = match (&un_op, &expr.ty) {
             (UnOp::Neg, Ty::Int(int_ty)) => Ty::Int(*int_ty),
             (UnOp::Neg, Ty::UInt(uint_ty)) => Ty::UInt(*uint_ty),
-            (UnOp::Neg, Ty::Float(float_ty)) => Expr {
-                span,
-                kind: ExprKind::Unary(un_op, Box::new(expr)),
-                ty: Ty::Int(*float_ty),
-            },
-            (op, ty) => self.diagnostics.push(TypeckError::InvalidUnaryOp {
-                src: span.0,
-                span: span.1,
-                op: un_op,
-                ty,
-            }),
+            (UnOp::Neg, Ty::Float(float_ty)) => Ty::Float(*float_ty),
+            (op, ty) => {
+                self.diagnostics.push(TypeckError::InvalidUnaryOp {
+                    src: span.0,
+                    span: span.1.into(),
+                    op: un_op,
+                    ty: self.icx.print_ty(ty),
+                });
+                ty.clone()
+            }
         };
 
         Expr {
             span,
-            kind: ExprKind::Unary(, Box::new(expr)),
+            kind: ExprKind::Unary(un_op, Box::new(expr)),
             ty,
         }
+    }
+
+    /// Infers binary expression
+    pub fn infer_binary(
+        &mut self,
+        span: Span,
+        bin_op: BinOp,
+        lhs: ast::expr::Expr,
+        rhs: ast::expr::Expr,
+    ) -> Expr {
     }
 
     /// Infers expression and applies substitutions
     pub fn infer_expr(&mut self, expr: ast::expr::Expr) -> Expr {
         let mut expr = match expr.kind {
             ast::expr::ExprKind::Lit(lit) => self.infer_lit(expr.span, lit),
-            ast::expr::ExprKind::Unary(un_op, expr) => self.infer_unary(expr.span, un_op, expr),
+            ast::expr::ExprKind::Unary(un_op, inner) => self.infer_unary(expr.span, un_op, *inner),
             ast::expr::ExprKind::Bin(bin_op, expr, expr1) => todo!(),
             ast::expr::ExprKind::If(expr, expr1, expr2) => todo!(),
             ast::expr::ExprKind::Call(expr, exprs) => todo!(),
