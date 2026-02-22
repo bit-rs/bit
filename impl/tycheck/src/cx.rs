@@ -288,6 +288,9 @@ impl<'tcx> InferCx<'tcx> {
 
         // Matching types
         match (t1, t2) {
+            // Skipping errors
+            (Ty::Error, _) | (_, Ty::Error) => Ok(()),
+
             // Same primitive types
             (Ty::Int(a), Ty::Int(b)) if a == b => Ok(()),
             (Ty::UInt(a), Ty::UInt(b)) if a == b => Ok(()),

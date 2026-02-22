@@ -1,5 +1,5 @@
 /// Imports
-use ast::expr::UnOp;
+use ast::expr::{BinOp, UnOp};
 use miette::{Diagnostic, NamedSource, SourceSpan};
 use std::sync::Arc;
 use thiserror::Error;
@@ -40,5 +40,18 @@ pub enum TypeckError {
         span: SourceSpan,
         op: UnOp,
         ty: String,
+    },
+
+    /// Invalid unary operation
+    #[error("invalid unary op `{op:?}` on expr-s with ty-s `{t1}` and `{t2}`")]
+    #[diagnostic(code(typeck::invalid_bin_op))]
+    InvalidBinOp {
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("here...")]
+        span: SourceSpan,
+        op: BinOp,
+        t1: String,
+        t2: String,
     },
 }
