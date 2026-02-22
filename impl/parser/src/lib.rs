@@ -71,12 +71,12 @@ impl<'s> Parser<'s> {
         let mut items = Vec::new();
         self.expect(open);
 
-        if !self.check(close.clone()) {
+        if !self.check(close) {
             loop {
                 items.push(parse_item(self));
-                if self.check(sep.clone()) {
-                    self.expect(sep.clone());
-                    if self.check(close.clone()) {
+                if self.check(sep) {
+                    self.expect(sep);
+                    if self.check(close) {
                         break;
                     }
                 } else {
@@ -99,8 +99,8 @@ impl<'s> Parser<'s> {
 
         loop {
             items.push(parse_item(self));
-            if self.check(sep.clone()) {
-                self.expect(sep.clone());
+            if self.check(sep) {
+                self.expect(sep);
             } else {
                 break;
             }
@@ -109,21 +109,12 @@ impl<'s> Parser<'s> {
         items
     }
 
-    /// Checks token match
+    /// Checks, does token match or not.
     pub(crate) fn check(&self, tk: TokenKind) -> bool {
-        match &self.current {
-            Some(it) => {
-                if it.kind == tk {
-                    true
-                } else {
-                    false
-                }
-            }
-            None => false,
-        }
+        self.current.as_ref().map(|x| x.kind == tk).unwrap_or_default()
     }
 
-    /// Retrieves current token
+    /// Retrieves current token.
     pub(crate) fn peek(&self) -> &Token {
         match &self.current {
             Some(tk) => tk,

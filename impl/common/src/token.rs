@@ -7,7 +7,7 @@ use std::{
 };
 
 /// Represents token kind
-#[derive(Debug, PartialEq, Clone, Eq)]
+#[derive(Debug, PartialEq, Copy, Clone, Eq)]
 pub enum TokenKind {
     Use,         // `use` keyword
     For,         // `for` keyword
