@@ -226,7 +226,6 @@ fn insert_method() -> Method {
                                                 )
                                             }
                                         }
-                                        }
                                     },
                                     _ => utils::error(span, "index should be an int"),
                                 };
