@@ -171,7 +171,7 @@ fn set_method() -> Method {
                                             if idx >= vec.len() {
                                                 utils::error(span, "index out of bounds")
                                             } else {
-                                                vec[idx_usize] = values.get(2).cloned().unwrap()
+                                                vec[idx] = values.get(2).cloned().unwrap()
                                             }
                                         }
                                     },
