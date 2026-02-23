@@ -1,8 +1,11 @@
 /// Imports
 use crate::{
+    builtins::list,
     refs::{EnvRef, Ref},
-    rt::env::Environment,
-    rt::value::{Callable, Native, Value},
+    rt::{
+        env::Environment,
+        value::{Callable, Native, Value},
+    },
 };
 use std::{cell::RefCell, rc::Rc};
 
@@ -44,5 +47,6 @@ pub fn provide_env() -> EnvRef {
     env.force_define("print", Value::Callable(Callable::Native(print())));
     env.force_define("println", Value::Callable(Callable::Native(println())));
     env.force_define("readln", Value::Callable(Callable::Native(readln())));
+    env.force_define("List", Value::Type(list::provide_type()));
     Rc::new(RefCell::new(env))
 }

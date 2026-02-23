@@ -1,0 +1,4 @@
+let list = List();
+list.push(3);
+list.push("hello");
+println(list.to_string());

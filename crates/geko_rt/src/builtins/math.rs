@@ -692,7 +692,7 @@ fn hypot() -> Ref<Native> {
     });
 }
 
-/// Provides math module env
+/// Provides `math` module env
 pub fn provide_env() -> EnvRef {
     let mut env = Environment::default();
 

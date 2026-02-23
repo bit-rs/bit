@@ -1,8 +1,10 @@
 /// Modules
 mod core;
+mod is;
+mod list;
 mod math;
 mod mods;
-mod is;
+mod utils;
 
 /// Imports
 use crate::{
