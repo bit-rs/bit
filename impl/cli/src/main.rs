@@ -5,7 +5,7 @@ use miette::NamedSource;
 use parser::Parser;
 
 fn main() {
-    let _ = miette::set_hook(Box::new(|_| {
+    if let Err(e) = miette::set_hook(Box::new(|_| {
         Box::new(
             miette::MietteHandlerOpts::new()
                 .terminal_links(true)
@@ -15,7 +15,11 @@ fn main() {
                 .context_lines(3)
                 .build(),
         )
-    }));
+    })) {
+        eprintln!("Failed to install hook for Miette: {e:?}");
+        std::process::exit(1);
+    }
+
     let sources = r#"
 fn hello() {
     println("Hi!")
