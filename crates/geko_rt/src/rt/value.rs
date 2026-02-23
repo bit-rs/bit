@@ -32,13 +32,22 @@ pub struct Closure {
     pub environment: EnvRef,
 }
 
-/// Bound function
+/// Bound method
 #[derive(Clone, Debug)]
 pub struct Bound {
-    /// Function
-    pub function: Ref<Closure>,
+    /// Bound method
+    pub method: Method,
     /// Instance bound method belongs to
     pub belongs_to: MutRef<Instance>,
+}
+
+/// User data type method
+#[derive(Clone, Debug)]
+pub enum Method {
+    // Native method
+    Native(Ref<Native>),
+    // Closure method
+    Closure(Ref<Closure>),
 }
 
 /// User data type
@@ -47,7 +56,7 @@ pub struct Type {
     /// Data type name
     pub name: String,
     /// Data type methods
-    pub methods: HashMap<String, Ref<Function>>,
+    pub methods: HashMap<String, Method>,
 }
 
 /// User data type instance

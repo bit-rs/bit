@@ -6,7 +6,7 @@ use crate::{
     rt::{
         env::Environment,
         flow::{ControlFlow, Flow},
-        value::{Bound, Callable, Closure, Instance, Native, Type, Value},
+        value::{Bound, Callable, Closure, Instance, Method, Native, Type, Value},
     },
 };
 use geko_ast::{
@@ -273,10 +273,7 @@ impl<I: IO> Interpreter<I> {
                     it.0,
                     // Creating bound method for earch
                     Value::Callable(Callable::Bound(Ref::new(Bound {
-                        function: Ref::new(Closure {
-                            function: it.1,
-                            environment: self.env.clone(),
-                        }),
+                        method: it.1,
                         // Field belongs to fresh instance
                         belongs_to: instance.clone(),
                     }))),
@@ -310,12 +307,9 @@ impl<I: IO> Interpreter<I> {
     fn call_closure(
         &mut self,
         span: &Span,
-        args: &Vec<Expression>,
+        args: Vec<Value>,
         closure: Ref<Closure>,
     ) -> Flow<Value> {
-        // Evaluating arguments
-        let args = self.eval_args(args)?;
-
         // Checking arity
         self.check_arity(span, closure.function.params.len(), args.len());
 
@@ -349,68 +343,8 @@ impl<I: IO> Interpreter<I> {
         Ok(result)
     }
 
-    /// Calls bound method
-    fn call_bound_method(
-        &mut self,
-        span: &Span,
-        args: &Vec<Expression>,
-        bound: Ref<Bound>,
-    ) -> Flow<Value> {
-        // Evaluating arguments
-        let args = self.eval_args(args)?;
-
-        // Bound closure
-        let closure = &bound.function;
-
-        // Checking arity
-        self.check_arity(span, closure.function.params.len(), args.len());
-
-        // Pushing environment
-        let previous = self.env.clone();
-        self.env = EnvRef::new(RefCell::new(Environment::new(closure.environment.clone())));
-
-        // Defining `self`
-        self.env
-            .borrow_mut()
-            .define(span, "self", Value::Instance(bound.belongs_to.clone()));
-
-        // Defining arguments
-        bound
-            .function
-            .function
-            .params
-            .iter()
-            .zip(args)
-            .for_each(|(p, a)| self.env.borrow_mut().define(span, p, a));
-
-        // Executing
-        let result = {
-            match self.exec_block(&closure.function.block, false) {
-                Ok(_) => Value::Null,
-                Err(flow) => match flow {
-                    ControlFlow::Return(value) => value,
-                    _ => panic!("Control flow leak."),
-                },
-            }
-        };
-
-        // Popping environment
-        self.env = previous;
-
-        // Done!
-        Ok(result)
-    }
-
     /// Calls native function
-    fn call_native(
-        &mut self,
-        span: &Span,
-        args: &Vec<Expression>,
-        native: Ref<Native>,
-    ) -> Flow<Value> {
-        // Evaluating arguments
-        let args = self.eval_args(args)?;
-
+    fn call_native(&mut self, span: &Span, args: Vec<Value>, native: Ref<Native>) -> Flow<Value> {
         // Checking arity
         self.check_arity(span, native.arity, args.len());
 
@@ -427,7 +361,7 @@ impl<I: IO> Interpreter<I> {
     }
 
     /// Calls type and creates instance
-    fn call_type(&mut self, span: &Span, args: &Vec<Expression>, ty: Ref<Type>) -> Flow<Value> {
+    fn call_type(&mut self, span: &Span, args: Vec<Value>, ty: Ref<Type>) -> Flow<Value> {
         // Creating instance
         let instance = self.create_instance(ty);
 
@@ -446,11 +380,33 @@ impl<I: IO> Interpreter<I> {
         // Done!
         Ok(Value::Instance(instance))
     }
+    
+    /// Calls bound method
+    fn call_bound_method(
+        &mut self,
+        span: &Span,
+        mut args: Vec<Value>,
+        bound: Ref<Bound>,
+    ) -> Flow<Value> {
+        // Evaluating arguments
+        args.insert(0, Value::Instance(bound.belongs_to.clone()));
+
+        // Bound closure
+        match &bound.method {
+            Method::Native(native) => self.call_native(span, args, native.clone()),
+            Method::Closure(closure) => self.call_closure(span, args, closure.clone()),
+        }
+    }
 
     /// Evaluates call expression
     fn eval_call(&mut self, span: &Span, args: &Vec<Expression>, what: &Expression) -> Flow<Value> {
+        // Evaluating arguments
+        let args = self.eval_args(args)?;
+
+        // Evaluating callee
         let value = self.eval(what)?;
         match value {
+            // Calling
             Value::Callable(callable) => match callable {
                 Callable::Closure(closure) => self.call_closure(span, args, closure),
                 Callable::Bound(bound) => self.call_bound_method(span, args, bound),
