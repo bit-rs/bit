@@ -80,6 +80,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ needs.prepare-release.outputs.NIGHTLY_TAG }}
+          name: ${{ steps.set-vars.outputs.NIGHTLY_TITLE }}
           files: release/*
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
@@ -111,6 +112,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ needs.prepare-release.outputs.NIGHTLY_TAG }}
+          name: ${{ steps.set-vars.outputs.NIGHTLY_TITLE }}
           files: release/*
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
@@ -146,6 +148,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ needs.prepare-release.outputs.NIGHTLY_TAG }}
+          name: ${{ steps.set-vars.outputs.NIGHTLY_TITLE }}
           files: release/*
         env:
           GITHUB_TOKEN: ${{ secrets.PAT_GITHUB_TOKEN }}
