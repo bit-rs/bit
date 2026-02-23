@@ -217,7 +217,7 @@ fn insert_method() -> Method {
                                             utils::error(span, "index should be positive int")
                                         } else {
                                             let idx = idx as usize;
-                                            if idx >= vec.len() {
+                                            if idx > vec.len() {
                                                 utils::error(span, "index out of bounds")
                                             } else {
                                                 vec.insert(
@@ -225,6 +225,7 @@ fn insert_method() -> Method {
                                                     values.get(2).cloned().unwrap(),
                                                 )
                                             }
+                                        }
                                         }
                                     },
                                     _ => utils::error(span, "index should be an int"),
