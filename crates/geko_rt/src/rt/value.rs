@@ -3,7 +3,12 @@ use crate::refs::{EnvRef, MutRef, Ref};
 use geko_ast::stmt::Block;
 use geko_common::io::IO;
 use geko_lex::token::Span;
-use std::{collections::HashMap, fmt::Display, rc::Rc};
+use std::{
+    any::Any,
+    collections::HashMap,
+    fmt::{Debug, Display},
+    rc::Rc,
+};
 
 /// Native function value
 #[derive(Clone, Debug)]
@@ -99,7 +104,7 @@ impl PartialEq for Callable {
 }
 
 /// Runtime value representation
-#[derive(Clone, Debug)]
+#[derive(Clone)]
 pub enum Value {
     /// Boolean value
     Bool(bool),
@@ -117,6 +122,8 @@ pub enum Value {
     Module(MutRef<Module>),
     /// Type instance
     Instance(MutRef<Instance>),
+    /// Rust's any type
+    Any(MutRef<dyn Any>),
     /// Null reference
     Null,
 }
@@ -134,8 +141,16 @@ impl Display for Value {
             Value::Type(typ) => write!(f, "Type({})", typ.name),
             Value::Module(_) => write!(f, "Module"),
             Value::Instance(instance) => write!(f, "Instance({})", instance.borrow().type_of.name),
+            Value::Any(_) => write!(f, "Any"),
             Value::Null => write!(f, "null"),
         }
+    }
+}
+
+/// Debug implementation
+impl Debug for Value {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{self}")
     }
 }
 
