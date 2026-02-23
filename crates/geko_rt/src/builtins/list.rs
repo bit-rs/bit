@@ -404,7 +404,7 @@ fn index_of_method() -> Method {
                                 vec.iter()
                                     .position(|v| *v == value)
                                     .map(|it| Value::Int(it as i64))
-                                    .unwrap_or(Value::Int(0))
+                                    .unwrap_or(Value::Int(-1))
                             }
                             _ => utils::error(span, "corrupted list."),
                         },
