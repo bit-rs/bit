@@ -256,10 +256,13 @@ fn remove_method() -> Method {
                             Some(vec) => {
                                 match values.get(1).cloned().unwrap() {
                                     Value::Int(idx) => {
-                                        if idx >= 0 {
-                                            vec.remove(idx as usize);
-                                        } else {
+                                        let idx_usize = idx as usize;
+                                        if idx < 0 {
                                             utils::error(span, "index should be positive int")
+                                        } else if idx_usize >= vec.len() {
+                                            utils::error(span, "index out of bounds")
+                                        } else {
+                                            vec.remove(idx_usize);
                                         }
                                     }
                                     _ => utils::error(span, "index should be an int"),
