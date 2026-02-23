@@ -16,6 +16,7 @@ fn init_method() -> Method {
                 Value::Instance(instance) => {
                     let vec = Value::Any(MutRef::new(RefCell::new(Vec::<Value>::new())));
 
+                    // Safety: borrow is temporal for this line
                     instance
                         .borrow_mut()
                         .fields
@@ -37,6 +38,7 @@ fn to_string_method() -> Method {
             let list = values.get(0).cloned().unwrap();
             match list {
                 Value::Instance(instance) => {
+                    // Safety: borrow is temporal for this line
                     let internal = instance
                         .borrow_mut()
                         .fields
@@ -68,6 +70,7 @@ fn push_method() -> Method {
             let list = values.get(0).cloned().unwrap();
             match list {
                 Value::Instance(instance) => {
+                    // Safety: borrow is temporal for this line
                     let internal = instance
                         .borrow_mut()
                         .fields
@@ -102,6 +105,48 @@ fn get_method() -> Method {
             let list = values.get(0).cloned().unwrap();
             match list {
                 Value::Instance(instance) => {
+                    // Safety: borrow is temporal for this line
+                    let internal = instance
+                        .borrow_mut()
+                        .fields
+                        .get("$internal")
+                        .cloned()
+                        .unwrap();
+
+                    match internal {
+                        Value::Any(list) => match list.borrow_mut().downcast_mut::<Vec<Value>>() {
+                            Some(vec) => match values.get(1).cloned().unwrap() {
+                                Value::Int(idx) => {
+                                    if idx >= 0 {
+                                        vec[idx as usize].clone()
+                                    } else {
+                                        utils::error(span, "index should be positive int")
+                                    }
+                                }
+                                _ => utils::error(span, "index should be an int"),
+                            },
+                            _ => utils::error(span, "corrupted list."),
+                        },
+                        _ => {
+                            utils::error(span, "corrupted list.");
+                        }
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }),
+    }))
+}
+
+/// Set method
+fn set_method() -> Method {
+    Method::Native(Ref::new(Native {
+        arity: 3,
+        function: Box::new(|_, span, values| {
+            let list = values.get(0).cloned().unwrap();
+            match list {
+                Value::Instance(instance) => {
+                    // Safety: borrow is temporal for this line
                     let internal = instance
                         .borrow_mut()
                         .fields
@@ -115,7 +160,7 @@ fn get_method() -> Method {
                                 match values.get(1).cloned().unwrap() {
                                     Value::Int(idx) => {
                                         if idx >= 0 {
-                                            vec[idx as usize].clone()
+                                            vec[idx as usize] = values.get(2).cloned().unwrap()
                                         } else {
                                             utils::error(span, "index should be positive int")
                                         }
@@ -124,6 +169,266 @@ fn get_method() -> Method {
                                 };
                                 Value::Null
                             }
+                            _ => utils::error(span, "corrupted list."),
+                        },
+                        _ => {
+                            utils::error(span, "corrupted list.");
+                        }
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }),
+    }))
+}
+
+/// Insert method
+fn insert_method() -> Method {
+    Method::Native(Ref::new(Native {
+        arity: 3,
+        function: Box::new(|_, span, values| {
+            let list = values.get(0).cloned().unwrap();
+            match list {
+                Value::Instance(instance) => {
+                    // Safety: borrow is temporal for this line
+                    let internal = instance
+                        .borrow_mut()
+                        .fields
+                        .get("$internal")
+                        .cloned()
+                        .unwrap();
+
+                    match internal {
+                        Value::Any(list) => match list.borrow_mut().downcast_mut::<Vec<Value>>() {
+                            Some(vec) => {
+                                match values.get(1).cloned().unwrap() {
+                                    Value::Int(idx) => {
+                                        if idx >= 0 {
+                                            vec.insert(
+                                                idx as usize,
+                                                values.get(2).cloned().unwrap(),
+                                            )
+                                        } else {
+                                            utils::error(span, "index should be positive int")
+                                        }
+                                    }
+                                    _ => utils::error(span, "index should be an int"),
+                                };
+                                Value::Null
+                            }
+                            _ => utils::error(span, "corrupted list."),
+                        },
+                        _ => {
+                            utils::error(span, "corrupted list.");
+                        }
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }),
+    }))
+}
+
+/// Remove method
+fn remove_method() -> Method {
+    Method::Native(Ref::new(Native {
+        arity: 2,
+        function: Box::new(|_, span, values| {
+            let list = values.get(0).cloned().unwrap();
+            match list {
+                Value::Instance(instance) => {
+                    // Safety: borrow is temporal for this line
+                    let internal = instance
+                        .borrow_mut()
+                        .fields
+                        .get("$internal")
+                        .cloned()
+                        .unwrap();
+
+                    match internal {
+                        Value::Any(list) => match list.borrow_mut().downcast_mut::<Vec<Value>>() {
+                            Some(vec) => {
+                                match values.get(1).cloned().unwrap() {
+                                    Value::Int(idx) => {
+                                        if idx >= 0 {
+                                            vec.remove(idx as usize);
+                                        } else {
+                                            utils::error(span, "index should be positive int")
+                                        }
+                                    }
+                                    _ => utils::error(span, "index should be an int"),
+                                };
+                                Value::Null
+                            }
+                            _ => utils::error(span, "corrupted list."),
+                        },
+                        _ => {
+                            utils::error(span, "corrupted list.");
+                        }
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }),
+    }))
+}
+
+/// Len method
+fn len_method() -> Method {
+    Method::Native(Ref::new(Native {
+        arity: 1,
+        function: Box::new(|_, span, values| {
+            let list = values.get(0).cloned().unwrap();
+            match list {
+                Value::Instance(instance) => {
+                    // Safety: borrow is temporal for this line
+                    let internal = instance
+                        .borrow_mut()
+                        .fields
+                        .get("$internal")
+                        .cloned()
+                        .unwrap();
+
+                    match internal {
+                        Value::Any(list) => match list.borrow_mut().downcast_mut::<Vec<Value>>() {
+                            Some(vec) => Value::Int(vec.len() as i64),
+                            _ => utils::error(span, "corrupted list."),
+                        },
+                        _ => {
+                            utils::error(span, "corrupted list.");
+                        }
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }),
+    }))
+}
+
+/// Clear method
+fn clear_method() -> Method {
+    Method::Native(Ref::new(Native {
+        arity: 1,
+        function: Box::new(|_, span, values| {
+            let list = values.get(0).cloned().unwrap();
+            match list {
+                Value::Instance(instance) => {
+                    // Safety: borrow is temporal for this line
+                    let internal = instance
+                        .borrow_mut()
+                        .fields
+                        .get("$internal")
+                        .cloned()
+                        .unwrap();
+
+                    match internal {
+                        Value::Any(list) => match list.borrow_mut().downcast_mut::<Vec<Value>>() {
+                            Some(vec) => {
+                                vec.clear();
+                                Value::Null
+                            }
+                            _ => utils::error(span, "corrupted list."),
+                        },
+                        _ => {
+                            utils::error(span, "corrupted list.");
+                        }
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }),
+    }))
+}
+
+/// Pop method
+fn pop_method() -> Method {
+    Method::Native(Ref::new(Native {
+        arity: 1,
+        function: Box::new(|_, span, values| {
+            let list = values.get(0).cloned().unwrap();
+            match list {
+                Value::Instance(instance) => {
+                    // Safety: borrow is temporal for this line
+                    let internal = instance
+                        .borrow_mut()
+                        .fields
+                        .get("$internal")
+                        .cloned()
+                        .unwrap();
+
+                    match internal {
+                        Value::Any(list) => match list.borrow_mut().downcast_mut::<Vec<Value>>() {
+                            Some(vec) => vec.pop().unwrap_or(Value::Null),
+                            _ => utils::error(span, "corrupted list."),
+                        },
+                        _ => {
+                            utils::error(span, "corrupted list.");
+                        }
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }),
+    }))
+}
+
+/// Index of method
+fn index_of_method() -> Method {
+    Method::Native(Ref::new(Native {
+        arity: 2,
+        function: Box::new(|_, span, values| {
+            let list = values.get(0).cloned().unwrap();
+            match list {
+                Value::Instance(instance) => {
+                    // Safety: borrow is temporal for this line
+                    let internal = instance
+                        .borrow_mut()
+                        .fields
+                        .get("$internal")
+                        .cloned()
+                        .unwrap();
+
+                    match internal {
+                        Value::Any(list) => match list.borrow_mut().downcast_mut::<Vec<Value>>() {
+                            Some(vec) => {
+                                let value = values.get(1).cloned().unwrap();
+                                vec.iter()
+                                    .position(|v| *v == value)
+                                    .map(|it| Value::Int(it as i64))
+                                    .unwrap_or(Value::Int(0))
+                            }
+                            _ => utils::error(span, "corrupted list."),
+                        },
+                        _ => {
+                            utils::error(span, "corrupted list.");
+                        }
+                    }
+                }
+                _ => unreachable!(),
+            }
+        }),
+    }))
+}
+
+/// Contains
+fn contains_method() -> Method {
+    Method::Native(Ref::new(Native {
+        arity: 2,
+        function: Box::new(|_, span, values| {
+            let list = values.get(0).cloned().unwrap();
+            match list {
+                Value::Instance(instance) => {
+                    // Safety: borrow is temporal for this line
+                    let internal = instance
+                        .borrow_mut()
+                        .fields
+                        .get("$internal")
+                        .cloned()
+                        .unwrap();
+
+                    match internal {
+                        Value::Any(list) => match list.borrow_mut().downcast_mut::<Vec<Value>>() {
+                            Some(vec) => Value::Bool(vec.contains(values.get(1).unwrap())),
                             _ => utils::error(span, "corrupted list."),
                         },
                         _ => {
@@ -150,6 +455,22 @@ pub fn provide_type() -> Ref<Type> {
             ("push".to_string(), push_method()),
             // Get method
             ("get".to_string(), get_method()),
+            // Set method
+            ("set".to_string(), set_method()),
+            // Insert method
+            ("insert".to_string(), insert_method()),
+            // Remove method
+            ("remove".to_string(), remove_method()),
+            // Len method
+            ("len".to_string(), len_method()),
+            // Clear method
+            ("clear".to_string(), clear_method()),
+            // Pop method
+            ("pop".to_string(), pop_method()),
+            // Index of method
+            ("index_of".to_string(), index_of_method()),
+            // Contains method
+            ("contains".to_string(), contains_method()),
         ]),
     })
 }
