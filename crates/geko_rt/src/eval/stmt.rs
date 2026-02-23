@@ -6,7 +6,7 @@ use crate::{
     rt::{
         env::Environment,
         flow::{ControlFlow, Flow},
-        value::{Callable, Closure, Function, Type, Value},
+        value::{Callable, Closure, Function, Method, Type, Value},
     },
 };
 use geko_ast::{
@@ -82,10 +82,13 @@ impl<I: IO> Interpreter<I> {
                 .map(|method| {
                     (
                         method.name.clone(),
-                        Ref::new(Function {
-                            params: method.params.clone(),
-                            block: method.block.clone(),
-                        }),
+                        Method::Closure(Ref::new(Closure {
+                            function: Ref::new(Function {
+                                params: method.params.clone(),
+                                block: method.block.clone(),
+                            }),
+                            environment: self.env.clone(),
+                        })),
                     )
                 })
                 .collect(),
