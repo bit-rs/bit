@@ -388,7 +388,7 @@ impl<I: IO> Interpreter<I> {
         mut args: Vec<Value>,
         bound: Ref<Bound>,
     ) -> Flow<Value> {
-        // Evaluating arguments
+        // Inserting `self` parameter
         args.insert(0, Value::Instance(bound.belongs_to.clone()));
 
         // Bound closure
