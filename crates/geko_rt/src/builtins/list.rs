@@ -125,7 +125,7 @@ fn get_method() -> Method {
                                             utils::error(span, "index out of bounds")
                                         } else {
                                             vec[idx].clone()
-                                        }    
+                                        }
                                     }
                                 }
                                 _ => utils::error(span, "index should be an int"),

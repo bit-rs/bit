@@ -380,7 +380,7 @@ impl<I: IO> Interpreter<I> {
         // Done!
         Ok(Value::Instance(instance))
     }
-    
+
     /// Calls bound method
     fn call_bound_method(
         &mut self,
@@ -421,6 +421,41 @@ impl<I: IO> Interpreter<I> {
         }
     }
 
+    /// Evaluates list expression
+    fn eval_list(&mut self, span: &Span, list: &Vec<Expression>) -> Flow<Value> {
+        // Evaluating values before accessing list
+        let values = list
+            .iter()
+            .map(|expr| self.eval(expr))
+            .collect::<Flow<Vec<Value>>>()?;
+
+        // Calling list constructor
+        let list_value = {
+            let list_value = self
+                .builtins
+                .env
+                .borrow()
+                .lookup("List")
+                .unwrap_or_else(|| bug!("no builtin `List` found"));
+
+            match list_value {
+                Value::Type(t) => match self.call_type(span, Vec::new(), t)? {
+                    Value::Instance(instance) => instance,
+                    _ => unreachable!(),
+                },
+                _ => bug!("builtin `List` is not a type"),
+            }
+        };
+
+        // Setting new vector
+        list_value.borrow_mut().fields.insert(
+            "$internal".to_string(),
+            Value::Any(MutRef::new(RefCell::new(values))),
+        );
+
+        Ok(Value::Instance(list_value))
+    }
+
     /// Evaluates expression
     pub fn eval(&mut self, expr: &Expression) -> Flow<Value> {
         // Matching expression
@@ -440,6 +475,7 @@ impl<I: IO> Interpreter<I> {
                 container,
             } => self.eval_field(span, name, container),
             Expression::Call { span, args, what } => self.eval_call(span, args, what),
+            Expression::List { span, list } => self.eval_list(span, list),
         }
     }
 }

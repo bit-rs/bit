@@ -57,4 +57,9 @@ pub enum Expression {
         args: Vec<Expression>,
         what: Box<Expression>,
     },
+    /// List expression
+    List {
+        span: Span,
+        list: Vec<Expression>,
+    },
 }
