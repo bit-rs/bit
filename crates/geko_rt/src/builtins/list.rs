@@ -117,10 +117,15 @@ fn get_method() -> Method {
                         Value::Any(list) => match list.borrow_mut().downcast_mut::<Vec<Value>>() {
                             Some(vec) => match values.get(1).cloned().unwrap() {
                                 Value::Int(idx) => {
-                                    if idx >= 0 {
-                                        vec[idx as usize].clone()
-                                    } else {
+                                    if idx < 0 {
                                         utils::error(span, "index should be positive int")
+                                    } else {
+                                        let idx = idx as usize;
+                                        if idx >= vec.len() {
+                                            utils::error(span, "index out of bounds")
+                                        } else {
+                                            vec[idx].clone()
+                                        }    
                                     }
                                 }
                                 _ => utils::error(span, "index should be an int"),
@@ -159,12 +164,17 @@ fn set_method() -> Method {
                             Some(vec) => {
                                 match values.get(1).cloned().unwrap() {
                                     Value::Int(idx) => {
-                                        if idx >= 0 {
-                                            vec[idx as usize] = values.get(2).cloned().unwrap()
-                                        } else {
+                                        if idx < 0 {
                                             utils::error(span, "index should be positive int")
+                                        } else {
+                                            let idx = idx as usize;
+                                            if idx >= vec.len() {
+                                                utils::error(span, "index out of bounds")
+                                            } else {
+                                                vec[idx] = values.get(2).cloned().unwrap()
+                                            }
                                         }
-                                    }
+                                    },
                                     _ => utils::error(span, "index should be an int"),
                                 };
                                 Value::Null
@@ -203,15 +213,21 @@ fn insert_method() -> Method {
                             Some(vec) => {
                                 match values.get(1).cloned().unwrap() {
                                     Value::Int(idx) => {
-                                        if idx >= 0 {
-                                            vec.insert(
-                                                idx as usize,
-                                                values.get(2).cloned().unwrap(),
-                                            )
-                                        } else {
+                                        if idx < 0 {
                                             utils::error(span, "index should be positive int")
+                                        } else {
+                                            let idx = idx as usize;
+                                            if idx > vec.len() {
+                                                utils::error(span, "index out of bounds")
+                                            } else {
+                                                vec.insert(
+                                                    idx,
+                                                    values.get(2).cloned().unwrap(),
+                                                )
+                                            }
                                         }
-                                    }
+                                        }
+                                    },
                                     _ => utils::error(span, "index should be an int"),
                                 };
                                 Value::Null
@@ -250,12 +266,17 @@ fn remove_method() -> Method {
                             Some(vec) => {
                                 match values.get(1).cloned().unwrap() {
                                     Value::Int(idx) => {
-                                        if idx >= 0 {
-                                            vec.remove(idx as usize);
-                                        } else {
+                                        if idx < 0 {
                                             utils::error(span, "index should be positive int")
+                                        } else {
+                                            let idx = idx as usize;
+                                            if idx >= vec.len() {
+                                                utils::error(span, "index out of bounds")
+                                            } else {
+                                                vec.remove(idx);
+                                            }
                                         }
-                                    }
+                                    },
                                     _ => utils::error(span, "index should be an int"),
                                 };
                                 Value::Null
@@ -395,7 +416,7 @@ fn index_of_method() -> Method {
                                 vec.iter()
                                     .position(|v| *v == value)
                                     .map(|it| Value::Int(it as i64))
-                                    .unwrap_or(Value::Int(0))
+                                    .unwrap_or(Value::Int(-1))
                             }
                             _ => utils::error(span, "corrupted list."),
                         },
