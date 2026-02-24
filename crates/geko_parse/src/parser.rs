@@ -508,13 +508,9 @@ impl<'s> Parser<'s> {
 
     /// Function parsing
     fn function(&mut self) -> Function {
-        // Start span
+        // Parsing function name
         let start_span = self.peek().span.clone();
-
-        // `fn` keyword
         self.expect(TokenKind::Fn);
-
-        // Function name
         let name = self.expect(TokenKind::Id).lexeme;
 
         // Parsing params
@@ -523,10 +519,8 @@ impl<'s> Parser<'s> {
         // Signature span
         let sign_span = start_span.clone() + self.prev().span.clone();
 
-        // Parsing block
+        // Parsing body
         let block = self.block();
-
-        // End span
         let end_span = self.prev().span.clone();
 
         // Done
@@ -536,6 +530,23 @@ impl<'s> Parser<'s> {
             sign_span,
             params,
             block,
+        }
+    }
+
+    /// List expression parsing
+    fn list(&mut self) -> Expression {
+        let start_span = self.peek().span.clone();
+        let list = self.sep_by(
+            TokenKind::Lbracket,
+            TokenKind::Rbracket,
+            TokenKind::Comma,
+            |p| p.expr(),
+        );
+        let end_span = self.prev().span.clone();
+
+        Expression::List {
+            span: start_span + end_span,
+            list,
         }
     }
 
@@ -577,6 +588,7 @@ impl<'s> Parser<'s> {
                 expr
             }
             TokenKind::Id => self.variable(),
+            TokenKind::Lbracket => self.list(),
             _ => bail!(ParseError::UnexpectedExprToken {
                 got: tk.kind,
                 src: self.source.clone(),
