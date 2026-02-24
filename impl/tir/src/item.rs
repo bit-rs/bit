@@ -1,6 +1,6 @@
 /// Imports
 use crate::{
-    atom::{Param, Publicity, TypeHint},
+    atom::{Param, Publicity},
     stmt::Block,
     ty::Ty,
 };
@@ -27,7 +27,7 @@ pub struct Struct {
 pub struct Variant {
     pub span: Span,
     pub name: String,
-    pub params: Vec<TypeHint>,
+    pub params: Vec<Ty>,
 }
 
 /// Represents enum top-level item

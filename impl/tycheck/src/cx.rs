@@ -189,7 +189,7 @@ impl<'tcx> InferCx<'tcx> {
     /// Generates fresh int type variable.
     ///
     pub fn fresh_int(&mut self) -> Id<TyVar> {
-        self.type_variables.alloc(TyVar::Int)
+        self.type_variables.alloc(TyVar::Int(None))
     }
 
     /// Generates fresh float type variable.
@@ -227,7 +227,7 @@ impl<'tcx> InferCx<'tcx> {
     pub fn apply(&self, ty: Ty) -> Ty {
         match ty {
             Ty::Var(id) => match self.get(id) {
-                TyVar::Unbound | TyVar::Float | TyVar::Int => ty,
+                TyVar::Unbound | TyVar::Float | TyVar::Int(_) => ty,
                 TyVar::Bound(typ) => typ.clone(),
             },
             Ty::Adt(def, args) => Ty::Adt(def, args.into_iter().map(|it| self.apply(it)).collect()),
@@ -342,8 +342,22 @@ impl<'tcx> InferCx<'tcx> {
             TyVar::Bound(bound) => self.unify(bound, ty),
 
             // Int literal, ty should be int variant
-            TyVar::Int => match ty {
-                Ty::Int(_) | Ty::UInt(_) => {
+            TyVar::Int(signed) => match ty {
+                // Unifies if signed is true
+                Ty::Int(_) => {
+                    if signed == Some(false) {
+                        return Err(TypeError::Mismatch(Ty::Var(id), ty));
+                    }
+
+                    self.substitute(id, ty);
+                    Ok(())
+                }
+                // Unifies if signed is false
+                Ty::UInt(_) => {
+                    if signed == Some(true) {
+                        return Err(TypeError::Mismatch(Ty::Var(id), ty));
+                    }
+
                     self.substitute(id, ty);
                     Ok(())
                 }
@@ -439,6 +453,55 @@ impl<'tcx> InferCx<'tcx> {
                 format!("fn({params}) -> {ret}")
             }
             Ty::Error => "error".to_string(),
+        }
+    }
+
+    /// Checks type is numeric
+    pub fn is_numeric_ty(&self, ty: &Ty) -> bool {
+        match ty {
+            Ty::Int(_) | Ty::Float(_) | Ty::UInt(_) => true,
+            Ty::Var(id) => matches!(self.get(*id), TyVar::Int(_) | TyVar::Float),
+            _ => false,
+        }
+    }
+
+    /// Checks type is int
+    pub fn is_int_ty(&self, ty: &Ty) -> bool {
+        match ty {
+            Ty::Int(_) | Ty::UInt(_) => true,
+            Ty::Var(id) => matches!(self.get(*id), TyVar::Int(_)),
+            _ => false,
+        }
+    }
+
+    /// Checks type is bool
+    pub fn is_bool_ty(&self, ty: &Ty) -> bool {
+        matches!(ty, Ty::Bool)
+    }
+
+    /// Checks type is unsigned
+    pub fn is_unsigned_ty(&self, ty: &Ty) -> bool {
+        match ty {
+            Ty::UInt(_) => true,
+            Ty::Var(id) => matches!(self.get(*id), TyVar::Int(Some(false))),
+            _ => false,
+        }
+    }
+
+    /// Checks int type is unknown
+    pub fn is_unknown_int_ty(&self, ty: &Ty) -> bool {
+        match ty {
+            Ty::Var(id) => matches!(self.get(*id), TyVar::Int(None)),
+            _ => false,
+        }
+    }
+
+    /// Sets type to signed, if type is int var
+    pub fn set_ty_signed(&mut self, ty: &Ty, signed: bool) {
+        if let Ty::Var(id) = ty {
+            if let TyVar::Int(s) = self.get_mut(*id) {
+                *s = Some(signed);
+            }
         }
     }
 }

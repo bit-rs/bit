@@ -35,7 +35,7 @@ pub enum TyVar {
     Unbound,
 
     /// Int type variable
-    Int,
+    Int(Option<bool>),
 
     /// Float type variable
     Float,

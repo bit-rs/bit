@@ -1,7 +1,13 @@
 /// Imports
-use crate::{atom::TypeHint, stmt::Block, ty::Ty};
+use crate::{
+    atom::Param,
+    def::{AdtDef, FnDef},
+    stmt::Block,
+    ty::Ty,
+};
 use ast::expr::{AssignOp, BinOp, UnOp};
 use common::token::Span;
+use id_arena::Id;
 
 /// Literal
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -17,6 +23,15 @@ pub enum Lit {
 
     /// Bool
     Bool(bool),
+}
+
+/// Expression resolution
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum Resolution {
+    Adt(Id<AdtDef>),
+    Fn(Id<FnDef>),
+    Variant(Id<AdtDef>, usize),
+    Local(Ty),
 }
 
 /// Expression kind
@@ -44,10 +59,10 @@ pub enum ExprKind {
     Field(Box<Expr>, String),
 
     /// Cast expr (e.g. `foo as f64`)
-    Cast(Box<Expr>, TypeHint),
+    Cast(Box<Expr>, Ty),
 
     /// Closure expr (e.g `|param, param, ..n| ...`)
-    Closure(Vec<String>, Box<Expr>),
+    Closure(Vec<Param>, Box<Expr>),
 
     /// Assignment expr (e.g `a = b`)
     Assign(Box<Expr>, AssignOp, Box<Expr>),

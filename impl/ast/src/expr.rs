@@ -118,9 +118,6 @@ pub enum BinOp {
 
     // <
     Lt,
-
-    // <>
-    Concat,
 }
 
 /// Expression kind
