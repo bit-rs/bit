@@ -1,7 +1,6 @@
 /// Imports
 use crate::expr::Expr;
 use bit_common::span::Span;
-use ecow::EcoString;
 
 /// Represents unwrap field
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -9,7 +8,7 @@ pub enum UnwrapField {
     // `_`
     Wildcard(Span),
     // Field
-    Field(Span, EcoString),
+    Field(Span, String),
 }
 
 /// Represents unwrap pattern
@@ -20,15 +19,15 @@ pub enum Pat {
     /// Represents just enum variant pattern
     Variant(Span, Expr),
     /// Represents integer pattern, e.g `123`
-    Int(Span, EcoString),
+    Int(Span, String),
     /// Represents float pattern, e.g `1.34`
-    Float(Span, EcoString),
+    Float(Span, String),
     /// Represents bool pattern, e.g `true` / `false
-    Bool(Span, EcoString),
+    Bool(Span, String),
     /// Represents string pattern, e.g "Hello, world!"
-    String(Span, EcoString),
+    String(Span, String),
     /// Represents bind pattern
-    BindTo(Span, EcoString),
+    BindTo(Span, String),
     /// Represents wildcard pattern
     Wildcard,
     /// Represents or pattern

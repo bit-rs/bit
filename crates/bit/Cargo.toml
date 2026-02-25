@@ -9,7 +9,7 @@ bit_common = { path = "../bit_common" }
 bit_compile = { path = "../bit_compile" }
 camino = "1.1.10"
 thiserror = "2.0.12"
-miette = { git = "https://github.com/watt-rs/miette.git", features = ["fancy"] }
+miette = { git = "https://github.com/bit-rs/miette.git", features = ["fancy"] }
 ecow = "0.2.6"
 bit_pm = { path = "../bit_pm" }
 tracing = "0.1.44"

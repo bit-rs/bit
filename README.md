@@ -26,6 +26,10 @@ fn hello =
   io.print("Hello");
   io.println(", world!")
   
+fn unit =
+  3 + 4;
+  none // returns `unit` type
+  
 fn test(a: Color): int =
   match a:
     Rgb(a, b) => a + b,

@@ -4,13 +4,12 @@ use crate::{
     expr::Expr,
 };
 use bit_common::span::Span;
-use ecow::EcoString;
 
 /// Represents enum varisnt
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Variant {
     pub location: Span,
-    pub name: EcoString,
+    pub name: String,
     pub params: Vec<TypeHint>,
 }
 
@@ -18,16 +17,16 @@ pub struct Variant {
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct ImportPath {
     pub address: Span,
-    pub module: EcoString,
+    pub module: String,
 }
 
 /// Represents import kind
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum ImportKind {
     /// Represents import of module as given name
-    AsName(EcoString),
+    AsName(String),
     /// Represents import of module contents separated by comma
-    ForNames(Vec<EcoString>),
+    ForNames(Vec<String>),
     /// Just import of module
     Just,
 }
@@ -44,7 +43,7 @@ pub struct Import {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Field {
     pub location: Span,
-    pub name: EcoString,
+    pub name: String,
     pub himt: TypeHint,
 }
 
@@ -52,9 +51,9 @@ pub struct Field {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Struct {
     location: Span,
-    name: EcoString,
+    name: String,
     publicity: Publicity,
-    generics: Vec<EcoString>,
+    generics: Vec<String>,
     fields: Vec<Field>,
 }
 
@@ -62,9 +61,9 @@ pub struct Struct {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Enum {
     location: Span,
-    name: EcoString,
+    name: String,
     publicity: Publicity,
-    generics: Vec<EcoString>,
+    generics: Vec<String>,
     variants: Vec<Variant>,
 }
 
@@ -73,8 +72,8 @@ pub struct Enum {
 pub struct Fn {
     location: Span,
     publicity: Publicity,
-    name: EcoString,
-    generics: Vec<EcoString>,
+    name: String,
+    generics: Vec<String>,
     params: Vec<Param>,
     ret: Option<TypeHint>,
     body: Expr,
@@ -84,12 +83,12 @@ pub struct Fn {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct ExternFn {
     location: Span,
-    name: EcoString,
+    name: String,
     publicity: Publicity,
-    generics: Vec<EcoString>,
+    generics: Vec<String>,
     params: Vec<Param>,
     ret: Option<TypeHint>,
-    body: EcoString,
+    body: String,
 }
 
 /// Constant item
@@ -97,7 +96,7 @@ pub struct ExternFn {
 pub struct Const {
     pub location: Span,
     pub publicity: Publicity,
-    pub name: EcoString,
+    pub name: String,
     pub value: Expr,
     pub himt: TypeHint,
 }

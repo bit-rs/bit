@@ -122,7 +122,6 @@ version = "0.1.0"
 dependencies = [
  "bit_common",
  "bit_lex",
- "ecow",
  "miette",
 ]
 
@@ -171,7 +170,6 @@ name = "bit_lex"
 version = "0.1.0"
 dependencies = [
  "bit_common",
- "ecow",
  "miette",
  "thiserror",
 ]
@@ -785,7 +783,7 @@ checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
 [[package]]
 name = "miette"
 version = "7.6.0"
-source = "git+https://github.com/watt-rs/miette.git#872ee5c8c93706929f2aa716f500a5ab204a3021"
+source = "git+https://github.com/bit-rs/miette.git#8313aabec9173dbb2c6e0505652236101725d25e"
 dependencies = [
  "backtrace",
  "backtrace-ext",
@@ -803,7 +801,7 @@ dependencies = [
 [[package]]
 name = "miette-derive"
 version = "7.6.0"
-source = "git+https://github.com/watt-rs/miette.git#872ee5c8c93706929f2aa716f500a5ab204a3021"
+source = "git+https://github.com/bit-rs/miette.git#8313aabec9173dbb2c6e0505652236101725d25e"
 dependencies = [
  "proc-macro2",
  "quote",

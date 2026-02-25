@@ -6,32 +6,14 @@ use std::{
     sync::Arc,
 };
 
-/// Address structure
-#[derive(Clone, Eq, PartialEq, Hash)]
-pub struct Span {
-    pub source: Arc<NamedSource<String>>,
-    pub span: Range<usize>,
-}
-
-/// Address implementation
-impl Span {
-    /// New address with column
-    pub fn new(source: Arc<NamedSource<String>>, at: usize) -> Span {
-        Span {
-            source,
-            span: at..at,
-        }
-    }
-    /// New address with span
-    pub fn span(source: Arc<NamedSource<String>>, span: Range<usize>) -> Span {
-        Span { source, span }
-    }
-}
+/// Represents span
+#[derive(Clone, PartialEq, Eq, Hash)]
+pub struct Span(pub Arc<NamedSource<String>>, pub Range<usize>);
 
 /// Debug implementation
 impl Debug for Span {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Address({}..{})", self.span.start, self.span.end)
+        f.debug_tuple("Span").field(&self.1).finish()
     }
 }
 
@@ -40,9 +22,14 @@ impl Add for Span {
     type Output = Span;
 
     fn add(self, rhs: Self) -> Self::Output {
-        if self.source != rhs.source {
-            panic!("address sources missmatched.")
+        // Checking that files are same
+        if self.0 != rhs.0 {
+            panic!("attempt to perform `+` operation on two spans from different files.")
         }
-        Span::span(self.source, self.span.start..rhs.span.end)
+
+        // Calculating new span range
+        let start = self.1.start.min(rhs.1.start);
+        let end = self.1.end.max(rhs.1.end);
+        Span(self.0, start..end)
     }
 }

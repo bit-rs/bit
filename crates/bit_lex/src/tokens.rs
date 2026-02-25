@@ -1,91 +1,74 @@
 /// Imports
-use ecow::EcoString;
 use bit_common::span::Span;
+use std::fmt::Debug;
 
-/// Token kind
-#[derive(Debug, Clone, Eq, PartialEq, Copy, Hash)]
-#[allow(dead_code)]
+/// Represents token kind
+#[derive(Debug, PartialEq, Copy, Clone, Eq)]
 pub enum TokenKind {
-    Let,       // let
-    Fn,        // fn
-    Plus,      // +
-    Minus,     // -
-    Star,      // *
-    Slash,     // /
-    Percent,   // %
-    Caret,     // ^
-    Or,        // || | or
-    And,       // && | and
-    Bar,       // |
-    Ampersand, // &
-    AddAssign, // +=
-    SubAssign, // -=
-    MulAssign, // *-
-    DivAssign, // /=
-    AndAssign, // &=
-    OrAssign,  // |=
-    XorAssign, // ^=
-    Lparen,    // (
-    Rparen,    // )
-    Lbrace,    // {
-    Rbrace,    // }
-    Eq,        // ==
-    NotEq,     // !=
-    Text,      // 'text'
-    Number,    // 1234567890.0123456789
-    Assign,    // =
-    Id,        // variable id
-    Comma,     // ,
-    If,        // if
-    Bool,      // bool
-    Loop,      // loop
-    Type,      // type
-    Enum,      // enum
-    Dot,       // .
-    Range,     // ..
-    Greater,   // >
-    Less,      // <
-    GreaterEq, // >=
-    LessEq,    // <=
-    Concat,    // <>
-    Elif,      // elif
-    Else,      // else
-    Use,       // use
-    Lbracket,  // [
-    Rbracket,  // ]
-    Colon,     // :
-    Semicolon, // ;
-    Bang,      // !
-    Wildcard,  // _
-    In,        // in
-    Unit,      // unit
-    As,        // as
-    Pub,       // pub
-    Match,     // match
-    Arrow,     // arrow
-    Extern,    // extern
-    For,       // for
-    Panic,     // panic
-    Todo,      // todo
-    Const,     // const
+    Import,      // `import` keyword
+    Struct,      // `struct` keyword
+    Enum,        // `enum` keyword
+    Type,        // `type` keyword
+    Let,         // `let` keyword
+    If,          // `if` keyword
+    Else,        // `else` keyword
+    Fn,          // `fn` keyword
+    None,        // `none` keyword
+    Pub,         // `pub` keyword
+    Comma,       // ,
+    Dot,         // .
+    Lparen,      // (
+    Rparen,      // )
+    Lbracket,    // [
+    Rbracket,    // ]
+    Plus,        // +
+    Minus,       // -
+    Star,        // *
+    Slash,       // /
+    Percent,     // %
+    Caret,       // ^
+    Ampersand,   // &
+    Bang,        // !
+    Bar,         // |
+    Eq,          // =
+    Ge,          // >=
+    Le,          // <=
+    Gt,          // >
+    Lt,          // <
+    Colon,       // :
+    Semi,        // ;
+    DoubleEq,    // ==
+    DoubleBar,   // ||
+    DoubleAmp,   // &&
+    BangEq,      // !=
+    PlusEq,      // +=
+    MinusEq,     // -=
+    StarEq,      // *=
+    SlashEq,     // /=
+    CaretEq,     // ^=
+    PercentEq,   // %=
+    BarEq,       // |=
+    AmpersandEq, // &=
+    Arrow,       // ->
+    DoubleDot,   // ..
+    Number,      // any number
+    String,      // "quoted text"
+    Id,          // identifier
+    Bool,        // bool
 }
 
-/// Token structure
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+/// Represents token
+#[derive(Debug, PartialEq, Clone, Eq)]
 pub struct Token {
-    pub tk_type: TokenKind,
-    pub value: EcoString,
-    pub address: Span,
+    pub span: Span,
+    pub kind: TokenKind,
+    pub lexeme: String,
 }
 
-/// Token implementation
+/// Implementation
 impl Token {
-    /// Creates token from tk_type, value, address
-    pub fn new(tk_type: TokenKind, value: EcoString, address: Span) -> Token {
-        Token {
-            tk_type,
-            value,
-            address,
-        }
+    /// Creates new token
+    pub fn new(span: Span, kind: TokenKind, lexeme: String) -> Self {
+        Self { span, kind, lexeme }
     }
 }

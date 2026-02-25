@@ -1,6 +1,5 @@
 /// Imports
 use bit_common::span::Span;
-use ecow::EcoString;
 
 /// Represents item publicity
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -18,7 +17,7 @@ pub enum BinOp {
     Div,    // `/`
     Mod,    // `%`
     Eq,     // `==`
-    NotEq,  // `!=`
+    Ne,     // `!=`
     Gt,     // `>`
     Ge,     // `>=`
     Lt,     // `<`
@@ -29,6 +28,20 @@ pub enum BinOp {
     BitAnd, // `&`
     BitOr,  // `|`
     Concat, // `<>`
+}
+
+/// Assignment operation
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum AssignOp {
+    AddEq, // +=
+    SubEq, // -=
+    MulEq, // *=
+    DivEq, // /=
+    ModEq, // %=
+    AndEq, // &=
+    OrEq,  // |=
+    XorEq, // ^=
+    Eq,    // =
 }
 
 /// Unary operator
@@ -44,14 +57,14 @@ pub enum TypeHint {
     /// Local type
     Local {
         span: Span,
-        name: EcoString,
+        name: String,
         generics: Vec<TypeHint>,
     },
     /// Module type
     Module {
         span: Span,
-        module: EcoString,
-        name: EcoString,
+        module: String,
+        name: String,
         generics: Vec<TypeHint>,
     },
     /// Function type
@@ -68,6 +81,6 @@ pub enum TypeHint {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Param {
     pub span: Span,
-    pub name: EcoString,
+    pub name: String,
     pub hint: TypeHint,
 }
