@@ -2,7 +2,7 @@
 use crate::cursor::Cursor;
 use crate::errors::LexError;
 use crate::tokens::*;
-use bit_common::address::Address;
+use bit_common::span::Span;
 use bit_common::{bail, skip};
 use ecow::EcoString;
 use miette::NamedSource;
@@ -378,7 +378,7 @@ impl<'source, 'cursor> Lexer<'source, 'cursor> {
         Token {
             tk_type: TokenKind::Text,
             value: text,
-            address: Address::span(self.source.clone(), start_location..end_location),
+            address: Span::span(self.source.clone(), start_location..end_location),
         }
     }
 
@@ -410,7 +410,7 @@ impl<'source, 'cursor> Lexer<'source, 'cursor> {
         Token {
             tk_type: TokenKind::Text,
             value: text,
-            address: Address::span(self.source.clone(), start_location..end_location),
+            address: Span::span(self.source.clone(), start_location..end_location),
         }
     }
 
@@ -456,7 +456,7 @@ impl<'source, 'cursor> Lexer<'source, 'cursor> {
         Token {
             tk_type: TokenKind::Number,
             value: text,
-            address: Address::span(self.source.clone(), start_location..end_location),
+            address: Span::span(self.source.clone(), start_location..end_location),
         }
     }
 
@@ -479,7 +479,7 @@ impl<'source, 'cursor> Lexer<'source, 'cursor> {
         Token {
             tk_type: TokenKind::Number,
             value: text,
-            address: Address::span(self.source.clone(), start_location..end_location),
+            address: Span::span(self.source.clone(), start_location..end_location),
         }
     }
 
@@ -502,7 +502,7 @@ impl<'source, 'cursor> Lexer<'source, 'cursor> {
         Token {
             tk_type: TokenKind::Number,
             value: text,
-            address: Address::span(self.source.clone(), start_location..end_location),
+            address: Span::span(self.source.clone(), start_location..end_location),
         }
     }
 
@@ -525,7 +525,7 @@ impl<'source, 'cursor> Lexer<'source, 'cursor> {
         Token {
             tk_type: TokenKind::Number,
             value: text,
-            address: Address::span(self.source.clone(), start_location..end_location),
+            address: Span::span(self.source.clone(), start_location..end_location),
         }
     }
 
@@ -558,7 +558,7 @@ impl<'source, 'cursor> Lexer<'source, 'cursor> {
         Token {
             tk_type,
             value: text,
-            address: Address::span(self.source.clone(), start_location..end_location),
+            address: Span::span(self.source.clone(), start_location..end_location),
         }
     }
 
@@ -583,7 +583,7 @@ impl<'source, 'cursor> Lexer<'source, 'cursor> {
         self.tokens.push(Token::new(
             tk_type,
             tk_value.into(),
-            Address::new(self.source.clone(), self.cursor.current),
+            Span::new(self.source.clone(), self.cursor.current),
         ));
     }
 

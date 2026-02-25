@@ -4,7 +4,7 @@ use crate::{
     typ::{cx::InferCx, def::ModuleDef},
 };
 use bit_ast::ast::Publicity;
-use bit_common::address::Address;
+use bit_common::span::Span;
 use ecow::EcoString;
 use id_arena::Id;
 use miette::NamedSource;
@@ -68,7 +68,7 @@ pub enum PreludeType {
 ///
 #[derive(Clone, PartialEq)]
 pub struct Parameter {
-    pub location: Address,
+    pub location: Span,
     pub name: EcoString,
     pub typ: Typ,
 }
@@ -93,7 +93,7 @@ pub struct Parameter {
 #[derive(Clone, PartialEq)]
 pub struct Field {
     pub name: EcoString,
-    pub location: Address,
+    pub location: Span,
     pub typ: Typ,
 }
 
@@ -126,7 +126,7 @@ impl Debug for Field {
 ///
 #[derive(Clone)]
 pub struct Struct {
-    pub location: Address,
+    pub location: Span,
     pub name: EcoString,
     pub generics: Vec<EcoString>,
     pub fields: Vec<Field>,
@@ -158,7 +158,7 @@ impl Debug for Struct {
 ///
 #[derive(Clone, PartialEq)]
 pub struct EnumVariant {
-    pub location: Address,
+    pub location: Span,
     pub name: EcoString,
     pub fields: Vec<Field>,
 }
@@ -195,7 +195,7 @@ impl Debug for EnumVariant {
 #[derive(Clone)]
 #[allow(dead_code)]
 pub struct Enum {
-    pub location: Address,
+    pub location: Span,
     pub name: EcoString,
     pub generics: Vec<EcoString>,
     pub variants: Vec<EnumVariant>,
@@ -235,7 +235,7 @@ impl Debug for Enum {
 ///
 #[derive(Clone)]
 pub struct Function {
-    pub location: Address,
+    pub location: Span,
     pub name: EcoString,
     pub generics: Vec<EcoString>,
     pub params: Vec<Parameter>,

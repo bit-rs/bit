@@ -3,7 +3,7 @@ use ecow::EcoString;
 use miette::{Diagnostic, NamedSource, SourceSpan};
 use std::sync::Arc;
 use thiserror::Error;
-use bit_ast::ast::{BinaryOp, UnaryOp};
+use bit_ast::ast::{BinOp, UnaryOp};
 
 /// Typechecking related
 #[derive(Debug, Error, Diagnostic)]
@@ -80,7 +80,7 @@ pub(crate) enum TypeckError {
         span: SourceSpan,
         a: String,
         b: String,
-        op: BinaryOp,
+        op: BinOp,
     },
     #[error("could not use `as` operator with `{a:?}` & `{b:?}`.")]
     #[diagnostic(

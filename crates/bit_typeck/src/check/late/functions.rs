@@ -11,7 +11,7 @@ use crate::{
     },
 };
 use bit_ast::ast::{Block, Either, Expression, FnDeclaration};
-use bit_common::address::Address;
+use bit_common::span::Span;
 use ecow::EcoString;
 
 /// Late declaration analysis pass for the module.
@@ -48,7 +48,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     /// At the end of this method the function is fully type-checked.
     fn late_analyze_fn(
         &mut self,
-        location: Address,
+        location: Span,
         name: EcoString,
         body: Either<Block, Expression>,
     ) {

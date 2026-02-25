@@ -1,6 +1,6 @@
 /// Imports
 use ecow::EcoString;
-use bit_common::address::Address;
+use bit_common::span::Span;
 
 /// Token kind
 #[derive(Debug, Clone, Eq, PartialEq, Copy, Hash)]
@@ -75,13 +75,13 @@ pub enum TokenKind {
 pub struct Token {
     pub tk_type: TokenKind,
     pub value: EcoString,
-    pub address: Address,
+    pub address: Span,
 }
 
 /// Token implementation
 impl Token {
     /// Creates token from tk_type, value, address
-    pub fn new(tk_type: TokenKind, value: EcoString, address: Address) -> Token {
+    pub fn new(tk_type: TokenKind, value: EcoString, address: Span) -> Token {
         Token {
             tk_type,
             value,

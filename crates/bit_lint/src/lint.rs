@@ -6,7 +6,7 @@ use crate::{
 };
 use bit_ast::ast::{
     Block, ConstDeclaration, Declaration, Either, ElseBranch, Expression, FnDeclaration, Module,
-    Range, Statement, TypeDeclaration,
+    Range, Stmt, TypeDeclaration,
 };
 use bit_common::{package::DraftPackage, skip, warn};
 
@@ -233,9 +233,9 @@ impl<'cx, 'module> LintCx<'cx, 'module> {
     }
 
     /// Lints statement
-    fn lint_statement(&self, stmt: &Statement) {
+    fn lint_statement(&self, stmt: &Stmt) {
         match stmt {
-            Statement::VarDef {
+            Stmt::VarDef {
                 location,
                 name,
                 value,
@@ -253,28 +253,28 @@ impl<'cx, 'module> LintCx<'cx, 'module> {
                 }
                 self.lint_expr(value);
             }
-            Statement::VarAssign { what, value, .. } => {
+            Stmt::VarAssign { what, value, .. } => {
                 self.lint_expr(what);
                 self.lint_expr(value);
             }
-            Statement::Expr(expr) => {
+            Stmt::Expr(expr) => {
                 self.lint_expr(expr);
             }
-            Statement::Loop { logical, body, .. } => {
+            Stmt::Loop { logical, body, .. } => {
                 self.lint_expr(logical);
                 match body {
                     Either::Left(block) => self.lint_block(block),
                     Either::Right(expr) => self.lint_expr(expr),
                 }
             }
-            Statement::For { range, body, .. } => {
+            Stmt::For { range, body, .. } => {
                 self.lint_range(range);
                 match body {
                     Either::Left(block) => self.lint_block(block),
                     Either::Right(expr) => self.lint_expr(expr),
                 }
             }
-            Statement::Semi(expr) => {
+            Stmt::Semi(expr) => {
                 self.lint_expr(expr);
             }
         }

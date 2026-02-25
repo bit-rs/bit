@@ -56,7 +56,7 @@ impl<'file> Parser<'file> {
     pub(crate) fn block(&mut self) -> Block {
         // parsing statement before reaching
         // end of file, or a `}`
-        let mut nodes: Vec<Statement> = Vec::new();
+        let mut nodes: Vec<Stmt> = Vec::new();
         let span_start = self.peek().address.clone();
         self.consume(TokenKind::Lbrace);
         while !self.check(TokenKind::Rbrace) {

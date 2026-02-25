@@ -3,8 +3,8 @@ use ecow::EcoString;
 use genco::{lang::js, quote, tokens::quoted};
 use tracing::instrument;
 use bit_ast::ast::{
-    BinaryOp, Block, ConstDeclaration, Declaration, Either, ElseBranch, Expression, FnDeclaration,
-    Module, Pattern, Range, Statement, TypeDeclaration, UnaryOp, UseKind,
+    BinOp, Block, ConstDeclaration, Declaration, Either, ElseBranch, Expression, FnDeclaration,
+    Module, Pattern, Range, Stmt, TypeDeclaration, UnaryOp, UseKind,
 };
 
 /// Replaces js identifiers equal
@@ -187,29 +187,29 @@ pub fn gen_expression(expr: Expression) -> js::Tokens {
             op,
         } => match op {
             // With string values
-            BinaryOp::Concat => quote!( $(gen_expression(*left)) + $(gen_expression(*right)) ),
+            BinOp::Concat => quote!( $(gen_expression(*left)) + $(gen_expression(*right)) ),
             // With number values
-            BinaryOp::Add => quote!( $(gen_expression(*left)) + $(gen_expression(*right)) ),
-            BinaryOp::Sub => quote!( $(gen_expression(*left)) - $(gen_expression(*right)) ),
-            BinaryOp::Mul => quote!( $(gen_expression(*left)) * $(gen_expression(*right)) ),
-            BinaryOp::Div => quote!( $(gen_expression(*left)) / $(gen_expression(*right)) ),
-            BinaryOp::Xor => quote!( $(gen_expression(*left)) ^ $(gen_expression(*right)) ),
-            BinaryOp::BitwiseAnd => {
+            BinOp::Add => quote!( $(gen_expression(*left)) + $(gen_expression(*right)) ),
+            BinOp::Sub => quote!( $(gen_expression(*left)) - $(gen_expression(*right)) ),
+            BinOp::Mul => quote!( $(gen_expression(*left)) * $(gen_expression(*right)) ),
+            BinOp::Div => quote!( $(gen_expression(*left)) / $(gen_expression(*right)) ),
+            BinOp::Xor => quote!( $(gen_expression(*left)) ^ $(gen_expression(*right)) ),
+            BinOp::BitwiseAnd => {
                 quote!( $(gen_expression(*left)) & $(gen_expression(*right)) )
             }
-            BinaryOp::BitwiseOr => quote!( $(gen_expression(*left)) | $(gen_expression(*right)) ),
-            BinaryOp::Mod => quote!( $(gen_expression(*left)) % $(gen_expression(*right)) ),
-            BinaryOp::Gt => quote!( $(gen_expression(*left)) > $(gen_expression(*right)) ),
-            BinaryOp::Lt => quote!( $(gen_expression(*left)) < $(gen_expression(*right)) ),
-            BinaryOp::Ge => quote!( $(gen_expression(*left)) >= $(gen_expression(*right)) ),
-            BinaryOp::Le => quote!( $(gen_expression(*left)) <= $(gen_expression(*right)) ),
+            BinOp::BitwiseOr => quote!( $(gen_expression(*left)) | $(gen_expression(*right)) ),
+            BinOp::Mod => quote!( $(gen_expression(*left)) % $(gen_expression(*right)) ),
+            BinOp::Gt => quote!( $(gen_expression(*left)) > $(gen_expression(*right)) ),
+            BinOp::Lt => quote!( $(gen_expression(*left)) < $(gen_expression(*right)) ),
+            BinOp::Ge => quote!( $(gen_expression(*left)) >= $(gen_expression(*right)) ),
+            BinOp::Le => quote!( $(gen_expression(*left)) <= $(gen_expression(*right)) ),
             // With bool
-            BinaryOp::Or => quote!( $(gen_expression(*left)) || $(gen_expression(*right)) ),
-            BinaryOp::And => quote!( $(gen_expression(*left)) && $(gen_expression(*right)) ),
-            BinaryOp::Eq => {
+            BinOp::Or => quote!( $(gen_expression(*left)) || $(gen_expression(*right)) ),
+            BinOp::And => quote!( $(gen_expression(*left)) && $(gen_expression(*right)) ),
+            BinOp::Eq => {
                 quote!( $("$$equals")($(gen_expression(*left)), $(gen_expression(*right))) )
             }
-            BinaryOp::NotEq => {
+            BinOp::NotEq => {
                 quote!( !$("$$equals")($(gen_expression(*left)), $(gen_expression(*right))) )
             }
         },
@@ -309,10 +309,10 @@ pub fn gen_expression(expr: Expression) -> js::Tokens {
 }
 
 /// Generates statement code
-pub fn gen_statement(stmt: Statement) -> js::Tokens {
+pub fn gen_statement(stmt: Stmt) -> js::Tokens {
     match stmt {
         // Loop statement
-        Statement::Loop { logical, body, .. } => quote! {
+        Stmt::Loop { logical, body, .. } => quote! {
             while ($(gen_expression(logical))) {
                 $(match body {
                     Either::Left(block) => $(gen_block(block)),
@@ -321,7 +321,7 @@ pub fn gen_statement(stmt: Statement) -> js::Tokens {
             }
         },
         // For statement
-        Statement::For {
+        Stmt::For {
             name, range, body, ..
         } => quote! {
             for (const $(name.as_str()) of $(gen_range(*range))) {
@@ -332,17 +332,17 @@ pub fn gen_statement(stmt: Statement) -> js::Tokens {
             }
         },
         // Variable definition statement
-        Statement::VarDef { name, value, .. } => quote! {
+        Stmt::VarDef { name, value, .. } => quote! {
             let $(try_escape_js(&name)) = $(gen_expression(value))
         },
         // Variable assignment statement
-        Statement::VarAssign { what, value, .. } => quote! {
+        Stmt::VarAssign { what, value, .. } => quote! {
             $(gen_expression(what)) = $(gen_expression(value))
         },
         // Expression statement
-        Statement::Expr(expr) => quote!($(gen_expression(expr))),
+        Stmt::Expr(expr) => quote!($(gen_expression(expr))),
         // Semicolon expression statement
-        Statement::Semi(expr) => quote!($(gen_expression(expr));),
+        Stmt::Semi(expr) => quote!($(gen_expression(expr));),
     }
 }
 
@@ -461,7 +461,7 @@ pub fn gen_block_expr(mut block: Block) -> js::Tokens {
     quote! {
         $(for stmt in block.body join ($['\r']) => $(gen_statement(stmt)))
         $(match last {
-            Statement::Expr(last) => return $(gen_expression(last)),
+            Stmt::Expr(last) => return $(gen_expression(last)),
             it => $(gen_statement(it))
         })
     }

@@ -3,7 +3,7 @@ use crate::cx::module::ModuleCx;
 use crate::typ::def::{ModuleDef, TypeDef};
 use crate::typ::typ::{Enum, Struct, WithPublicity};
 use bit_ast::ast::{Publicity, TypeDeclaration};
-use bit_common::address::Address;
+use bit_common::span::Span;
 use ecow::EcoString;
 
 /// Implementation of the type declarations early analyse.
@@ -26,7 +26,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     pub(crate) fn early_define_struct(
         &mut self,
-        location: Address,
+        location: Span,
         publicity: Publicity,
         generics: Vec<EcoString>,
         name: EcoString,
@@ -70,7 +70,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     pub(crate) fn early_define_enum(
         &mut self,
-        location: Address,
+        location: Span,
         publicity: Publicity,
         generics: Vec<EcoString>,
         name: EcoString,

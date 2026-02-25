@@ -14,7 +14,7 @@ use crate::{
 };
 use ecow::EcoString;
 use bit_ast::ast::{Declaration, Dependency, Expression, Publicity, TypePath, UseKind};
-use bit_common::{address::Address, bail};
+use bit_common::{span::Span, bail};
 
 /// Late declaration analysis pass for the module.
 ///
@@ -51,7 +51,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     fn late_define_const(
         &mut self,
-        location: Address,
+        location: Span,
         publicity: Publicity,
         name: EcoString,
         typ: TypePath,

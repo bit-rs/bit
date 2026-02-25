@@ -16,10 +16,10 @@ use crate::{
     warnings::TypeckWarning,
 };
 use bit_ast::ast::{
-    self, BinaryOp, Block, Case, Either, ElseBranch, Expression, Pattern, Publicity, TypePath,
+    self, BinOp, Block, Case, Either, ElseBranch, Expression, Pattern, Publicity, TypePath,
     UnaryOp,
 };
-use bit_common::{address::Address, bail, skip, warn};
+use bit_common::{span::Span, bail, skip, warn};
 use ecow::EcoString;
 use indexmap::IndexMap;
 
@@ -40,7 +40,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     /// # Returns
     /// -`Typ::String`
     ///
-    fn infer_binary_concat(&mut self, location: Address, left: Typ, right: Typ) -> Typ {
+    fn infer_binary_concat(&mut self, location: Span, left: Typ, right: Typ) -> Typ {
         // Checking prelude types
         match left {
             Typ::Prelude(PreludeType::String) => match right {
@@ -50,7 +50,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
                     span: location.span.into(),
                     a: left.pretty(&mut self.icx),
                     b: right.pretty(&mut self.icx),
-                    op: BinaryOp::Concat
+                    op: BinOp::Concat
                 }),
             },
             _ => bail!(TypeckError::InvalidBinaryOp {
@@ -58,7 +58,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
                 span: location.span.into(),
                 a: left.pretty(&mut self.icx),
                 b: right.pretty(&mut self.icx),
-                op: BinaryOp::Concat
+                op: BinOp::Concat
             }),
         }
     }
@@ -83,9 +83,9 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     fn infer_binary_arithmetical(
         &mut self,
-        location: Address,
+        location: Span,
         left: Typ,
-        op: BinaryOp,
+        op: BinOp,
         right: Typ,
     ) -> Typ {
         // Checking prelude types
@@ -139,9 +139,9 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     fn infer_binary_logical(
         &mut self,
-        location: Address,
+        location: Span,
         left: Typ,
-        op: BinaryOp,
+        op: BinOp,
         right: Typ,
     ) -> Typ {
         // Checking prelude types
@@ -183,9 +183,9 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     fn infer_binary_compare(
         &mut self,
-        location: Address,
+        location: Span,
         left: Typ,
-        op: BinaryOp,
+        op: BinOp,
         right: Typ,
     ) -> Typ {
         // Checking prelude types
@@ -243,8 +243,8 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     fn infer_binary(
         &mut self,
-        location: Address,
-        op: BinaryOp,
+        location: Span,
+        op: BinOp,
         left: Expression,
         right: Expression,
     ) -> Typ {
@@ -255,25 +255,25 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
         // Matching operator
         match op {
             // Concat
-            BinaryOp::Concat => self.infer_binary_concat(location, left, right),
+            BinOp::Concat => self.infer_binary_concat(location, left, right),
             // Arithmetical
-            BinaryOp::Add
-            | BinaryOp::Sub
-            | BinaryOp::Mul
-            | BinaryOp::Div
-            | BinaryOp::BitwiseAnd
-            | BinaryOp::BitwiseOr
-            | BinaryOp::Mod => self.infer_binary_arithmetical(location, left, op, right),
+            BinOp::Add
+            | BinOp::Sub
+            | BinOp::Mul
+            | BinOp::Div
+            | BinOp::BitwiseAnd
+            | BinOp::BitwiseOr
+            | BinOp::Mod => self.infer_binary_arithmetical(location, left, op, right),
             // Logical
-            BinaryOp::Xor | BinaryOp::And | BinaryOp::Or => {
+            BinOp::Xor | BinOp::And | BinOp::Or => {
                 self.infer_binary_logical(location, left, op, right)
             }
             // Compare
-            BinaryOp::Ge | BinaryOp::Gt | BinaryOp::Le | BinaryOp::Lt => {
+            BinOp::Ge | BinOp::Gt | BinOp::Le | BinOp::Lt => {
                 self.infer_binary_compare(location, left, op, right)
             }
             // Equality
-            BinaryOp::Eq | BinaryOp::NotEq => Typ::Prelude(PreludeType::Bool),
+            BinOp::Eq | BinOp::NotEq => Typ::Prelude(PreludeType::Bool),
         }
     }
 
@@ -300,7 +300,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     ///  TODO: revamp with new coercion rule.
     ///
-    fn infer_as(&mut self, location: Address, value: Expression, typ: TypePath) -> Typ {
+    fn infer_as(&mut self, location: Span, value: Expression, typ: TypePath) -> Typ {
         // Inferencing left and right types
         let value = self.infer_expr(value);
         let typ = self.infer_type_annotation(typ);
@@ -352,7 +352,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     /// - `-` is valid only for `Int` and `Float`.
     /// - `!` is valid only for `Bool`.
     ///
-    fn infer_unary(&mut self, location: Address, op: UnaryOp, value: Expression) -> Typ {
+    fn infer_unary(&mut self, location: Span, op: UnaryOp, value: Expression) -> Typ {
         // Inferencing value
         let inferred_value = self.infer_expr(value);
 
@@ -405,7 +405,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     /// # Errors
     /// Emitted indirectly through `resolver.resolve` when a symbol is not found.
     ///
-    fn infer_get(&mut self, location: Address, name: EcoString) -> Res {
+    fn infer_get(&mut self, location: Span, name: EcoString) -> Res {
         self.resolver.resolve(&mut self.icx, &location, &name)
     }
 
@@ -436,7 +436,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     fn infer_module_field_access(
         &mut self,
         field_module: EcoString,
-        field_location: Address,
+        field_location: Span,
         field_name: EcoString,
     ) -> Res {
         // Getting module
@@ -524,7 +524,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
         &mut self,
         ty: Typ,
         name: EcoString,
-        field_location: Address,
+        field_location: Span,
         field_name: EcoString,
     ) -> Res {
         // Finding field
@@ -566,7 +566,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
         &mut self,
         ty: Typ,
         name: EcoString,
-        field_location: Address,
+        field_location: Span,
         field_name: EcoString,
     ) -> Res {
         // Finding field
@@ -606,7 +606,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     fn infer_field_access(
         &mut self,
-        field_location: Address,
+        field_location: Span,
         container: Expression,
         field_name: EcoString,
     ) -> Res {
@@ -651,7 +651,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     /// - `location`: Location of the field access.
     /// - `expected`: Expected amount of parameters.
     /// - `got`: Amount of passed parameters.
-    fn ensure_arity(&self, location: Address, expected: usize, got: usize) {
+    fn ensure_arity(&self, location: Span, expected: usize, got: usize) {
         if expected != got {
             bail!(TypeckError::ArityMissmatch {
                 related: vec![TypeckRelated::Here {
@@ -698,7 +698,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     pub(crate) fn infer_call(
         &mut self,
-        location: Address,
+        location: Span,
         what: Expression,
         args: Vec<Expression>,
     ) -> Res {
@@ -706,7 +706,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
         let args = args
             .into_iter()
             .map(|a| (a.location(), self.infer_expr(a)))
-            .collect::<Vec<(Address, Typ)>>();
+            .collect::<Vec<(Span, Typ)>>();
 
         match function.clone() {
             // Custom type
@@ -845,7 +845,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     fn infer_anonymous_fn(
         &mut self,
-        location: Address,
+        location: Span,
         params: Vec<ast::Parameter>,
         body: Either<Block, Box<Expression>>,
         ret_type: Option<TypePath>,
@@ -917,7 +917,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     fn analyze_pattern(
         &mut self,
-        what_address: Address,
+        what_address: Span,
         inferred_what: Typ,
         case: &Case,
         pat: &Pattern,
@@ -1060,7 +1060,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     pub(crate) fn infer_pattern_matching(
         &mut self,
-        location: Address,
+        location: Span,
         what: Expression,
         cases: Vec<Case>,
     ) -> Typ {
@@ -1133,7 +1133,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     fn infer_if(
         &mut self,
-        location: Address,
+        location: Span,
         logical: Expression,
         body: Either<Block, Box<Expression>>,
         else_branches: Vec<ElseBranch>,

@@ -2,7 +2,7 @@
 use crate::{errors::TypeckError, typ::typ::Typ};
 use ecow::EcoString;
 use std::collections::HashMap;
-use bit_common::{address::Address, bail};
+use bit_common::{span::Span, bail};
 
 /// A single lexical scope that mappings
 /// variable names to their types.
@@ -66,7 +66,7 @@ impl RibsStack {
     /// # Behavior
     /// - Otherwise, inserts or overwrites the variable in the current scope.
     ///
-    pub fn define(&mut self, address: &Address, name: &EcoString, typ: Typ) {
+    pub fn define(&mut self, address: &Span, name: &EcoString, typ: Typ) {
         match self.stack.last_mut() {
             Some(env) => {
                 if !env.contains_key(name) {

@@ -4,7 +4,7 @@ use crate::typ::def::ModuleDef;
 use crate::typ::typ::{Function, Parameter, Typ, WithPublicity};
 use bit_ast::ast;
 use bit_ast::ast::{FnDeclaration, Publicity, TypePath};
-use bit_common::address::Address;
+use bit_common::span::Span;
 use ecow::EcoString;
 
 /// Performs the “early” pass of module analysis.
@@ -28,7 +28,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     pub(crate) fn early_define_fn(
         &mut self,
-        location: Address,
+        location: Span,
         publicity: Publicity,
         generics: Vec<EcoString>,
         params: Vec<ast::Parameter>,

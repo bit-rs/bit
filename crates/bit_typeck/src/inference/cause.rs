@@ -3,7 +3,7 @@ use crate::{
     errors::{TypeckError, TypeckRelated},
     inference::coercion::CoercionError,
 };
-use bit_common::{address::Address, bail};
+use bit_common::{span::Span, bail};
 
 /// A cause describing *why* a type constraint was introduced.
 ///
@@ -28,7 +28,7 @@ pub enum Cause<'a> {
     ///        ^^^^
     /// ```
     ///
-    FunctionArgument(&'a Address),
+    FunctionArgument(&'a Span),
 
     /// A type constraint originating from a struct creation argument.
     ///
@@ -38,7 +38,7 @@ pub enum Cause<'a> {
     ///              ^^^^
     /// ```
     ///
-    StructArgument(&'a Address),
+    StructArgument(&'a Span),
 
     /// A type constraint originating from a variant creation argument.
     ///
@@ -48,7 +48,7 @@ pub enum Cause<'a> {
     ///              ^^^^
     /// ```
     ///
-    VariantArgument(&'a Address),
+    VariantArgument(&'a Span),
 
     /// A type constraint originating from an assignment expression.
     ///
@@ -57,7 +57,7 @@ pub enum Cause<'a> {
     /// let x: int = expr;
     /// ```
     ///
-    Assignment(&'a Address),
+    Assignment(&'a Span),
 
     /// A type constraint originating from an return type and block type match check.
     ///
@@ -68,7 +68,7 @@ pub enum Cause<'a> {
     /// }
     /// ```
     ///
-    Return(&'a Address, &'a Address),
+    Return(&'a Span, &'a Span),
 
     /// A type constraint originating from an pattern type and matchable type match check.
     ///
@@ -82,7 +82,7 @@ pub enum Cause<'a> {
     /// }
     /// ```
     ///
-    Pattern(&'a Address, &'a Address),
+    Pattern(&'a Span, &'a Span),
 
     /// A type constraint originating from an branch types match check.
     ///
@@ -96,7 +96,7 @@ pub enum Cause<'a> {
     /// }
     /// ```
     ///
-    Branch(&'a Address, &'a Address),
+    Branch(&'a Span, &'a Span),
 }
 
 /// Implementation of the cause

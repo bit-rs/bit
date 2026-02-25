@@ -7,7 +7,7 @@ use crate::{
     },
 };
 use bit_ast::ast::{self, EnumConstructor, TypeDeclaration};
-use bit_common::address::Address;
+use bit_common::span::Span;
 use ecow::EcoString;
 
 /// Late declaration analysis pass for the module.
@@ -37,7 +37,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     fn late_analyze_struct(
         &mut self,
-        location: Address,
+        location: Span,
         name: EcoString,
         generics: Vec<EcoString>,
         fields: Vec<ast::Field>,
@@ -85,7 +85,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     fn late_analyze_enum(
         &mut self,
-        location: Address,
+        location: Span,
         name: EcoString,
         generics: Vec<EcoString>,
         variants: Vec<EnumConstructor>,

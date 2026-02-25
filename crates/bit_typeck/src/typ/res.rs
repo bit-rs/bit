@@ -9,7 +9,7 @@ use crate::{
     },
 };
 use ecow::EcoString;
-use bit_common::{address::Address, bail};
+use bit_common::{span::Span, bail};
 
 /// Represents the result of a name/type resolution.
 ///
@@ -62,7 +62,7 @@ impl Res {
     /// - [`TypeckError::UnexpectedResolution`]: if the resolution
     ///   is not a `Res::Value` or `Res::Const`.
     ///
-    pub fn unwrap_typ(self, icx: &mut InferCx, address: &Address) -> Typ {
+    pub fn unwrap_typ(self, icx: &mut InferCx, address: &Span) -> Typ {
         match self {
             Res::Value(t) => t,
             Res::Const(t) => t,

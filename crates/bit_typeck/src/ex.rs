@@ -8,7 +8,7 @@ use crate::{
     },
 };
 use bit_ast::ast::{Case, Pattern};
-use bit_common::{address::Address, bail, skip};
+use bit_common::{span::Span, bail, skip};
 use ecow::EcoString;
 use id_arena::Id;
 
@@ -161,7 +161,7 @@ impl<'module_cx, 'pkg, 'cx> ExMatchCx<'module_cx, 'pkg, 'cx> {
     /// Ensures all enum patterns are consistent
     fn ensure_enum_patterns_consistent(
         &mut self,
-        location: Address,
+        location: Span,
         pat1: &Pattern,
         pat2: &Pattern,
     ) {
@@ -229,7 +229,7 @@ impl<'module_cx, 'pkg, 'cx> ExMatchCx<'module_cx, 'pkg, 'cx> {
     }
 
     /// Collects matched variants
-    fn collect_enum_variants(&mut self, address: &Address, pattern: &Pattern) -> Vec<EnumVariant> {
+    fn collect_enum_variants(&mut self, address: &Span, pattern: &Pattern) -> Vec<EnumVariant> {
         // Matched variants
         let mut variants = Vec::new();
         // Matching pattern

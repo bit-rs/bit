@@ -11,7 +11,7 @@ use crate::{
         typ::{Module, Typ},
     },
 };
-use bit_common::{address::Address, bail};
+use bit_common::{span::Span, bail};
 use ecow::EcoString;
 use id_arena::Id;
 use std::collections::HashMap;
@@ -76,7 +76,7 @@ impl ModuleResolver {
     ///
     /// - This method ensures that the module maintains a consistent namespace.
     ///
-    pub fn define_module(&mut self, address: &Address, name: &EcoString, def: ModuleDef) {
+    pub fn define_module(&mut self, address: &Span, name: &EcoString, def: ModuleDef) {
         match self.module_defs.get(name) {
             Some(found) => match found {
                 ModuleDef::Type(_) => {
@@ -121,7 +121,7 @@ impl ModuleResolver {
     ///
     /// - This method ensures that the rib maintains a consistent scope.
     ///
-    pub fn define_local(&mut self, address: &Address, name: &EcoString, typ: Typ) {
+    pub fn define_local(&mut self, address: &Span, name: &EcoString, typ: Typ) {
         self.ribs_stack.define(address, name, typ);
     }
 
@@ -182,7 +182,7 @@ impl ModuleResolver {
     ///
     /// `Res::Variant(Rc<Enum>, EnumVariant)` will be never returned
     ///
-    pub fn resolve(&self, icx: &mut InferCx, address: &Address, name: &EcoString) -> Res {
+    pub fn resolve(&self, icx: &mut InferCx, address: &Span, name: &EcoString) -> Res {
         // Checking existence in ribs
         match self.ribs_stack.lookup(name) {
             Some(typ) => Res::Value(typ),
@@ -253,7 +253,7 @@ impl ModuleResolver {
     /// - Raises `TypeckError::TypeIsNotDefined` if the type cannot be resolved.
     /// - Raises `TypeckError::CouldNotUseValueAsType` if the const shadows the type name.
     ///
-    pub fn resolve_type(&self, address: &Address, name: &EcoString) -> TypeDef {
+    pub fn resolve_type(&self, address: &Span, name: &EcoString) -> TypeDef {
         // Checking existence in module definitions
         match self.module_defs.get(name) {
             Some(typ) => match typ {
@@ -350,7 +350,7 @@ impl ModuleResolver {
     pub fn import_as(
         &mut self,
         cx: &RootCx,
-        address: &Address,
+        address: &Span,
         name: EcoString,
         module: Id<Module>,
     ) {
@@ -388,7 +388,7 @@ impl ModuleResolver {
         &mut self,
         rcx: &RootCx,
         icx: &mut InferCx,
-        address: &Address,
+        address: &Span,
         names: Vec<EcoString>,
         module: Id<Module>,
     ) {

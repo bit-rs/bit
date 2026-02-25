@@ -1,7 +1,7 @@
 /// Imports
 use crate::{errors::ParseError, parser::Parser};
 use miette::SourceSpan;
-use bit_ast::ast::{BinaryOp, Case, Either, ElseBranch, Expression, Parameter, Pattern, UnaryOp};
+use bit_ast::ast::{BinOp, Case, Either, ElseBranch, Expression, Parameter, Pattern, UnaryOp};
 use bit_common::bail;
 use bit_lex::tokens::TokenKind;
 
@@ -289,11 +289,11 @@ impl<'file> Parser<'file> {
                 left: Box::new(left),
                 right: Box::new(right),
                 op: match op.tk_type {
-                    TokenKind::Star => BinaryOp::Mul,
-                    TokenKind::Slash => BinaryOp::Div,
-                    TokenKind::Ampersand => BinaryOp::BitwiseAnd,
-                    TokenKind::Bar => BinaryOp::BitwiseOr,
-                    TokenKind::Percent => BinaryOp::Mod,
+                    TokenKind::Star => BinOp::Mul,
+                    TokenKind::Slash => BinOp::Div,
+                    TokenKind::Ampersand => BinOp::BitwiseAnd,
+                    TokenKind::Bar => BinOp::BitwiseOr,
+                    TokenKind::Percent => BinOp::Mod,
                     _ => unreachable!(),
                 },
             };
@@ -320,9 +320,9 @@ impl<'file> Parser<'file> {
                 left: Box::new(left),
                 right: Box::new(right),
                 op: match op.tk_type {
-                    TokenKind::Plus => BinaryOp::Add,
-                    TokenKind::Minus => BinaryOp::Sub,
-                    TokenKind::Concat => BinaryOp::Concat,
+                    TokenKind::Plus => BinOp::Add,
+                    TokenKind::Minus => BinOp::Sub,
+                    TokenKind::Concat => BinOp::Concat,
                     _ => unreachable!(),
                 },
             };
@@ -349,10 +349,10 @@ impl<'file> Parser<'file> {
                 left: Box::new(left),
                 right: Box::new(right),
                 op: match op.tk_type {
-                    TokenKind::Greater => BinaryOp::Gt,
-                    TokenKind::GreaterEq => BinaryOp::Ge,
-                    TokenKind::Less => BinaryOp::Lt,
-                    TokenKind::LessEq => BinaryOp::Le,
+                    TokenKind::Greater => BinOp::Gt,
+                    TokenKind::GreaterEq => BinOp::Ge,
+                    TokenKind::Less => BinOp::Lt,
+                    TokenKind::LessEq => BinOp::Le,
                     _ => unreachable!(),
                 },
             };
@@ -375,8 +375,8 @@ impl<'file> Parser<'file> {
                 left: Box::new(left),
                 right: Box::new(right),
                 op: match op.tk_type {
-                    TokenKind::Eq => BinaryOp::Eq,
-                    TokenKind::NotEq => BinaryOp::NotEq,
+                    TokenKind::Eq => BinOp::Eq,
+                    TokenKind::NotEq => BinOp::NotEq,
                     _ => unreachable!(),
                 },
             };
@@ -398,7 +398,7 @@ impl<'file> Parser<'file> {
                 location: start_location.clone() + end_location,
                 left: Box::new(left),
                 right: Box::new(right),
-                op: BinaryOp::And,
+                op: BinOp::And,
             };
         }
 
@@ -418,7 +418,7 @@ impl<'file> Parser<'file> {
                 location: start_location.clone() + end_location,
                 left: Box::new(left),
                 right: Box::new(right),
-                op: BinaryOp::Or,
+                op: BinOp::Or,
             };
         }
 

@@ -15,7 +15,7 @@ use crate::{
 use ecow::EcoString;
 use bit_ast::ast::*;
 use bit_ast::ast::{Block, Expression, TypePath};
-use bit_common::{address::Address, bail, skip};
+use bit_common::{span::Span, bail, skip};
 
 /// Statements inferencing
 impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
@@ -32,7 +32,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     fn analyze_loop(
         &mut self,
-        location: Address,
+        location: Span,
         logical: Expression,
         body: Either<Block, Expression>,
     ) {
@@ -143,7 +143,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     fn analyze_for(
         &mut self,
-        location: Address,
+        location: Span,
         name: EcoString,
         range: Range,
         body: Either<Block, Expression>,
@@ -178,7 +178,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     ///
     pub(crate) fn analyze_let_definition(
         &mut self,
-        location: Address,
+        location: Span,
         name: EcoString,
         value: Expression,
         typ: Option<TypePath>,
@@ -207,7 +207,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     /// ## Errors:
     /// - [`TypeckError::CouldNotAssignConstant`] if the left-hand side refers to a constant.
     ///
-    fn analyze_assignment(&mut self, location: Address, what: Expression, value: Expression) {
+    fn analyze_assignment(&mut self, location: Span, what: Expression, value: Expression) {
         let inferred_what = self.infer_resolution(what);
         if let Res::Const(_) = inferred_what {
             bail!(TypeckError::CouldNotAssignConstant {
@@ -233,10 +233,10 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     /// - `For` — delegates to [`analyze_for`] and returns `Unit`.
     /// - `Semi(expr)` — infers the expression, discards its value, returns `Unit`.
     ///
-    fn infer_stmt(&mut self, stmt: Statement) -> Typ {
+    fn infer_stmt(&mut self, stmt: Stmt) -> Typ {
         match stmt {
-            Statement::Expr(expression) => self.infer_expr(expression),
-            Statement::VarDef {
+            Stmt::Expr(expression) => self.infer_expr(expression),
+            Stmt::VarDef {
                 location,
                 name,
                 value,
@@ -245,7 +245,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
                 self.analyze_let_definition(location, name, value, typ);
                 Typ::Unit
             }
-            Statement::VarAssign {
+            Stmt::VarAssign {
                 location,
                 what,
                 value,
@@ -253,7 +253,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
                 self.analyze_assignment(location, what, value);
                 Typ::Unit
             }
-            Statement::Loop {
+            Stmt::Loop {
                 location,
                 logical,
                 body,
@@ -261,7 +261,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
                 self.analyze_loop(location, logical, body);
                 Typ::Unit
             }
-            Statement::For {
+            Stmt::For {
                 location,
                 name,
                 range,
@@ -270,7 +270,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
                 self.analyze_for(location, name, *range, body);
                 Typ::Unit
             }
-            Statement::Semi(expr) => {
+            Stmt::Semi(expr) => {
                 self.infer_expr(expr);
                 Typ::Unit
             }

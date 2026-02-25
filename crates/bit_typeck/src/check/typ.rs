@@ -9,14 +9,14 @@ use crate::{
     },
 };
 use bit_ast::ast::{Publicity, TypePath};
-use bit_common::{address::Address, bail};
+use bit_common::{span::Span, bail};
 use ecow::EcoString;
 use id_arena::Id;
 
 /// Implementation
 impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     /// Ensures no generic parameters given
-    fn ensure_no_generics<F>(&self, location: &Address, got: usize, typ: F) -> Typ
+    fn ensure_no_generics<F>(&self, location: &Span, got: usize, typ: F) -> Typ
     where
         F: FnOnce() -> Typ,
     {
@@ -35,7 +35,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     }
 
     /// Checks generic parameters arity
-    fn check_generic_params_arity(&self, location: &Address, expected: usize, got: usize) {
+    fn check_generic_params_arity(&self, location: &Span, expected: usize, got: usize) {
         if expected != got {
             bail!(TypeckError::ArityMissmatch {
                 related: vec![TypeckRelated::Here {
@@ -51,7 +51,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     /// Infers a local type (built-in or user-defined).
     fn infer_local_type_path(
         &mut self,
-        location: Address,
+        location: Span,
         name: EcoString,
         generics: Vec<TypePath>,
     ) -> Typ {
@@ -86,7 +86,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     /// Performs visibility checks and handles both enums and structs.
     fn infer_module_type_path(
         &mut self,
-        location: Address,
+        location: Span,
         module: EcoString,
         name: EcoString,
         generics: Vec<TypePath>,
@@ -138,7 +138,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     /// Instantiates an enum type with its generic parameters.
     fn instantiate_enum_type(
         &mut self,
-        location: &Address,
+        location: &Span,
         id: Id<Enum>,
         generics: Vec<TypePath>,
     ) -> Typ {
@@ -160,7 +160,7 @@ impl<'pkg, 'cx> ModuleCx<'pkg, 'cx> {
     /// Instantiates a struct type with its generic parameters.
     fn instantiate_struct_type(
         &mut self,
-        location: &Address,
+        location: &Span,
         id: Id<Struct>,
         generics: Vec<TypePath>,
     ) -> Typ {
