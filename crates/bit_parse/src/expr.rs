@@ -120,6 +120,15 @@ impl<'s> Parser<'s> {
         Expr::Function(start_span + end_span, params, Box::new(body))
     }
 
+    /// None expression parsing
+    fn none_expr(&mut self) -> Expr {
+        let start_span = self.peek().span.clone();
+        self.expect(TokenKind::None);
+        let end_span = self.prev().span.clone();
+
+        Expr::None(start_span + end_span)
+    }
+
     /// Atom expression parsing
     fn atom(&mut self) -> Expr {
         let tk = self.peek().clone();
@@ -151,6 +160,7 @@ impl<'s> Parser<'s> {
             TokenKind::Id => self.variable(),
             TokenKind::If => self.if_expr(),
             TokenKind::Fn => self.fn_expr(),
+            TokenKind::None => self.none_expr(),
             _ => bail!(ParseError::UnexpectedExprToken {
                 got: tk.kind,
                 src: self.source.clone(),

@@ -66,6 +66,9 @@ pub enum Expr {
 
     /// Block expression
     Block(Span, Vec<Stmt>),
+
+    /// None expression
+    None(Span),
 }
 
 /// Implementation
@@ -86,6 +89,7 @@ impl Expr {
             Expr::Match(span, ..) => span.clone(),
             Expr::Paren(span, ..) => span.clone(),
             Expr::Block(span, ..) => span.clone(),
+            Expr::None(span) => span.clone(),
         }
     }
 }
