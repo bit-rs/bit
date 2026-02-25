@@ -101,6 +101,173 @@ dependencies = [
 ]
 
 [[package]]
+name = "bit"
+version = "0.1.0"
+dependencies = [
+ "bit_common",
+ "bit_compile",
+ "bit_pm",
+ "camino",
+ "clap",
+ "ecow",
+ "miette",
+ "thiserror",
+ "tracing",
+ "tracing-subscriber",
+]
+
+[[package]]
+name = "bit_ast"
+version = "0.1.0"
+dependencies = [
+ "bit_common",
+ "bit_lex",
+ "ecow",
+ "miette",
+]
+
+[[package]]
+name = "bit_common"
+version = "0.1.0"
+dependencies = [
+ "camino",
+ "miette",
+]
+
+[[package]]
+name = "bit_compile"
+version = "0.1.0"
+dependencies = [
+ "bit_ast",
+ "bit_common",
+ "bit_gen",
+ "bit_lex",
+ "bit_lint",
+ "bit_parse",
+ "bit_typeck",
+ "camino",
+ "ecow",
+ "id-arena",
+ "miette",
+ "petgraph",
+ "thiserror",
+ "tracing",
+ "tracing-subscriber",
+ "walkdir",
+]
+
+[[package]]
+name = "bit_gen"
+version = "0.1.0"
+dependencies = [
+ "bit_ast",
+ "ecow",
+ "genco",
+ "tracing",
+]
+
+[[package]]
+name = "bit_lex"
+version = "0.1.0"
+dependencies = [
+ "bit_common",
+ "ecow",
+ "miette",
+ "thiserror",
+]
+
+[[package]]
+name = "bit_lint"
+version = "0.1.0"
+dependencies = [
+ "bit_ast",
+ "bit_common",
+ "bit_lex",
+ "bit_parse",
+ "camino",
+ "ecow",
+ "miette",
+ "once_cell",
+ "petgraph",
+ "regex",
+ "thiserror",
+ "walkdir",
+]
+
+[[package]]
+name = "bit_parse"
+version = "0.1.0"
+dependencies = [
+ "bit_ast",
+ "bit_common",
+ "bit_lex",
+ "ecow",
+ "miette",
+ "thiserror",
+]
+
+[[package]]
+name = "bit_pm"
+version = "0.1.0"
+dependencies = [
+ "bit_common",
+ "bit_compile",
+ "bit_gen",
+ "bit_typeck",
+ "camino",
+ "clap",
+ "console 0.16.1",
+ "ecow",
+ "git2",
+ "indicatif",
+ "miette",
+ "petgraph",
+ "serde",
+ "thiserror",
+ "toml",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "bit_tests"
+version = "0.1.0"
+dependencies = [
+ "bit_ast",
+ "bit_common",
+ "bit_gen",
+ "bit_lex",
+ "bit_lint",
+ "bit_parse",
+ "bit_typeck",
+ "camino",
+ "ecow",
+ "id-arena",
+ "insta",
+ "miette",
+ "regex",
+]
+
+[[package]]
+name = "bit_typeck"
+version = "0.1.0"
+dependencies = [
+ "bit_ast",
+ "bit_common",
+ "bit_lex",
+ "bit_parse",
+ "camino",
+ "ecow",
+ "id-arena",
+ "indexmap",
+ "miette",
+ "petgraph",
+ "thiserror",
+ "tracing",
+ "walkdir",
+]
+
+[[package]]
 name = "bitflags"
 version = "2.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1259,173 +1426,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "76f218a38c84bcb33c25ec7059b07847d465ce0e0a76b995e134a45adcb6af76"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "watt"
-version = "0.1.0"
-dependencies = [
- "camino",
- "clap",
- "ecow",
- "miette",
- "thiserror",
- "tracing",
- "tracing-subscriber",
- "watt_common",
- "watt_compile",
- "watt_pm",
-]
-
-[[package]]
-name = "watt_ast"
-version = "0.1.0"
-dependencies = [
- "ecow",
- "miette",
- "watt_common",
- "watt_lex",
-]
-
-[[package]]
-name = "watt_common"
-version = "0.1.0"
-dependencies = [
- "camino",
- "miette",
-]
-
-[[package]]
-name = "watt_compile"
-version = "0.1.0"
-dependencies = [
- "camino",
- "ecow",
- "id-arena",
- "miette",
- "petgraph",
- "thiserror",
- "tracing",
- "tracing-subscriber",
- "walkdir",
- "watt_ast",
- "watt_common",
- "watt_gen",
- "watt_lex",
- "watt_lint",
- "watt_parse",
- "watt_typeck",
-]
-
-[[package]]
-name = "watt_gen"
-version = "0.1.0"
-dependencies = [
- "ecow",
- "genco",
- "tracing",
- "watt_ast",
-]
-
-[[package]]
-name = "watt_lex"
-version = "0.1.0"
-dependencies = [
- "ecow",
- "miette",
- "thiserror",
- "watt_common",
-]
-
-[[package]]
-name = "watt_lint"
-version = "0.1.0"
-dependencies = [
- "camino",
- "ecow",
- "miette",
- "once_cell",
- "petgraph",
- "regex",
- "thiserror",
- "walkdir",
- "watt_ast",
- "watt_common",
- "watt_lex",
- "watt_parse",
-]
-
-[[package]]
-name = "watt_parse"
-version = "0.1.0"
-dependencies = [
- "ecow",
- "miette",
- "thiserror",
- "watt_ast",
- "watt_common",
- "watt_lex",
-]
-
-[[package]]
-name = "watt_pm"
-version = "0.1.0"
-dependencies = [
- "camino",
- "clap",
- "console 0.16.1",
- "ecow",
- "git2",
- "indicatif",
- "miette",
- "petgraph",
- "serde",
- "thiserror",
- "toml",
- "tracing",
- "url",
- "watt_common",
- "watt_compile",
- "watt_gen",
- "watt_typeck",
-]
-
-[[package]]
-name = "watt_tests"
-version = "0.1.0"
-dependencies = [
- "camino",
- "ecow",
- "id-arena",
- "insta",
- "miette",
- "regex",
- "watt_ast",
- "watt_common",
- "watt_gen",
- "watt_lex",
- "watt_lint",
- "watt_parse",
- "watt_typeck",
-]
-
-[[package]]
-name = "watt_typeck"
-version = "0.1.0"
-dependencies = [
- "camino",
- "ecow",
- "id-arena",
- "indexmap",
- "miette",
- "petgraph",
- "thiserror",
- "tracing",
- "walkdir",
- "watt_ast",
- "watt_common",
- "watt_lex",
- "watt_parse",
 ]
 
 [[package]]

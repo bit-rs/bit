@@ -29,7 +29,7 @@ jobs:
 
       - name: Set up Insta
         run: |
-          cd crates/watt_tests
+          cd crates/bit_tests
           cargo install cargo-insta
 
       - name: Run each example

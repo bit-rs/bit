@@ -1,15 +1,15 @@
 [workspace]
 members = [
-    "crates/watt_lex",
-    "crates/watt_ast",
-    "crates/watt_common",
-    "crates/watt_parse",
-    "crates/watt",
-    "crates/watt_compile",
-    "crates/watt_pm",
-    "crates/watt_gen",
-    "crates/watt_lint",
-    "crates/watt_tests"
+    "crates/bit_lex",
+    "crates/bit_ast",
+    "crates/bit_common",
+    "crates/bit_parse",
+    "crates/bit",
+    "crates/bit_compile",
+    "crates/bit_pm",
+    "crates/bit_gen",
+    "crates/bit_lint",
+    "crates/bit_tests"
 ]
 resolver = "3"
 doctest = false

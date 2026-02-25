@@ -1,0 +1,10 @@
+[package]
+name = "bit_lex"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bit_common = { path = "../bit_common" }
+thiserror = "2.0.12"
+miette = { git = "https://github.com/watt-rs/miette.git", features = ["fancy"] }
+ecow = "0.2.6"

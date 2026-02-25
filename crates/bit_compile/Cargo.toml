@@ -1,0 +1,22 @@
+[package]
+name = "bit_compile"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bit_lex = { path = "../bit_lex" }
+bit_parse = { path = "../bit_parse" }
+bit_common = { path = "../bit_common" }
+bit_ast = { path = "../bit_ast" }
+bit_typeck = { path = "../bit_typeck" }
+bit_gen = { path = "../bit_gen" }
+bit_lint = { path = "../bit_lint" }
+miette = { git = "https://github.com/watt-rs/miette.git", features = ["fancy"] }
+ecow = "0.2.6"
+camino = "1.1.10"
+thiserror = "2.0.12"
+walkdir = "2.5.0"
+petgraph = "0.8.2"
+tracing-subscriber = "0.3.22"
+tracing = "0.1.44"
+id-arena = "2.2.1"

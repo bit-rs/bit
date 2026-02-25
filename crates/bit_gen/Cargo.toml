@@ -1,0 +1,10 @@
+[package]
+name = "bit_gen"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+genco = { version = "0.18.1" }
+bit_ast = { path = "../bit_ast" }
+ecow = "0.2.6"
+tracing = "0.1.44"
