@@ -8,30 +8,36 @@
 
 #### Examples
 ```
-import io = std/io
+import std/io
 
-struct Book =
+struct Book {
   author: string,
   id: int
+}
   
-enum Option[T] =
+enum Option[T] {
   Some(T),
   None
+}
 
-enum Color =
+enum Color {
   Rgb(int, int, int),
   Hex(string)
+}
 
-fn hello =
+fn hello() {
   io.print("Hello");
   io.println(", world!")
+}
+
+fn unit() {
+  3 + 4; // returns `unit` type
+}
   
-fn unit =
-  3 + 4;
-  none // returns `unit` type
-  
-fn test(a: Color): int =
-  match a:
+fn test(a: Color): int {
+  match a {
     Rgb(a, b) => a + b,
     Hex(a) => len(a)
+  }
+}
 ```
