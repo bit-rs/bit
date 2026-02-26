@@ -9,7 +9,7 @@
 
 #### What is Bit?
 
-Bit is a *lightweight, dynamic, safe and concurrent,  programming language* designed to be simple, flexible, and fast.  
+Bit is a *lightweight, dynamic, safe and concurrent programming language* designed to be simple, flexible, and fast.  
 Experiment freely, code fast, and launch your ideas into orbit  
 
 Think of Bit as your *satellite in the programming universe*: lightweight, mobile, and ready to orbit wherever you need it 💫.
