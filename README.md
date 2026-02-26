@@ -1,7 +1,27 @@
-<img width="226" height="101" alt="image" src="https://github.com/user-attachments/assets/f9e829fd-b423-4077-b38b-f3e7fe3764f0" />
+<div align="center">
 
-### 🦎 Geko
-Geko is tiny dynamic programming language.
+## bit 🛰️
 
-### ✨ Syntax
-You can check syntax out in [syntax/DESIGN.md](syntax/DESIGN.md)
+<i>Your satellite in the programming world 🌌. Write once, orbit everywhere 🚀</i>
+
+</div>
+
+
+#### What is Bit?
+
+Bit is a *lightweight, dynamic programming language* designed to be simple, flexible, and fast.  
+Experiment freely, code fast, and launch your ideas into orbit  
+
+Think of Bit as your *satellite in the programming universe*: lightweight, mobile, and ready to orbit wherever you need it 💫.
+
+#### Status
+
+Bit is currently a **work in progress (WIP)** ⚙️.  
+Nightly builds are available and can be run on **stable Rust**, giving you a chance to explore and test the language as it evolves.
+
+#### Quick Start
+
+**Hello, world!**
+```bit
+println("Hello, world! 🌟");
+```

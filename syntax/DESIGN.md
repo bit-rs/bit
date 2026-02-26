@@ -1,6 +1,6 @@
-# 🦎 Syntax examples
+# 🛰️ Syntax examples
 
-This document describes syntax of the `Geko` programming language.
+This document describes syntax of the `Bit` programming language.
 
 ### Data types
 
@@ -19,11 +19,11 @@ This document describes syntax of the `Geko` programming language.
 | any       | `Rc<dyn std::any::Any>` |
 
 ### Variable declaration
-`Geko` does not support variables shadowing, so here's
+`Bit` does not support variables shadowing, so here's
 a way to define variable and to reassign it.
 
 Variable definition:
-```geko
+```bit
 let id = value;
 ```
 
@@ -33,21 +33,21 @@ id = value;
 ```
 
 ### Binary operations
-`Geko` supports following binary operations:
+`Bit` supports following binary operations:
 
-```geko
+```bit
 + - * / % && & || | ^ > < == !=
 ```
 
 ### Unary operations
-`Geko` supports following unary operations:
+`Bit` supports following unary operations:
 
 ```
 - !
 ```
 
 ### Compound operators
-`Geko` supports following compound operators:
+`Bit` supports following compound operators:
 
 ```
 id += value;
@@ -77,9 +77,9 @@ Examples of the values:
 | any       | any_native_value           |
 
 ### Functions example
-Here's an example on how you can define function in `Geko`:
+Here's an example on how you can define function in `Bit`:
 
-```geko
+```bit
 fn fib(x) {
   if x <= 1 {
     return x;
@@ -89,30 +89,28 @@ fn fib(x) {
 }
 ```
 
-Geko supports `copy environment` closures. This means that a function
-can only use a copy of the `environment` as a closure. This does not mean
-that reference types will be copied deeply.
+Bit supports closures.
 
-```geko
+```bit
 fn a() {
   let x = 1;
   fn b() {
     x += 1;
   }
-  b(); // x = 2, because x is in root environment
+  b(); // x = 2
   return b;
 }
 
-let b = a(); // x got copied when function called, so `x = 1`, instead of `x = 2`
-b(); // x = 2
+let b = a();
 b(); // x = 3
 b(); // x = 4
+b(); // x = 5
 ```
 
 ### Classes or custom data types
 
-Geko supports custom data types. Here is example:
-```
+Bit supports custom data types. Here is example:
+```bit
 type Dog {
   fn init() {
     self.food = 3;
@@ -129,7 +127,7 @@ let b = dog.food;
 ```
 
 ### Comments
-Geko comments examples:
+Bit comments examples:
 
 ```
 #[
@@ -145,7 +143,7 @@ brackets
 ```
 
 ### Usings
-Geko supports module using:
+Bit is modular:
 ```
 use a # import `a` as `a`
 use a as b # import `a` as `b`
@@ -154,7 +152,7 @@ use a for b, c # import multiple items
 ```
 
 ### Loops
-Geko loops examples:
+Bit loops examples:
 
 For loop with range examples.
 You can use any expression instead of numbers in range.
@@ -176,7 +174,7 @@ for i in 100..=0 {
 }
 ```
 
-While loop examples. You can see, that `Geko` supports `continue` and `break` keywords
+While loop examples. You can see, that `bit` supports `continue` and `break` keywords
 ```
 let i = 0;
 while true {

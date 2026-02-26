@@ -101,6 +101,104 @@ dependencies = [
 ]
 
 [[package]]
+name = "bit"
+version = "0.1.0"
+dependencies = [
+ "bit_common",
+ "bit_rt",
+ "camino",
+ "clap",
+ "miette",
+]
+
+[[package]]
+name = "bit_ast"
+version = "0.1.0"
+dependencies = [
+ "bit_common",
+ "bit_lex",
+]
+
+[[package]]
+name = "bit_common"
+version = "0.1.0"
+dependencies = [
+ "camino",
+ "miette",
+ "thiserror",
+]
+
+[[package]]
+name = "bit_lex"
+version = "0.1.0"
+dependencies = [
+ "bit_common",
+ "camino",
+ "miette",
+ "thiserror",
+]
+
+[[package]]
+name = "bit_parse"
+version = "0.1.0"
+dependencies = [
+ "bit_ast",
+ "bit_common",
+ "bit_lex",
+ "miette",
+ "thiserror",
+]
+
+[[package]]
+name = "bit_rt"
+version = "0.1.0"
+dependencies = [
+ "bit_ast",
+ "bit_common",
+ "bit_lex",
+ "bit_parse",
+ "bit_sema",
+ "miette",
+ "thiserror",
+]
+
+[[package]]
+name = "bit_sema"
+version = "0.1.0"
+dependencies = [
+ "bit_ast",
+ "bit_common",
+ "miette",
+ "thiserror",
+]
+
+[[package]]
+name = "bit_tests"
+version = "0.1.0"
+dependencies = [
+ "bit_ast",
+ "bit_common",
+ "bit_lex",
+ "bit_parse",
+ "bit_rt",
+ "bit_sema",
+ "insta",
+ "miette",
+ "regex",
+]
+
+[[package]]
+name = "bit_wasm"
+version = "0.1.0"
+dependencies = [
+ "bit_common",
+ "bit_rt",
+ "camino",
+ "miette",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "bitflags"
 version = "2.10.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -205,104 +303,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "37909eebbb50d72f9059c3b6d82c0463f2ff062c9e95845c43a6c9c0355411be"
 
 [[package]]
-name = "geko"
-version = "0.1.0"
-dependencies = [
- "camino",
- "clap",
- "geko_common",
- "geko_rt",
- "miette",
-]
-
-[[package]]
-name = "geko_ast"
-version = "0.1.0"
-dependencies = [
- "geko_common",
- "geko_lex",
-]
-
-[[package]]
-name = "geko_common"
-version = "0.1.0"
-dependencies = [
- "camino",
- "miette",
- "thiserror",
-]
-
-[[package]]
-name = "geko_lex"
-version = "0.1.0"
-dependencies = [
- "camino",
- "geko_common",
- "miette",
- "thiserror",
-]
-
-[[package]]
-name = "geko_parse"
-version = "0.1.0"
-dependencies = [
- "geko_ast",
- "geko_common",
- "geko_lex",
- "miette",
- "thiserror",
-]
-
-[[package]]
-name = "geko_rt"
-version = "0.1.0"
-dependencies = [
- "geko_ast",
- "geko_common",
- "geko_lex",
- "geko_parse",
- "geko_sema",
- "miette",
- "thiserror",
-]
-
-[[package]]
-name = "geko_sema"
-version = "0.1.0"
-dependencies = [
- "geko_ast",
- "geko_common",
- "miette",
- "thiserror",
-]
-
-[[package]]
-name = "geko_tests"
-version = "0.1.0"
-dependencies = [
- "geko_ast",
- "geko_common",
- "geko_lex",
- "geko_parse",
- "geko_rt",
- "geko_sema",
- "insta",
- "miette",
- "regex",
-]
-
-[[package]]
-name = "geko_wasm"
-version = "0.1.0"
-dependencies = [
- "camino",
- "geko_common",
- "geko_rt",
- "miette",
- "wasm-bindgen",
-]
-
-[[package]]
 name = "getrandom"
 version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -371,7 +371,7 @@ checksum = "f52b00d39961fc5b2736ea853c9cc86238e165017a493d1d5c8eac6bdc4cc273"
 [[package]]
 name = "miette"
 version = "7.6.0"
-source = "git+https://github.com/geko-rs/miette#872ee5c8c93706929f2aa716f500a5ab204a3021"
+source = "git+https://github.com/bit-rs/miette#872ee5c8c93706929f2aa716f500a5ab204a3021"
 dependencies = [
  "backtrace",
  "backtrace-ext",
@@ -389,7 +389,7 @@ dependencies = [
 [[package]]
 name = "miette-derive"
 version = "7.6.0"
-source = "git+https://github.com/geko-rs/miette#872ee5c8c93706929f2aa716f500a5ab204a3021"
+source = "git+https://github.com/bit-rs/miette#872ee5c8c93706929f2aa716f500a5ab204a3021"
 dependencies = [
  "proc-macro2",
  "quote",
