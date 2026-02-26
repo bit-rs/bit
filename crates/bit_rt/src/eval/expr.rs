@@ -6,7 +6,7 @@ use crate::{
     rt::{
         env::Environment,
         flow::{ControlFlow, Flow},
-        value::{Bound, Callable, Closure, Instance, Method, Native, Type, Value},
+        value::{Bound, Callable, Chan, ChanValue, Closure, Instance, Method, Native, Type, Value},
     },
 };
 use bit_ast::{
@@ -15,10 +15,11 @@ use bit_ast::{
 };
 use bit_common::{bail, bug, io::IO};
 use bit_lex::token::Span;
-use std::{cell::RefCell, collections::HashMap};
+use crossbeam::channel;
+use std::{cell::RefCell, collections::HashMap, thread};
 
 /// Implementation
-impl<I: IO> Interpreter<I> {
+impl<I: IO + Clone + Send + Sync + 'static> Interpreter<I> {
     /// Evaluates literal expression
     pub(crate) fn eval_lit(&self, lit: &Lit) -> Flow<Value> {
         // Matching literal
@@ -456,6 +457,85 @@ impl<I: IO> Interpreter<I> {
         Ok(Value::Instance(list_value))
     }
 
+    /// Evaluates launch expression
+    fn eval_launch(&mut self, span: &Span, what: &Expression) -> Flow<Value> {
+        // Evaluating `what we are going to launch`
+        let satl = self.eval(what)?;
+
+        // Checking that `value we launching` is satellite
+        match satl {
+            Value::Satellite(task) => {
+                // Creating channels
+                let (tx_to_fork, rx_in_fork) = channel::unbounded::<ChanValue>(); // `our tx` -> `fork rx`
+                let (tx_from_fork, rx_from_fork) = channel::unbounded::<ChanValue>(); // `fork tx` -> `our rx`
+
+                // Cloning need values
+                let chan = task.chan.to_string();
+                let block = task.block.clone();
+                let io = self.io.clone();
+
+                // Running interpreter
+                thread::spawn(move || {
+                    // Crearting environment
+                    let mut interpreter = Interpreter::new(io);
+
+                    // Defining satellite channel
+                    interpreter.env.borrow_mut().force_define(
+                        &chan,
+                        Value::Chan(MutRef::new(RefCell::new(Chan {
+                            tx: tx_from_fork,
+                            rx: rx_in_fork,
+                        }))),
+                    );
+
+                    // Thread will end automatically after that:
+                    let _ = interpreter.exec_block(&block, true);
+                });
+
+                // Returning satellite channel
+                Ok(Value::Chan(MutRef::new(RefCell::new(Chan {
+                    tx: tx_to_fork,
+                    rx: rx_from_fork,
+                }))))
+            }
+            value => bail!(RuntimeError::NotASatellite {
+                value,
+                src: span.0.clone(),
+                span: span.1.clone().into()
+            }),
+        }
+    }
+
+    /// Evaluates recv expression
+    fn eval_recv(&mut self, span: &Span, from: &Expression) -> Flow<Value> {
+        // Evaluating `channel we will recieve message from`
+        let from = self.eval(from)?;
+
+        // Checking that target is channel
+        match from {
+            Value::Chan(chan) => match chan.borrow_mut().rx.recv() {
+                // Matching fork value and converting to standalone
+                Ok(value) => Ok(match value {
+                    ChanValue::Int(int) => Value::Int(int),
+                    ChanValue::Float(float) => Value::Float(float),
+                    ChanValue::Bool(bool) => Value::Bool(bool),
+                    ChanValue::String(string) => Value::String(string),
+                    ChanValue::Null => Value::Null,
+                }),
+                Err(error) => bail!(RuntimeError::ChanRecvError {
+                    error,
+                    src: span.0.clone(),
+                    span: span.1.clone().into()
+                }),
+            },
+            value => bail!(RuntimeError::InvalidChan {
+                value,
+                src: span.0.clone(),
+                span: span.1.clone().into()
+            }),
+        }
+    }
+
     /// Evaluates expression
     pub fn eval(&mut self, expr: &Expression) -> Flow<Value> {
         // Matching expression
@@ -476,6 +556,8 @@ impl<I: IO> Interpreter<I> {
             } => self.eval_field(span, name, container),
             Expression::Call { span, args, what } => self.eval_call(span, args, what),
             Expression::List { span, list } => self.eval_list(span, list),
+            Expression::Launch { span, satl } => self.eval_launch(span, satl),
+            Expression::Recv { span, from } => self.eval_recv(span, from),
         }
     }
 }

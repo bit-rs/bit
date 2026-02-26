@@ -1,15 +1,16 @@
 /// Imports
-use camino::Utf8PathBuf;
 use bit_common::{
     bail,
     io::{IO, IOError},
 };
+use camino::Utf8PathBuf;
 use std::{
     fs,
     io::{self, Write},
 };
 
 /// Cli IO implementation
+#[derive(Clone)]
 pub struct CliIO;
 impl IO for CliIO {
     // Input implementation

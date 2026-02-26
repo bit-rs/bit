@@ -1,5 +1,5 @@
 /// Imports
-use crate::rt::value::Value;
+use crate::rt::value::{ChanValue, Value};
 use bit_ast::atom::{BinaryOp, UnaryOp};
 use miette::{Diagnostic, NamedSource, SourceSpan};
 use std::sync::Arc;
@@ -43,7 +43,7 @@ pub enum RuntimeError {
         span: SourceSpan,
     },
     /// Invalid binary op
-    #[error("couldn't use `{op}` with {a} and {b}")]
+    #[error("couldn't use `{op}` with `{a}` and `{b}`")]
     #[diagnostic(code(rt::invalid_binary_op))]
     InvalidBinaryOp {
         op: BinaryOp,
@@ -55,7 +55,7 @@ pub enum RuntimeError {
         span: SourceSpan,
     },
     /// Invalid unary op
-    #[error("couldn't use `{op}` with {value}")]
+    #[error("couldn't use `{op}` with `{value}`")]
     #[diagnostic(code(rt::invalid_unary_op))]
     InvalidUnaryOp {
         op: UnaryOp,
@@ -66,7 +66,7 @@ pub enum RuntimeError {
         span: SourceSpan,
     },
     /// Couldn't resolve fields
-    #[error("couldn't resolve fields in {value}")]
+    #[error("couldn't resolve fields in `{value}`")]
     #[diagnostic(code(rt::could_not_resolve_fields))]
     CouldNotResolveFields {
         value: Value,
@@ -76,7 +76,7 @@ pub enum RuntimeError {
         span: SourceSpan,
     },
     /// Couldn't call a value
-    #[error("couldn't call {value}")]
+    #[error("couldn't call `{value}`")]
     #[diagnostic(code(rt::could_not_call))]
     CouldNotCall {
         value: Value,
@@ -86,7 +86,7 @@ pub enum RuntimeError {
         span: SourceSpan,
     },
     /// Expected boolean value
-    #[error("expected bool value. got {value}")]
+    #[error("expected bool value. got `{value}`")]
     #[diagnostic(code(rt::expected_bool_value))]
     ExpectedBool {
         value: Value,
@@ -124,6 +124,56 @@ pub enum RuntimeError {
         #[source_code]
         src: Arc<NamedSource<String>>,
         #[label("bail occurred here...")]
+        span: SourceSpan,
+    },
+    /// Invalid channel
+    #[error("channel `{value}` is invalid")]
+    #[diagnostic(code(rt::invalid_chan))]
+    InvalidChan {
+        value: Value,
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("invalid channel here...")]
+        span: SourceSpan,
+    },
+    /// Not a satellite
+    #[error("`{value}` is not a satellite")]
+    #[diagnostic(code(rt::not_a_satellite))]
+    NotASatellite {
+        value: Value,
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("this is invalid...")]
+        span: SourceSpan,
+    },
+    /// Unsafe satellite value
+    #[error("value `{value}` can't be shared with satellite safely")]
+    #[diagnostic(code(rt::unsafe_satl_value))]
+    UnsafeSatlValue {
+        value: Value,
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("unsafe satl value used here...")]
+        span: SourceSpan,
+    },
+    /// Channel send error
+    #[error("failed to send value to channel: {error}")]
+    #[diagnostic(code(rt::chan_send_error))]
+    ChanSendError {
+        error: crossbeam::channel::SendError<ChanValue>,
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("fail occurred here...")]
+        span: SourceSpan,
+    },
+    /// Channel recv error
+    #[error("failed to recv value from channel: {error}")]
+    #[diagnostic(code(rt::chan_recv_error))]
+    ChanRecvError {
+        error: crossbeam::channel::RecvError,
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("fail occurred here...")]
         span: SourceSpan,
     },
 }

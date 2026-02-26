@@ -1,9 +1,9 @@
-/// Imports
-use camino::Utf8PathBuf;
 use bit_common::{
     bail,
     io::{IO, IOError},
 };
+/// Imports
+use camino::Utf8PathBuf;
 use wasm_bindgen::prelude::wasm_bindgen;
 
 /// Wasm binds
@@ -14,6 +14,7 @@ extern "C" {
 }
 
 /// Wasm IO implementation
+#[derive(Clone)]
 pub struct WasmIO;
 impl IO for WasmIO {
     // Input implementation

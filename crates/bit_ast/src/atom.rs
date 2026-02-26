@@ -92,7 +92,7 @@ pub enum Lit {
     Null,
 }
 
-/// Function
+/// Function item
 #[derive(Debug, Clone)]
 pub struct Function {
     /// Function span
@@ -105,4 +105,32 @@ pub struct Function {
     pub params: Vec<String>,
     /// Function block
     pub block: Block,
+}
+
+/// Satellite item
+#[derive(Debug, Clone)]
+pub struct Satellite {
+    /// Satellite span
+    pub span: Span,
+    /// Satellite signature span
+    pub sign_span: Span,
+    /// Satellite name
+    pub name: String,
+    /// Satellite channel
+    pub chan: String,
+    /// Satellite block
+    pub block: Block,
+}
+
+/// Type item
+#[derive(Debug, Clone)]
+pub struct Type {
+    /// Type span
+    pub span: Span,
+    /// Type name span
+    pub name_span: Span,
+    /// Type name
+    pub name: String,
+    /// Type methods
+    pub methods: Vec<Function>,
 }

@@ -1,6 +1,6 @@
 /// Imports
 use crate::{
-    atom::{AssignOp, Function},
+    atom::{AssignOp, Function, Satellite, Type},
     expr::{Expression, Range},
 };
 use bit_lex::token::Span;
@@ -42,14 +42,11 @@ pub enum Statement {
         block: Block,
     },
     // Type declaration
-    Type {
-        span: Span,
-        name_span: Span,
-        name: String,
-        methods: Vec<Function>,
-    },
+    Type(Type),
     // Function declaration
     Function(Function),
+    // Satellite declaration
+    Satl(Satellite),
     // Let declaration
     Let {
         span: Span,
@@ -90,6 +87,12 @@ pub enum Statement {
         path: String,
         kind: UsageKind,
     },
+    // Send statement
+    Send {
+        span: Span,
+        what: Expression,
+        to: Expression,
+    },
     // Bail statement
     Bail {
         span: Span,
@@ -108,7 +111,8 @@ impl Statement {
             | Statement::For { .. }
             | Statement::Type { .. }
             | Statement::Function(_)
-            | Statement::Block(_) => false,
+            | Statement::Block(_)
+            | Statement::Satl(_) => false,
             // With semicolon
             Statement::Let { .. }
             | Statement::Assign { .. }
@@ -118,7 +122,8 @@ impl Statement {
             | Statement::Expr(_)
             | Statement::Set { .. }
             | Statement::Use { .. }
-            | Statement::Bail { .. } => true,
+            | Statement::Bail { .. }
+            | Statement::Send { .. } => true,
         }
     }
 }

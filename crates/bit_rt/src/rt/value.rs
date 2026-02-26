@@ -3,6 +3,7 @@ use crate::refs::{EnvRef, MutRef, Ref};
 use bit_ast::stmt::Block;
 use bit_common::io::IO;
 use bit_lex::token::Span;
+use crossbeam::channel::{Receiver, Sender};
 use std::{
     any::Any,
     collections::HashMap,
@@ -44,6 +45,15 @@ pub struct Bound {
     pub method: Method,
     /// Instance bound method belongs to
     pub belongs_to: MutRef<Instance>,
+}
+
+/// Satellite value
+#[derive(Clone, Debug)]
+pub struct Satellite {
+    /// Satellite channel name
+    pub chan: String,
+    /// Satellite block
+    pub block: Block,
 }
 
 /// User data type method
@@ -103,6 +113,25 @@ impl PartialEq for Callable {
     }
 }
 
+/// Value that can be shared
+/// between threads safely through channel
+pub enum ChanValue {
+    /// Only primitives
+    Int(i64),
+    Float(f64),
+    Bool(bool),
+    String(String),
+    Null,
+}
+
+/// Runtime satellite channel
+pub struct Chan {
+    /// Sender to satellite
+    pub tx: Sender<ChanValue>,
+    /// Receiver from satellite
+    pub rx: Receiver<ChanValue>,
+}
+
 /// Runtime value representation
 #[derive(Clone)]
 pub enum Value {
@@ -116,6 +145,8 @@ pub enum Value {
     String(String),
     /// Function value
     Callable(Callable),
+    /// Satellite value
+    Satellite(Ref<Satellite>),
     /// Meta type
     Type(Ref<Type>),
     /// Module
@@ -124,6 +155,8 @@ pub enum Value {
     Instance(MutRef<Instance>),
     /// Rust's any type
     Any(MutRef<dyn Any>),
+    /// Satellite channel
+    Chan(MutRef<Chan>),
     /// Null reference
     Null,
 }
@@ -138,10 +171,12 @@ impl Display for Value {
             Value::Float(float) => write!(f, "{float}"),
             Value::String(string) => write!(f, "{string}"),
             Value::Callable(_) => write!(f, "Callable"),
+            Value::Satellite(_) => write!(f, "Satellite"),
             Value::Type(typ) => write!(f, "Type({})", typ.name),
             Value::Module(_) => write!(f, "Module"),
             Value::Instance(instance) => write!(f, "Instance({})", instance.borrow().type_of.name),
             Value::Any(_) => write!(f, "Any"),
+            Value::Chan(_) => write!(f, "Channel"),
             Value::Null => write!(f, "null"),
         }
     }

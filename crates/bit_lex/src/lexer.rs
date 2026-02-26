@@ -302,6 +302,12 @@ impl<'s> Lexer<'s> {
             "fn" => TokenKind::Fn,
             "bail" => TokenKind::Bail,
             "null" => TokenKind::Null,
+            "satl" => TokenKind::Satl,
+            "launch" => TokenKind::Launch,
+            "send" => TokenKind::Send,
+            "recv" => TokenKind::Recv,
+            "with" => TokenKind::With,
+            "to" => TokenKind::To,
             _ => TokenKind::Id,
         }
     }

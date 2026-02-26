@@ -23,6 +23,12 @@ pub enum TokenKind {
     As,          // `as` keyword
     Fn,          // `fn` keyword
     Bail,        // `bail` keyword
+    Satl,        // `satl` keyword
+    Launch,      // `launch` keyword
+    Send,        // `send` keyword
+    Recv,        // `recv` keyword
+    With,        // `with` keyword
+    To,          // `to` keywrod
     Comma,       // ,
     Dot,         // .
     Lbrace,      // {

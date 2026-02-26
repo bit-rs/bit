@@ -1,7 +1,7 @@
 /// Import
 use crate::errors::ParseError;
 use bit_ast::{
-    atom::{AssignOp, BinaryOp, Function, Lit, UnaryOp},
+    atom::{AssignOp, BinaryOp, Function, Lit, Satellite, Type, UnaryOp},
     expr::{Expression, Range},
     stmt::{Block, Statement, UsageKind},
 };
@@ -191,7 +191,7 @@ impl<'s> Parser<'s> {
     }
 
     /// Type declaration parsing
-    fn type_stmt(&mut self) -> Statement {
+    fn type_stmt(&mut self) -> Type {
         let start_span = self.peek().span.clone();
 
         // Parsing type name
@@ -209,7 +209,7 @@ impl<'s> Parser<'s> {
 
         let end_span = self.prev().span.clone();
 
-        Statement::Type {
+        Type {
             span: start_span + end_span,
             name_span,
             name: name.lexeme,
@@ -217,7 +217,7 @@ impl<'s> Parser<'s> {
         }
     }
 
-    /// Assignment statement
+    /// Assignment statement parsing
     fn assignment_stmt(&mut self) -> Statement {
         let start_span = self.peek().span.clone();
         let variable = self.variable();
@@ -269,19 +269,19 @@ impl<'s> Parser<'s> {
         }
     }
 
-    /// Break statement
+    /// Break statement parsing
     fn break_stmt(&mut self) -> Statement {
         let span = self.expect(TokenKind::Break).span;
         Statement::Break(span)
     }
 
-    /// Continue statement
+    /// Continue statement parsing
     fn continue_stmt(&mut self) -> Statement {
         let span = self.expect(TokenKind::Continue).span;
         Statement::Continue(span)
     }
 
-    /// Return statement
+    /// Return statement parsing
     fn return_stmt(&mut self) -> Statement {
         let start_span = self.peek().span.clone();
         self.expect(TokenKind::Return);
@@ -302,7 +302,7 @@ impl<'s> Parser<'s> {
         }
     }
 
-    /// Use statement
+    /// Use statement parsing
     fn use_stmt(&mut self) -> Statement {
         let start_span = self.peek().span.clone();
         self.expect(TokenKind::Use);
@@ -345,7 +345,7 @@ impl<'s> Parser<'s> {
         }
     }
 
-    /// Bail statement
+    /// Bail statement parsing
     fn bail_stmt(&mut self) -> Statement {
         let start_span = self.peek().span.clone();
         self.expect(TokenKind::Bail);
@@ -358,6 +358,79 @@ impl<'s> Parser<'s> {
         }
     }
 
+    /// Send statement parsing
+    fn send_stmt(&mut self) -> Statement {
+        let start_span = self.peek().span.clone();
+
+        self.expect(TokenKind::Send);
+        let what = self.expr();
+        self.expect(TokenKind::To);
+        let to = self.expr();
+
+        let end_span = self.prev().span.clone();
+
+        Statement::Send {
+            span: start_span + end_span,
+            what,
+            to,
+        }
+    }
+
+    /// Function parsing
+    fn function(&mut self) -> Function {
+        // Parsing function name
+        let start_span = self.peek().span.clone();
+        self.expect(TokenKind::Fn);
+        let name = self.expect(TokenKind::Id).lexeme;
+
+        // Parsing params
+        let params = self.params();
+
+        // Signature span
+        let sign_span = start_span.clone() + self.prev().span.clone();
+
+        // Parsing body
+        let block = self.block();
+        let end_span = self.prev().span.clone();
+
+        // Done
+        Function {
+            name,
+            span: start_span + end_span,
+            sign_span,
+            params,
+            block,
+        }
+    }
+
+    /// Satellite parsing
+    fn satellite(&mut self) -> Satellite {
+        // Parsing satl name
+        let start_span = self.peek().span.clone();
+        self.expect(TokenKind::Satl);
+        let name = self.expect(TokenKind::Id).lexeme;
+
+        // Parsing chan
+        self.expect(TokenKind::With);
+        let chan = self.expect(TokenKind::Id).lexeme;
+
+        // Signature span
+        let sign_span = start_span.clone() + self.prev().span.clone();
+
+        // Parsing body
+        let block = self.block();
+        let end_span = self.prev().span.clone();
+
+        // Done
+        Satellite {
+            name,
+            span: start_span + end_span,
+            sign_span,
+            chan,
+            block,
+        }
+    }
+
     /// Satement parsing
     fn stmt(&mut self) -> Statement {
         // Parsing statement
@@ -366,8 +439,10 @@ impl<'s> Parser<'s> {
             TokenKind::While => self.while_stmt(),
             TokenKind::If => self.if_stmt(),
             TokenKind::Let => self.let_stmt(),
-            TokenKind::Type => self.type_stmt(),
+            TokenKind::Type => Statement::Type(self.type_stmt()),
             TokenKind::Fn => Statement::Function(self.function()),
+            TokenKind::Satl => Statement::Satl(self.satellite()),
+            TokenKind::Send => self.send_stmt(),
             TokenKind::Return => self.return_stmt(),
             TokenKind::Continue => self.continue_stmt(),
             TokenKind::Break => self.break_stmt(),
@@ -506,33 +581,6 @@ impl<'s> Parser<'s> {
         expr
     }
 
-    /// Function parsing
-    fn function(&mut self) -> Function {
-        // Parsing function name
-        let start_span = self.peek().span.clone();
-        self.expect(TokenKind::Fn);
-        let name = self.expect(TokenKind::Id).lexeme;
-
-        // Parsing params
-        let params = self.params();
-
-        // Signature span
-        let sign_span = start_span.clone() + self.prev().span.clone();
-
-        // Parsing body
-        let block = self.block();
-        let end_span = self.prev().span.clone();
-
-        // Done
-        Function {
-            name,
-            span: start_span + end_span,
-            sign_span,
-            params,
-            block,
-        }
-    }
-
     /// List expression parsing
     fn list(&mut self) -> Expression {
         let start_span = self.peek().span.clone();
@@ -547,6 +595,32 @@ impl<'s> Parser<'s> {
         Expression::List {
             span: start_span + end_span,
             list,
+        }
+    }
+
+    /// Recv expression parsing
+    fn recv(&mut self) -> Expression {
+        let start_span = self.peek().span.clone();
+        self.expect(TokenKind::Recv);
+        let from = self.expr();
+        let end_span = self.prev().span.clone();
+
+        Expression::Recv {
+            span: start_span + end_span,
+            from: Box::new(from),
+        }
+    }
+
+    /// Launch expression parsing
+    fn launch(&mut self) -> Expression {
+        let start_span = self.peek().span.clone();
+        self.expect(TokenKind::Launch);
+        let satl = self.expr();
+        let end_span = self.prev().span.clone();
+
+        Expression::Launch {
+            span: start_span + end_span,
+            satl: Box::new(satl),
         }
     }
 
@@ -589,6 +663,8 @@ impl<'s> Parser<'s> {
             }
             TokenKind::Id => self.variable(),
             TokenKind::Lbracket => self.list(),
+            TokenKind::Recv => self.recv(),
+            TokenKind::Launch => self.launch(),
             _ => bail!(ParseError::UnexpectedExprToken {
                 got: tk.kind,
                 src: self.source.clone(),

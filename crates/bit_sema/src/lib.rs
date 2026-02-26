@@ -61,9 +61,9 @@ impl Analyzer {
                 self.stack.pop();
             }
             // Analyzing type methods
-            Statement::Type { methods, .. } => {
-                for method in methods {
-                    self.analyze_function(&method);
+            Statement::Type(typ) => {
+                for method in &typ.methods {
+                    self.analyze_function(method);
                 }
             }
             // Analyzing function

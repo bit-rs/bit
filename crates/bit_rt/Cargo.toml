@@ -11,3 +11,4 @@ bit_ast = { path = "../bit_ast" }
 bit_sema = { path = "../bit_sema" }
 miette = { git = "https://github.com/bit-rs/miette", features = ["fancy"] }
 thiserror = "2.0.18"
+crossbeam = "0.8.4"

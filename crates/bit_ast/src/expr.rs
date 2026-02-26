@@ -62,4 +62,14 @@ pub enum Expression {
         span: Span,
         list: Vec<Expression>,
     },
+    /// Recv expression
+    Recv {
+        span: Span,
+        from: Box<Expression>,
+    },
+    /// Launch expression
+    Launch {
+        span: Span,
+        satl: Box<Expression>,
+    },
 }

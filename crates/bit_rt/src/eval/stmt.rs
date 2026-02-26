@@ -6,7 +6,7 @@ use crate::{
     rt::{
         env::Environment,
         flow::{ControlFlow, Flow},
-        value::{Callable, Closure, Function, Method, Type, Value},
+        value::{Callable, ChanValue, Closure, Function, Method, Satellite, Type, Value},
     },
 };
 use bit_ast::{
@@ -19,7 +19,7 @@ use bit_lex::token::Span;
 use std::{cell::RefCell, collections::HashMap};
 
 /// Implementation
-impl<I: IO> Interpreter<I> {
+impl<I: IO + Clone + Send + Sync + 'static> Interpreter<I> {
     /// Executes while statement
     fn exec_while(&mut self, span: &Span, condition: &Expression, block: &Block) -> Flow<()> {
         // Evaluating condition value
@@ -68,16 +68,12 @@ impl<I: IO> Interpreter<I> {
     }
 
     /// Executes type statement
-    fn exec_type_decl(
-        &mut self,
-        name_span: &Span,
-        name: &str,
-        methods: &Vec<atom::Function>,
-    ) -> Flow<()> {
+    fn exec_type_decl(&mut self, typ: &atom::Type) -> Flow<()> {
         // Creating type
         let type_ref = Ref::new(Type {
-            name: name.to_string(),
-            methods: methods
+            name: typ.name.to_string(),
+            methods: typ
+                .methods
                 .iter()
                 .map(|method| {
                     (
@@ -97,7 +93,7 @@ impl<I: IO> Interpreter<I> {
         // Defining type in the environment
         self.env
             .borrow_mut()
-            .define(name_span, &name, Value::Type(type_ref));
+            .define(&typ.name_span, &typ.name, Value::Type(type_ref));
 
         Ok(())
     }
@@ -122,6 +118,22 @@ impl<I: IO> Interpreter<I> {
             &function.name,
             Value::Callable(Callable::Closure(closure)),
         );
+
+        Ok(())
+    }
+
+    /// Executes satellite statement
+    fn exec_satl_decl(&mut self, satl: &atom::Satellite) -> Flow<()> {
+        // Creating satellite
+        let satellite = Ref::new(Satellite {
+            chan: satl.chan.to_string(),
+            block: satl.block.clone(),
+        });
+
+        // Defining task in the environment
+        self.env
+            .borrow_mut()
+            .define(&satl.sign_span, &satl.name, Value::Satellite(satellite));
 
         Ok(())
     }
@@ -367,6 +379,49 @@ impl<I: IO> Interpreter<I> {
         Ok(())
     }
 
+    /// Executes send
+    fn exec_send(&mut self, span: &Span, what: &Expression, to: &Expression) -> Flow<()> {
+        // Evaluating `what to send` and `where to send`
+        let what = self.eval(what)?;
+        let to = self.eval(to)?;
+
+        // Checking that target is chan
+        match to {
+            Value::Chan(fork) => {
+                let fork = fork.borrow_mut();
+
+                // Checking that value we sending is safe to share
+                let result = match what {
+                    Value::Bool(bool) => fork.tx.send(ChanValue::Bool(bool)),
+                    Value::Int(int) => fork.tx.send(ChanValue::Int(int)),
+                    Value::Float(float) => fork.tx.send(ChanValue::Float(float)),
+                    Value::String(string) => fork.tx.send(ChanValue::String(string)),
+                    Value::Null => fork.tx.send(ChanValue::Null),
+                    value => bail!(RuntimeError::UnsafeSatlValue {
+                        value,
+                        src: span.0.clone(),
+                        span: span.1.clone().into()
+                    }),
+                };
+
+                if let Err(error) = result {
+                    bail!(RuntimeError::ChanSendError {
+                        error,
+                        src: span.0.clone(),
+                        span: span.1.clone().into()
+                    })
+                }
+            }
+            value => bail!(RuntimeError::InvalidChan {
+                value,
+                src: span.0.clone(),
+                span: span.1.clone().into()
+            }),
+        }
+
+        Ok(())
+    }
+
     /// Executes bail
     fn exec_bail(&mut self, span: &Span, message: &Expression) -> Flow<()> {
         let text = self.eval(message)?;
@@ -392,13 +447,9 @@ impl<I: IO> Interpreter<I> {
                 then,
                 else_,
             } => self.exec_if(span, condition, then, else_),
-            Statement::Type {
-                name_span,
-                name,
-                methods,
-                ..
-            } => self.exec_type_decl(name_span, name, &methods),
+            Statement::Type(typ) => self.exec_type_decl(typ),
             Statement::Function(function) => self.exec_function_decl(&function),
+            Statement::Satl(satellite) => self.exec_satl_decl(&satellite),
             Statement::Let { span, name, value } => self.exec_let_decl(span, name, value),
             Statement::Assign {
                 span,
@@ -422,6 +473,7 @@ impl<I: IO> Interpreter<I> {
             }
             Statement::Block(block) => self.exec_block(block, true),
             Statement::Use { span, path, kind } => self.exec_use(span, path, kind),
+            Statement::Send { span, what, to } => self.exec_send(span, what, to),
             Statement::Bail { span, message } => self.exec_bail(span, message),
             Statement::For { .. } => todo!(),
         }

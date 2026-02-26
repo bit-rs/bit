@@ -1,0 +1,25 @@
+# simple satellite with channel named chan
+satl example with chan {
+    let i = 0;
+    while i < 3 {
+        println("thread 2");
+        i = i + 1;
+    }
+    send 123 to chan;
+}
+
+# launching satellite by running it in another interpreter
+let test = launch example;
+let i = 0;
+
+#[
+ Waiting, because of rust "feature" to end program
+ after main thread
+]#
+while i < 100 {
+    if i % 10 == 0 {
+        println("thread 1");
+    }
+    i = i + 1;
+}
+println(recv test);

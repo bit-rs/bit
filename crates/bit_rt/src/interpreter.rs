@@ -18,7 +18,7 @@ use miette::NamedSource;
 use std::{cell::RefCell, sync::Arc};
 
 /// Interpreter
-pub struct Interpreter<I: IO> {
+pub struct Interpreter<I: IO + Clone + Send + Sync + 'static> {
     /// Builtins environment
     pub(crate) builtins: Builtins,
     /// Current environment
@@ -30,7 +30,7 @@ pub struct Interpreter<I: IO> {
 }
 
 /// Implementation
-impl<I: IO> Interpreter<I> {
+impl<I: IO + Clone + Send + Sync + 'static> Interpreter<I> {
     /// Creates new interpreter
     pub fn new(io: I) -> Self {
         Interpreter {
