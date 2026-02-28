@@ -1,3 +1,4 @@
+/// Import
 use crate::{
     builtins::utils::error, refs::{EnvRef, Ref}, rt::{
         env::Environment,
@@ -6,7 +7,8 @@ use crate::{
 };
 use std::{cell::RefCell, rc::Rc};
 
-pub fn setvar() -> Ref<Native> {
+/// Set var definition
+pub fn set_var() -> Ref<Native> {
     Ref::new(Native {
         arity: 2,
         function: Box::new(|_, _, values| {
@@ -19,7 +21,9 @@ pub fn setvar() -> Ref<Native> {
         }),
     })
 }
-pub fn getvar() -> Ref<Native> {
+
+/// Get var definition
+pub fn get_var() -> Ref<Native> {
     Ref::new(Native {
         arity: 1,
         function: Box::new(|_, _, values| {
@@ -30,6 +34,8 @@ pub fn getvar() -> Ref<Native> {
         }),
     })
 }
+
+/// Unset definition
 pub fn unset() -> Ref<Native> {
     Ref::new(Native {
         arity: 1,
@@ -41,6 +47,8 @@ pub fn unset() -> Ref<Native> {
         }),
     })
 }
+
+/// Var definition
 pub fn var() -> Ref<Native> {
     Ref::new(Native {
         arity: 1,
@@ -52,6 +60,8 @@ pub fn var() -> Ref<Native> {
         }),
     })
 }
+
+/// Current workind directory definition
 pub fn cwd() -> Ref<Native> {
     Ref::new(Native {
         arity: 0,
@@ -63,7 +73,9 @@ pub fn cwd() -> Ref<Native> {
         }),
     })
 }
-pub fn hwd() -> Ref<Native> {
+
+/// Home directory definitionn
+pub fn home() -> Ref<Native> {
     Ref::new(Native {
         arity: 0,
         function: Box::new(|_, span, _| {
@@ -74,6 +86,8 @@ pub fn hwd() -> Ref<Native> {
         }),
     })
 }
+
+/// Provides `env` module env
 pub fn provide_env() -> EnvRef {
     let mut env = Environment::default();
     env.force_define("setvar", Value::Callable(Callable::Native(setvar())));
