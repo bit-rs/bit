@@ -90,6 +90,7 @@ pub fn home() -> Ref<Native> {
 /// Provides `env` module env
 pub fn provide_env() -> EnvRef {
     let mut env = Environment::default();
+    
     env.force_define("setvar", Value::Callable(Callable::Native(setvar())));
     env.force_define("getvar", Value::Callable(Callable::Native(getvar())));
     env.force_define("unset", Value::Callable(Callable::Native(unset())));
