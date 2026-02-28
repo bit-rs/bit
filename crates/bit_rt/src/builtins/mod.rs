@@ -5,6 +5,7 @@ mod list;
 mod math;
 mod mods;
 mod utils;
+mod env;
 
 /// Imports
 use crate::{
