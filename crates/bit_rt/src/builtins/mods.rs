@@ -1,6 +1,6 @@
 /// Imports
 use crate::{
-    builtins::{is, math},
+    builtins::{is, math, env},
     refs::MutRef,
     rt::value::Module,
 };
@@ -19,6 +19,12 @@ pub fn provide_modules() -> HashMap<String, MutRef<Module>> {
         "is".to_string(),
         MutRef::new(RefCell::new(Module {
             env: is::provide_env(),
+        })),
+    );
+    modules.insert(
+        "env".to_string(),
+        MutRef::new(RefCell::new(Module {
+            env: env::provide_env(),
         })),
     );
     modules
