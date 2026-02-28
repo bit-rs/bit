@@ -91,12 +91,12 @@ pub fn home() -> Ref<Native> {
 pub fn provide_env() -> EnvRef {
     let mut env = Environment::default();
     
-    env.force_define("setvar", Value::Callable(Callable::Native(setvar())));
-    env.force_define("getvar", Value::Callable(Callable::Native(getvar())));
+    env.force_define("setvar", Value::Callable(Callable::Native(set_var())));
+    env.force_define("getvar", Value::Callable(Callable::Native(get_var())));
     env.force_define("unset", Value::Callable(Callable::Native(unset())));
     env.force_define("var", Value::Callable(Callable::Native(var())));
     env.force_define("cwd", Value::Callable(Callable::Native(cwd())));
-    env.force_define("hwd", Value::Callable(Callable::Native(hwd())));
+    env.force_define("hwd", Value::Callable(Callable::Native(home())));
     env.force_define("arch", Value::String(std::env::consts::ARCH.to_string()));
     env.force_define("os", Value::String(std::env::consts::OS.to_string()));
     env.force_define("family", Value::String(std::env::consts::FAMILY.to_string()));
