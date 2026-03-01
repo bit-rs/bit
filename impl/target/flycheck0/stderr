@@ -1,0 +1,126 @@
+   0.027176841s  INFO prepare_target{force=false package_id=ast v0.1.0 (/home/vyacheslav/chilli/impl/ast) target="ast"}: cargo::core::compiler::fingerprint: stale: changed "/home/vyacheslav/chilli/impl/common/src/token.rs"
+   0.027187977s  INFO prepare_target{force=false package_id=ast v0.1.0 (/home/vyacheslav/chilli/impl/ast) target="ast"}: cargo::core::compiler::fingerprint:           (vs) "/home/vyacheslav/chilli/impl/target/debug/.fingerprint/common-480bd0bd32980c32/dep-lib-common"
+   0.027190762s  INFO prepare_target{force=false package_id=ast v0.1.0 (/home/vyacheslav/chilli/impl/ast) target="ast"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1772351952, nanos: 959919761 } < FileTime { seconds: 1772351959, nanos: 953915083 }
+   0.027238562s  INFO prepare_target{force=false package_id=ast v0.1.0 (/home/vyacheslav/chilli/impl/ast) target="ast"}: cargo::core::compiler::fingerprint: fingerprint dirty for ast v0.1.0 (/home/vyacheslav/chilli/impl/ast)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("ast", ["lib"], "/home/vyacheslav/chilli/impl/ast/src/lib.rs", Edition2024) }
+   0.027247994s  INFO prepare_target{force=false package_id=ast v0.1.0 (/home/vyacheslav/chilli/impl/ast) target="ast"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "common" })
+   0.027418732s  INFO prepare_target{force=false package_id=common v0.1.0 (/home/vyacheslav/chilli/impl/common) target="common"}: cargo::core::compiler::fingerprint: fingerprint dirty for common v0.1.0 (/home/vyacheslav/chilli/impl/common)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("common", ["lib"], "/home/vyacheslav/chilli/impl/common/src/lib.rs", Edition2024) }
+   0.027426455s  INFO prepare_target{force=false package_id=common v0.1.0 (/home/vyacheslav/chilli/impl/common) target="common"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/home/vyacheslav/chilli/impl/target/debug/.fingerprint/common-480bd0bd32980c32/dep-lib-common", reference_mtime: FileTime { seconds: 1772351952, nanos: 959919761 }, stale: "/home/vyacheslav/chilli/impl/common/src/token.rs", stale_mtime: FileTime { seconds: 1772351959, nanos: 953915083 } }))
+   0.028840314s  INFO prepare_target{force=false package_id=ast v0.1.0 (/home/vyacheslav/chilli/impl/ast) target="ast"}: cargo::core::compiler::fingerprint: fingerprint dirty for ast v0.1.0 (/home/vyacheslav/chilli/impl/ast)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("ast", ["lib"], "/home/vyacheslav/chilli/impl/ast/src/lib.rs", Edition2024) }
+   0.028849312s  INFO prepare_target{force=false package_id=ast v0.1.0 (/home/vyacheslav/chilli/impl/ast) target="ast"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "common" })
+   0.029150813s  INFO prepare_target{force=false package_id=cli v0.1.0 (/home/vyacheslav/chilli/impl/cli) target="cli"}: cargo::core::compiler::fingerprint: fingerprint dirty for cli v0.1.0 (/home/vyacheslav/chilli/impl/cli)/Check { test: false }/TargetInner { name: "cli", doc: true, ..: with_path("/home/vyacheslav/chilli/impl/cli/src/main.rs", Edition2024) }
+   0.029159193s  INFO prepare_target{force=false package_id=cli v0.1.0 (/home/vyacheslav/chilli/impl/cli) target="cli"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "lexer" })
+   0.029340125s  INFO prepare_target{force=false package_id=lexer v0.1.0 (/home/vyacheslav/chilli/impl/lexer) target="lexer"}: cargo::core::compiler::fingerprint: fingerprint dirty for lexer v0.1.0 (/home/vyacheslav/chilli/impl/lexer)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("lexer", ["lib"], "/home/vyacheslav/chilli/impl/lexer/src/lib.rs", Edition2024) }
+   0.029347743s  INFO prepare_target{force=false package_id=lexer v0.1.0 (/home/vyacheslav/chilli/impl/lexer) target="lexer"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "common" })
+   0.029811877s  INFO prepare_target{force=false package_id=parser v0.1.0 (/home/vyacheslav/chilli/impl/parser) target="parser"}: cargo::core::compiler::fingerprint: fingerprint dirty for parser v0.1.0 (/home/vyacheslav/chilli/impl/parser)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("parser", ["lib"], "/home/vyacheslav/chilli/impl/parser/src/lib.rs", Edition2024) }
+   0.029820108s  INFO prepare_target{force=false package_id=parser v0.1.0 (/home/vyacheslav/chilli/impl/parser) target="parser"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "common" })
+   0.030057044s  INFO prepare_target{force=false package_id=cli v0.1.0 (/home/vyacheslav/chilli/impl/cli) target="cli"}: cargo::core::compiler::fingerprint: fingerprint dirty for cli v0.1.0 (/home/vyacheslav/chilli/impl/cli)/Check { test: true }/TargetInner { name: "cli", doc: true, ..: with_path("/home/vyacheslav/chilli/impl/cli/src/main.rs", Edition2024) }
+   0.030064492s  INFO prepare_target{force=false package_id=cli v0.1.0 (/home/vyacheslav/chilli/impl/cli) target="cli"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "lexer" })
+   0.030234496s  INFO prepare_target{force=false package_id=common v0.1.0 (/home/vyacheslav/chilli/impl/common) target="common"}: cargo::core::compiler::fingerprint: stale: changed "/home/vyacheslav/chilli/impl/common/src/token.rs"
+   0.030238392s  INFO prepare_target{force=false package_id=common v0.1.0 (/home/vyacheslav/chilli/impl/common) target="common"}: cargo::core::compiler::fingerprint:           (vs) "/home/vyacheslav/chilli/impl/target/debug/.fingerprint/common-5211d18e548adc26/dep-test-lib-common"
+   0.030240906s  INFO prepare_target{force=false package_id=common v0.1.0 (/home/vyacheslav/chilli/impl/common) target="common"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1772351952, nanos: 959919761 } < FileTime { seconds: 1772351959, nanos: 953915083 }
+   0.030260056s  INFO prepare_target{force=false package_id=common v0.1.0 (/home/vyacheslav/chilli/impl/common) target="common"}: cargo::core::compiler::fingerprint: fingerprint dirty for common v0.1.0 (/home/vyacheslav/chilli/impl/common)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("common", ["lib"], "/home/vyacheslav/chilli/impl/common/src/lib.rs", Edition2024) }
+   0.030266495s  INFO prepare_target{force=false package_id=common v0.1.0 (/home/vyacheslav/chilli/impl/common) target="common"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/home/vyacheslav/chilli/impl/target/debug/.fingerprint/common-5211d18e548adc26/dep-test-lib-common", reference_mtime: FileTime { seconds: 1772351952, nanos: 959919761 }, stale: "/home/vyacheslav/chilli/impl/common/src/token.rs", stale_mtime: FileTime { seconds: 1772351959, nanos: 953915083 } }))
+   0.030421099s  INFO prepare_target{force=false package_id=lexer v0.1.0 (/home/vyacheslav/chilli/impl/lexer) target="lexer"}: cargo::core::compiler::fingerprint: fingerprint dirty for lexer v0.1.0 (/home/vyacheslav/chilli/impl/lexer)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("lexer", ["lib"], "/home/vyacheslav/chilli/impl/lexer/src/lib.rs", Edition2024) }
+   0.030428267s  INFO prepare_target{force=false package_id=lexer v0.1.0 (/home/vyacheslav/chilli/impl/lexer) target="lexer"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "common" })
+   0.030693153s  INFO prepare_target{force=false package_id=parser v0.1.0 (/home/vyacheslav/chilli/impl/parser) target="parser"}: cargo::core::compiler::fingerprint: fingerprint dirty for parser v0.1.0 (/home/vyacheslav/chilli/impl/parser)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("parser", ["lib"], "/home/vyacheslav/chilli/impl/parser/src/lib.rs", Edition2024) }
+   0.030700747s  INFO prepare_target{force=false package_id=parser v0.1.0 (/home/vyacheslav/chilli/impl/parser) target="parser"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "common" })
+   0.030889105s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/chilli/impl/tir) target="tir"}: cargo::core::compiler::fingerprint: fingerprint dirty for tir v0.1.0 (/home/vyacheslav/chilli/impl/tir)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("tir", ["lib"], "/home/vyacheslav/chilli/impl/tir/src/lib.rs", Edition2024) }
+   0.030896290s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/chilli/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "common" })
+   0.031062956s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/chilli/impl/tir) target="tir"}: cargo::core::compiler::fingerprint: fingerprint dirty for tir v0.1.0 (/home/vyacheslav/chilli/impl/tir)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("tir", ["lib"], "/home/vyacheslav/chilli/impl/tir/src/lib.rs", Edition2024) }
+   0.031069977s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/chilli/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDepFingerprint { name: "common" })
+   0.031246704s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/chilli/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint: fingerprint error for tycheck v0.1.0 (/home/vyacheslav/chilli/impl/tycheck)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("tycheck", ["lib"], "/home/vyacheslav/chilli/impl/tycheck/src/lib.rs", Edition2024) }
+   0.031254316s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/chilli/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/vyacheslav/chilli/impl/target/debug/.fingerprint/tycheck-bd83fa8f19fecfa8/lib-tycheck`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/core/src/ops/function.rs:287:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/panicking.rs:581:40
+  16: std::panicking::catch_unwind
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/panicking.rs:544:19
+  17: std::panic::catch_unwind
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/panicking.rs:581:40
+  20: std::panicking::catch_unwind
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/panicking.rs:544:19
+  21: std::panic::catch_unwind
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/rt.rs:171:5
+  23: main
+  24: <unknown>
+  25: __libc_start_main
+  26: <unknown>
+   0.036739466s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/chilli/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint: fingerprint error for tycheck v0.1.0 (/home/vyacheslav/chilli/impl/tycheck)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("tycheck", ["lib"], "/home/vyacheslav/chilli/impl/tycheck/src/lib.rs", Edition2024) }
+   0.036748085s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/chilli/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/vyacheslav/chilli/impl/target/debug/.fingerprint/tycheck-9288282c26e17bd4/test-lib-tycheck`
+
+Caused by:
+    No such file or directory (os error 2)
+
+Stack backtrace:
+   0: cargo_util::paths::read_bytes
+   1: cargo_util::paths::read
+   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
+   3: cargo::core::compiler::fingerprint::prepare_target
+   4: cargo::core::compiler::compile
+   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
+   6: cargo::ops::cargo_compile::compile_ws
+   7: cargo::ops::cargo_compile::compile_with_exec
+   8: cargo::ops::cargo_compile::compile
+   9: cargo::commands::check::exec
+  10: <cargo::cli::Exec>::exec
+  11: cargo::main
+  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+  13: std::rt::lang_start::<()>::{closure#0}
+  14: core::ops::function::impls::<impl core::ops::function::FnOnce<A> for &F>::call_once
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/core/src/ops/function.rs:287:21
+  15: std::panicking::catch_unwind::do_call
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/panicking.rs:581:40
+  16: std::panicking::catch_unwind
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/panicking.rs:544:19
+  17: std::panic::catch_unwind
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/panic.rs:359:14
+  18: std::rt::lang_start_internal::{{closure}}
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/rt.rs:175:24
+  19: std::panicking::catch_unwind::do_call
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/panicking.rs:581:40
+  20: std::panicking::catch_unwind
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/panicking.rs:544:19
+  21: std::panic::catch_unwind
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/panic.rs:359:14
+  22: std::rt::lang_start_internal
+             at /rustc/01f6ddf7588f42ae2d7eb0a2f21d44e8e96674cf/library/std/src/rt.rs:171:5
+  23: main
+  24: <unknown>
+  25: __libc_start_main
+  26: <unknown>
+    Checking common v0.1.0 (/home/vyacheslav/chilli/impl/common)
+    Checking ast v0.1.0 (/home/vyacheslav/chilli/impl/ast)
+    Checking lexer v0.1.0 (/home/vyacheslav/chilli/impl/lexer)
+    Checking tir v0.1.0 (/home/vyacheslav/chilli/impl/tir)
+error: could not compile `lexer` (lib) due to 8 previous errors
+warning: build failed, waiting for other jobs to finish...
+error: could not compile `lexer` (lib test) due to 8 previous errors
+    Checking tycheck v0.1.0 (/home/vyacheslav/chilli/impl/tycheck)
+error: could not compile `tycheck` (lib) due to 2 previous errors; 13 warnings emitted
+error: could not compile `tycheck` (lib test) due to 2 previous errors; 13 warnings emitted

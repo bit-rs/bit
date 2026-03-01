@@ -1,0 +1,7 @@
+[package]
+name = "common"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+miette = { git = "https://github.com/bit-rs/miette" }

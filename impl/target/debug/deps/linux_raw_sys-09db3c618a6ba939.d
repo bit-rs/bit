@@ -1,0 +1,10 @@
+/home/vyacheslav/chilli/impl/target/debug/deps/linux_raw_sys-09db3c618a6ba939.d: /home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/lib.rs /home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/elf.rs /home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/x86_64/auxvec.rs /home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/x86_64/errno.rs /home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/x86_64/general.rs /home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/x86_64/ioctl.rs
+
+/home/vyacheslav/chilli/impl/target/debug/deps/liblinux_raw_sys-09db3c618a6ba939.rmeta: /home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/lib.rs /home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/elf.rs /home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/x86_64/auxvec.rs /home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/x86_64/errno.rs /home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/x86_64/general.rs /home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/x86_64/ioctl.rs
+
+/home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/lib.rs:
+/home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/elf.rs:
+/home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/x86_64/auxvec.rs:
+/home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/x86_64/errno.rs:
+/home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/x86_64/general.rs:
+/home/vyacheslav/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/linux-raw-sys-0.11.0/src/x86_64/ioctl.rs:
