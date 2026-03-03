@@ -110,6 +110,16 @@ pub enum TypeckError {
         name: String,
     },
 
+    /// Can not call
+    #[error("can't call value `{ty}`")]
+    CanNotCall {
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("field not found")]
+        span: SourceSpan,
+        name: String,
+    },
+
     /// Failed to infer resolution
     #[error("failed to resolve item")]
     Unresolved {

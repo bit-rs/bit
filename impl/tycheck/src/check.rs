@@ -316,6 +316,36 @@ impl<'tcx, 'icx> TypeChecker<'tcx, 'icx> {
         }
     }
 
+    /// Infers call expression
+    fn infer_call(
+        &mut self,
+        span: &Span,
+        what: ast::expr::Expr,
+        args: Vec<ast::expr::Expr>,
+    ) -> Expr {
+        let what = self.infer_expr(what);
+        let args = args.into_iter().map(|arg| self.infer_expr(arg));
+        let mut error = || {
+            self.diagnostics.push(TypeckError::CouldNotCall {
+                src: span.0.clone(),
+                span: span.1.clone().into(),
+            });
+            Ty::Error
+        };
+        
+        match what.ty {
+            Ty::Adt(id, items) => todo!(),
+            Ty::FnDef(id, items) => todo!(),
+            Ty::FnRef(fn_sig) => todo!(),
+            Ty::Generic(_) => todo!(),
+            Ty::Var(id) => todo!(),
+            Ty::Meta(meta_ty) => todo!(),
+            Ty::Error => todo!(),
+        }
+        
+        todo!()
+    }
+
     /// Infers expression and applies substitutions
     pub fn infer_expr(&mut self, expr: ast::expr::Expr) -> Expr {
         let mut tir_expr = match expr.kind {
