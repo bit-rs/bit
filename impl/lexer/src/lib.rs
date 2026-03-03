@@ -347,6 +347,7 @@ impl<'s> Lexer<'s> {
             "false" => TokenKind::Bool,
             "fn" => TokenKind::Fn,
             "pub" => TokenKind::Pub,
+            "mut" => TokenKind::Mut,
             _ => TokenKind::Id,
         }
     }

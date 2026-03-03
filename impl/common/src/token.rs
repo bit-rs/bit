@@ -24,6 +24,7 @@ pub enum TokenKind {
     As,        // `as` keyword
     Fn,        // `fn` keyword
     Pub,       // `pub` keyword
+    Mut,       // `mut` keyword
     Comma,     // ,
     Dot,       // .
     Lbrace,    // {
