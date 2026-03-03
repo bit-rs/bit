@@ -5,25 +5,9 @@ use crate::{
     stmt::Block,
     ty::Ty,
 };
-use ast::expr::{AssignOp, BinOp, UnOp};
+use ast::expr::{AssignOp, BinOp, Lit, UnOp};
 use common::token::Span;
 use id_arena::Id;
-
-/// Literal
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum Lit {
-    /// Number
-    Number(String),
-
-    /// String
-    String(String),
-
-    /// Char
-    Char(char),
-
-    /// Bool
-    Bool(bool),
-}
 
 /// Resolution definition
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

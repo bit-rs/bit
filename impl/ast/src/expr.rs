@@ -11,9 +11,6 @@ pub enum Lit {
     /// String
     String(String),
 
-    /// Char
-    Char(char),
-
     /// Bool
     Bool(bool),
 }
@@ -29,12 +26,6 @@ pub enum UnOp {
 
     // *
     Deref,
-
-    // &
-    Ref,
-
-    // &mut
-    MutRef,
 }
 
 /// Assignment operation

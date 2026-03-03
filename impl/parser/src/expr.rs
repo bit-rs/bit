@@ -151,16 +151,6 @@ impl<'s> Parser<'s> {
                 self.bump();
                 self.mk_expr(tk.span, ExprKind::Lit(Lit::String(tk.lexeme)))
             }
-            TokenKind::Char => {
-                self.bump();
-                self.mk_expr(
-                    tk.span,
-                    ExprKind::Lit(Lit::Char(match tk.lexeme.chars().next() {
-                        Some(ch) => ch,
-                        _ => bug!("empty character literal"),
-                    })),
-                )
-            }
             TokenKind::Bool => {
                 self.bump();
                 self.mk_expr(
@@ -195,14 +185,6 @@ impl<'s> Parser<'s> {
             let op = match self.bump().kind {
                 TokenKind::Minus => UnOp::Neg,
                 TokenKind::Bang => UnOp::Bang,
-                TokenKind::Ampersand => {
-                    if self.check(TokenKind::Mut) {
-                        self.bump();
-                        UnOp::MutRef
-                    } else {
-                        UnOp::Deref
-                    }
-                }
                 TokenKind::Star => UnOp::Deref,
                 _ => unreachable!(),
             };
@@ -428,7 +410,7 @@ impl<'s> Parser<'s> {
         let mut left = self.logical_or_expr();
 
         while self.check(TokenKind::Eq)
-            | self.check(TokenKind::AmpersandEq)
+            | self.check(TokenKind::AmpEq)
             | self.check(TokenKind::BarEq)
             | self.check(TokenKind::PlusEq)
             | self.check(TokenKind::MinusEq)
@@ -439,7 +421,7 @@ impl<'s> Parser<'s> {
         {
             let op = match self.bump().kind {
                 TokenKind::Eq => AssignOp::Eq,
-                TokenKind::AmpersandEq => AssignOp::AndEq,
+                TokenKind::AmpEq => AssignOp::AndEq,
                 TokenKind::BarEq => AssignOp::OrEq,
                 TokenKind::PlusEq => AssignOp::AddEq,
                 TokenKind::MinusEq => AssignOp::SubEq,

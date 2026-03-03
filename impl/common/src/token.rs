@@ -9,58 +9,62 @@ use std::{
 /// Represents token kind
 #[derive(Debug, PartialEq, Clone, Eq)]
 pub enum TokenKind {
-    Use,         // `use` keyword
-    For,         // `for` keyword
-    While,       // `while` keyword
-    In,          // `in` keyword
-    Let,         // `let` keyword
-    Struct,      // `struct` keyword
-    Enum,        // `enum` keyword
-    If,          // `if` keyword
-    Else,        // `else` keyword
-    Return,      // `return` keyword
-    Continue,    // `continue` keyword
-    Break,       // `break` keyword
-    As,          // `as` keyword
-    Fn,          // `fn` keyword
-    Mut,         // `mut` keyword
-    Pub,         // `pub` keyword
-    Comma,       // ,
-    Dot,         // .
-    Lbrace,      // {
-    Rbrace,      // }
-    Lparen,      // (
-    Rparen,      // )
-    Lbracket,    // [
-    Rbracket,    // ]
-    Plus,        // +
-    Minus,       // -
-    Star,        // *
-    Slash,       // /
-    Percent,     // %
-    Caret,       // ^
-    Ampersand,   // &
-    Bang,        // !
-    Bar,         // |
-    Eq,          // =
-    Ge,          // >=
-    Le,          // <=
-    Gt,          // >
-    Lt,          // <
-    Colon,       // :
-    Semi,        // ;
-    DoubleEq,    // ==
-    DoubleBar,   // ||
-    DoubleAmp,   // &&
-    DoubleColon, // ::
-    BangEq,      // !=
-    Arrow,       // ->
-    DoubleDot,   // ..
-    Number,      // any number
-    String,      // "quoted text"
-    Char,        // 'a'
-    Id,          // identifier
-    Bool,        // bool
+    Use,       // `use` keyword
+    For,       // `for` keyword
+    While,     // `while` keyword
+    In,        // `in` keyword
+    Let,       // `let` keyword
+    Struct,    // `struct` keyword
+    Enum,      // `enum` keyword
+    If,        // `if` keyword
+    Else,      // `else` keyword
+    Return,    // `return` keyword
+    Continue,  // `continue` keyword
+    Break,     // `break` keyword
+    As,        // `as` keyword
+    Fn,        // `fn` keyword
+    Pub,       // `pub` keyword
+    Comma,     // ,
+    Dot,       // .
+    Lbrace,    // {
+    Rbrace,    // }
+    Lparen,    // (
+    Rparen,    // )
+    Lbracket,  // [
+    Rbracket,  // ]
+    PlusEq,    // +=
+    MinusEq,   // -=
+    StarEq,    // *=
+    SlashEq,   // /=
+    PercentEq, // %=
+    AmpEq,     // &=
+    BarEq,     // |=
+    CaretEq,   // ^=
+    Plus,      // +
+    Minus,     // -
+    Star,      // *
+    Slash,     // /
+    Percent,   // %
+    Caret,     // ^
+    Ampersand, // &
+    Bang,      // !
+    Bar,       // |
+    Eq,        // =
+    Ge,        // >=
+    Le,        // <=
+    Gt,        // >
+    Lt,        // <
+    Colon,     // :
+    Semi,      // ;
+    DoubleEq,  // ==
+    DoubleBar, // ||
+    DoubleAmp, // &&
+    BangEq,    // !=
+    Arrow,     // ->
+    Number,    // any number
+    String,    // "quoted text"
+    Id,        // identifier
+    Bool,      // bool
 }
 
 /// Represents token

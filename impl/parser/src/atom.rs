@@ -51,28 +51,6 @@ impl<'s> Parser<'s> {
         )
     }
 
-    /// Ref type hint
-    fn ref_type_hint(&mut self) -> TypeHint {
-        // bumping `&`
-        let start_span = self.peek().span.clone();
-        self.bump();
-
-        // if `mut` ref
-        if self.check(TokenKind::Mut) {
-            self.bump();
-
-            let hint = Box::new(self.type_hint());
-            let end_span = self.prev().span.clone();
-
-            TypeHint::MutRef(start_span + end_span, hint)
-        } else {
-            let hint = Box::new(self.type_hint());
-            let end_span = self.prev().span.clone();
-
-            TypeHint::Ref(start_span + end_span, hint)
-        }
-    }
-
     /// Parses id type hint
     fn id_type_hint(&mut self) -> TypeHint {
         // bumping id
@@ -139,9 +117,7 @@ impl<'s> Parser<'s> {
 
     /// Parses type hint
     pub fn type_hint(&mut self) -> TypeHint {
-        if self.check(TokenKind::Ampersand) {
-            self.ref_type_hint()
-        } else if self.check(TokenKind::Fn) {
+        if self.check(TokenKind::Fn) {
             self.fn_type_hint()
         } else {
             self.id_type_hint()
