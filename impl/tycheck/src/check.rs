@@ -3,9 +3,8 @@ use crate::{cx::InferCx, errors::TypeckError, res::Resolver};
 use ast::expr::{BinOp, UnOp};
 use common::token::Span;
 use tir::{
-    def::AdtDef,
-    expr::{Expr, ExprKind, Lit, Res},
-    ty::{Ty},
+    expr::{Expr, ExprKind},
+    ty::Ty,
 };
 
 /// Represents Typechecker
@@ -45,34 +44,29 @@ impl<'tcx, 'icx> TypeChecker<'tcx, 'icx> {
 
     /// Infers literal expression
     fn infer_lit(&mut self, span: Span, lit: ast::expr::Lit) -> Expr {
-        match lit {
+        match &lit {
             ast::expr::Lit::Number(num) => {
                 if num.contains(".") {
                     Expr {
-                        kind: ExprKind::Lit(Lit::Number(num)),
+                        kind: ExprKind::Lit(lit),
                         span,
-                        ty: Ty::Var(self.icx.fresh_float()),
+                        ty: Ty::Float,
                     }
                 } else {
                     Expr {
-                        kind: ExprKind::Lit(Lit::Number(num)),
+                        kind: ExprKind::Lit(lit),
                         span,
-                        ty: Ty::Var(self.icx.fresh_int()),
+                        ty: Ty::Int,
                     }
                 }
             }
-            ast::expr::Lit::String(str) => Expr {
-                kind: ExprKind::Lit(Lit::String(str)),
+            ast::expr::Lit::String(_) => Expr {
+                kind: ExprKind::Lit(lit),
                 span,
                 ty: Ty::String,
             },
-            ast::expr::Lit::Char(ch) => Expr {
-                kind: ExprKind::Lit(Lit::Char(ch)),
-                span,
-                ty: Ty::Char,
-            },
-            ast::expr::Lit::Bool(bool) => Expr {
-                kind: ExprKind::Lit(Lit::Bool(bool)),
+            ast::expr::Lit::Bool(_) => Expr {
+                kind: ExprKind::Lit(lit),
                 span,
                 ty: Ty::Bool,
             },
@@ -81,22 +75,6 @@ impl<'tcx, 'icx> TypeChecker<'tcx, 'icx> {
 
     /// Infers negation operator
     fn infer_neg(&mut self, span: &Span, ty: &Ty) -> Ty {
-        // Unknown int variable - marking as signed
-        if self.icx.is_unknown_int_ty(ty) {
-            self.icx.set_ty_signed(ty, true);
-            return ty.clone();
-        }
-
-        // Unsigned int - negation is not allowed
-        if self.icx.is_unsigned_ty(ty) {
-            self.diagnostics.push(TypeckError::UIntNegation {
-                src: span.0.clone(),
-                span: span.1.clone().into(),
-                ty: self.icx.print_ty(ty),
-            });
-            return Ty::Error;
-        }
-
         // Numeric type - negation is allowed
         if self.icx.is_numeric_ty(ty) {
             return ty.clone();
@@ -125,7 +103,7 @@ impl<'tcx, 'icx> TypeChecker<'tcx, 'icx> {
                 self.diagnostics.push(TypeckError::InvalidUnaryOp {
                     src: span.0.clone(),
                     span: span.1.clone().into(),
-                    op: un_op.clone(),
+                    op: op.clone(),
                     ty: self.icx.print_ty(ty),
                 });
                 Ty::Error
@@ -251,87 +229,6 @@ impl<'tcx, 'icx> TypeChecker<'tcx, 'icx> {
                 kind: ExprKind::If(Box::new(cond), Box::new(then), None),
                 ty: Ty::Unit,
             },
-        }
-    }
-
-    /// Infers id resolution
-    fn infer_id_res(&mut self, span: &Span, name: &str) -> Res {
-        match self.resolver.resolve(name) {
-            Some(res) => res,
-            None => {
-                self.diagnostics.push(TypeckError::UnresolvedName {
-                    src: span.0.clone(),
-                    span: span.1.clone().into(),
-                    name: name.to_string(),
-                });
-                Res::Ty(Ty::Error)
-            }
-        }
-    }
-
-    /// Infers field resolution
-    fn infer_field_res(&mut self, span: &Span, what: &ast::expr::Expr, name: &str) -> Res {
-        let res = self.infer_res(what);
-        let mut unresolved_field = || {
-            self.diagnostics.push(TypeckError::UnresolvedField {
-                src: span.0.clone(),
-                span: span.1.clone().into(),
-                name: name.to_string(),
-            });
-            Res::Ty(Ty::Error)
-        };
-
-        match res {
-            Res::Ty(ty) => match ty {
-                Ty::Adt(id, generics) => match self.icx.tcx.adt(id) {
-                    AdtDef::Struct(s) => match s.fields.iter().find(|f| f.name == name) {
-                        Some(f) => Res::Ty(self.icx.subst(f.ty.clone(), &generics)),
-                        None => unresolved_field(),
-                    },
-                    _ => unresolved_field(),
-                },
-                _ => unresolved_field(),
-            },
-            Res::Def(def) => match def {
-                tir::expr::Def::Adt(id) => match self.icx.tcx.adt(id) {
-                    AdtDef::Enum(e) => match e.variants.iter().find(|v| v.name == name) {
-                        Some(v) => Res::Variant(id, v.name.clone()),
-                        None => unresolved_field(),
-                    },
-                    _ => unresolved_field(),
-                },
-                _ => unresolved_field(),
-            },
-            _ => unresolved_field(),
-        }
-    }
-
-    /// Infers resolution
-    fn infer_res(&mut self, expr: &ast::expr::Expr) -> Res {
-        match &expr.kind {
-            ast::expr::ExprKind::Id(name) => self.infer_id_res(&expr.span, &name),
-            ast::expr::ExprKind::Field(what, name) => {
-                self.infer_field_res(&expr.span, &what, &name)
-            }
-            _ => {
-                self.diagnostics.push(TypeckError::Unresolved {
-                    src: expr.span.0.clone(),
-                    span: expr.span.1.clone().into(),
-                });
-                Res::Ty(Ty::Error)
-            }
-        }
-    }
-
-    /// Infers id
-    pub fn infer_id(&mut self, span: Span, name: String) -> Expr {
-        let res = self.infer_id_res(&span, &name);
-
-
-        Expr {
-            kind: ExprKind::Id(name, res),
-            span,
-            ty: Что делать?
         }
     }
 

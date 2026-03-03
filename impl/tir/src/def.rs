@@ -1,7 +1,12 @@
+use std::sync::Arc;
+
 /// Imports
 use crate::ty::Ty;
+use ast::atom::Publicity;
 use common::token::Span;
+use id_arena::Id;
 use macros::bug;
+use miette::NamedSource;
 
 /// Represents generic parameter
 pub struct GenericParam {
@@ -115,4 +120,27 @@ pub struct FnDef {
 
     /// Function non-instantiated return type
     pub ret: Ty,
+}
+
+/// Definition kind
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum DefKind {
+    /// ADT definition
+    Adt(Id<AdtDef>),
+
+    /// Function definition
+    Fn(Id<FnDef>),
+}
+
+/// Resolution definition
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Def {
+    pub publicity: Publicity,
+    pub kind: DefKind,
+}
+
+/// Represents module
+pub struct Module {
+    pub source: Arc<NamedSource<String>>,
+    pub defs: Vec<Def>,
 }

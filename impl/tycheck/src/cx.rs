@@ -186,18 +186,6 @@ impl<'tcx> InferCx<'tcx> {
         self.type_variables.alloc(TyVar::Unbound)
     }
 
-    /// Generates fresh int type variable.
-    ///
-    pub fn fresh_int(&mut self) -> Id<TyVar> {
-        self.type_variables.alloc(TyVar::Int(None))
-    }
-
-    /// Generates fresh float type variable.
-    ///
-    pub fn fresh_float(&mut self) -> Id<TyVar> {
-        self.type_variables.alloc(TyVar::Float)
-    }
-
     /// Creates fresh vector of generic arguments
     /// with fresh type variables: `Ty::Var(TyVar::Unbound(...))`
     ///
@@ -227,7 +215,7 @@ impl<'tcx> InferCx<'tcx> {
     pub fn apply(&self, ty: Ty) -> Ty {
         match ty {
             Ty::Var(id) => match self.get(id) {
-                TyVar::Unbound | TyVar::Float | TyVar::Int(_) => ty,
+                TyVar::Unbound => ty,
                 TyVar::Bound(typ) => typ.clone(),
             },
             Ty::Adt(def, args) => Ty::Adt(def, args.into_iter().map(|it| self.apply(it)).collect()),
@@ -262,8 +250,6 @@ impl<'tcx> InferCx<'tcx> {
                     .map(|a| self.subst(a, args))
                     .collect(),
             ),
-            Ty::Ref(inner) => Ty::Ref(Box::new(self.subst(*inner, args))),
-            Ty::MutRef(inner) => Ty::MutRef(Box::new(self.subst(*inner, args))),
             other => other,
         }
     }
@@ -280,11 +266,9 @@ impl<'tcx> InferCx<'tcx> {
             (Ty::Error, _) | (_, Ty::Error) => Ok(()),
 
             // Same primitive types
-            (Ty::Int(a), Ty::Int(b)) if a == b => Ok(()),
-            (Ty::UInt(a), Ty::UInt(b)) if a == b => Ok(()),
-            (Ty::Float(a), Ty::Float(b)) if a == b => Ok(()),
+            (Ty::Int, Ty::Int) => Ok(()),
+            (Ty::Float, Ty::Float) => Ok(()),
             (Ty::Bool, Ty::Bool) => Ok(()),
-            (Ty::Char, Ty::Char) => Ok(()),
             (Ty::String, Ty::String) => Ok(()),
             (Ty::Unit, Ty::Unit) => Ok(()),
 
@@ -302,10 +286,6 @@ impl<'tcx> InferCx<'tcx> {
                 Ok(())
             }
 
-            // References
-            (Ty::Ref(a), Ty::Ref(b)) => self.unify(*a, *b),
-            (Ty::MutRef(a), Ty::MutRef(b)) => self.unify(*a, *b),
-
             // Function definitions, unifying args
             (Ty::FnDef(a_id, a_args), Ty::FnDef(b_id, b_args)) if a_id == b_id => {
                 for (a, b) in a_args.into_iter().zip(b_args) {
@@ -314,10 +294,10 @@ impl<'tcx> InferCx<'tcx> {
                 Ok(())
             }
 
-            // Function pointers
-            (Ty::FnPtr(a_sig), Ty::FnPtr(b_sig)) => {
+            // Function references
+            (Ty::FnRef(a_sig), Ty::FnRef(b_sig)) => {
                 if a_sig.params.len() != b_sig.params.len() {
-                    return Err(TypeError::Mismatch(Ty::FnPtr(a_sig), Ty::FnPtr(b_sig)));
+                    return Err(TypeError::Mismatch(Ty::FnRef(a_sig), Ty::FnRef(b_sig)));
                 }
                 for (a, b) in a_sig.params.into_iter().zip(b_sig.params) {
                     self.unify(a, b)?;
@@ -326,7 +306,7 @@ impl<'tcx> InferCx<'tcx> {
             }
 
             // FnDef coerces to FnPtr
-            (Ty::FnDef(id, args), Ty::FnPtr(sig)) | (Ty::FnPtr(sig), Ty::FnDef(id, args)) => {
+            (Ty::FnDef(id, args), Ty::FnRef(sig)) | (Ty::FnRef(sig), Ty::FnDef(id, args)) => {
                 let def = self.tcx._fn(id);
                 let params: Vec<Ty> = def
                     .params
@@ -355,46 +335,6 @@ impl<'tcx> InferCx<'tcx> {
             // Variable already bound, unifying
             TyVar::Bound(bound) => self.unify(bound, ty),
 
-            // Int literal, ty should be int variant
-            TyVar::Int(signed) => match ty {
-                // Unifies if signed is true
-                Ty::Int(_) => {
-                    if signed == Some(false) {
-                        return Err(TypeError::Mismatch(Ty::Var(id), ty));
-                    }
-
-                    self.substitute(id, ty);
-                    Ok(())
-                }
-                // Unifies if signed is false
-                Ty::UInt(_) => {
-                    if signed == Some(true) {
-                        return Err(TypeError::Mismatch(Ty::Var(id), ty));
-                    }
-
-                    self.substitute(id, ty);
-                    Ok(())
-                }
-                Ty::Var(other) => {
-                    self.substitute(other, Ty::Var(id));
-                    Ok(())
-                }
-                other => Err(TypeError::Mismatch(Ty::Var(id), other)),
-            },
-
-            // Float literal, ty should be float variant
-            TyVar::Float => match ty {
-                Ty::Float(_) => {
-                    self.substitute(id, ty);
-                    Ok(())
-                }
-                Ty::Var(other) => {
-                    self.substitute(other, Ty::Var(id));
-                    Ok(())
-                }
-                other => Err(TypeError::Mismatch(Ty::Var(id), other)),
-            },
-
             // Unbound variable
             TyVar::Unbound => {
                 // Performing occurs check: restricts infinite types like `T = Vec<T>`
@@ -420,10 +360,9 @@ impl<'tcx> InferCx<'tcx> {
                 }
             }
             Ty::Adt(_, args) | Ty::FnDef(_, args) => args.iter().any(|a| self.occurs(id, a)),
-            Ty::FnPtr(sig) => {
+            Ty::FnRef(sig) => {
                 sig.params.iter().any(|a| self.occurs(id, a)) || self.occurs(id, &sig.ret)
             }
-            Ty::Ref(inner) | Ty::MutRef(inner) => self.occurs(id, inner),
             _ => false,
         }
     }
@@ -431,16 +370,12 @@ impl<'tcx> InferCx<'tcx> {
     /// Pretty prints type
     pub fn print_ty(&self, ty: &Ty) -> String {
         match ty {
-            Ty::Int(i) => format!("{i:?}"),
-            Ty::UInt(u) => format!("{u:?}"),
-            Ty::Float(f) => format!("{f:?}"),
-            Ty::Bool => "bool".to_string(),
-            Ty::Char => "char".to_string(),
-            Ty::String => "str".to_string(),
+            Ty::Int => "Int".to_string(),
+            Ty::Float => "Float".to_string(),
+            Ty::Bool => "Bool".to_string(),
+            Ty::String => "String".to_string(),
             Ty::Unit => "()".to_string(),
             Ty::Var(_) => "_".to_string(),
-            Ty::Ref(inner) => format!("&{}", self.print_ty(inner)),
-            Ty::MutRef(inner) => format!("&mut {}", self.print_ty(inner)),
             Ty::Generic(id) => self
                 .generics
                 .name_of(*id)
@@ -469,7 +404,7 @@ impl<'tcx> InferCx<'tcx> {
                 let ret = self.print_ty(&def.ret);
                 format!("fn({params}) -> {ret}")
             }
-            Ty::FnPtr(sig) => {
+            Ty::FnRef(sig) => {
                 let params = sig
                     .params
                     .iter()
@@ -479,15 +414,15 @@ impl<'tcx> InferCx<'tcx> {
                 let ret = self.print_ty(&sig.ret);
                 format!("fn({params}) -> {ret}")
             }
-            Ty::Error => "error".to_string(),
+            Ty::Meta(_) => "Meta".to_string(),
+            Ty::Error => "Error".to_string(),
         }
     }
 
     /// Checks type is numeric
     pub fn is_numeric_ty(&self, ty: &Ty) -> bool {
         match ty {
-            Ty::Int(_) | Ty::Float(_) | Ty::UInt(_) => true,
-            Ty::Var(id) => matches!(self.get(*id), TyVar::Int(_) | TyVar::Float),
+            Ty::Int | Ty::Float => true,
             _ => false,
         }
     }
@@ -495,8 +430,7 @@ impl<'tcx> InferCx<'tcx> {
     /// Checks type is int
     pub fn is_int_ty(&self, ty: &Ty) -> bool {
         match ty {
-            Ty::Int(_) | Ty::UInt(_) => true,
-            Ty::Var(id) => matches!(self.get(*id), TyVar::Int(_)),
+            Ty::Int => true,
             _ => false,
         }
     }
@@ -504,31 +438,5 @@ impl<'tcx> InferCx<'tcx> {
     /// Checks type is bool
     pub fn is_bool_ty(&self, ty: &Ty) -> bool {
         matches!(ty, Ty::Bool)
-    }
-
-    /// Checks type is unsigned
-    pub fn is_unsigned_ty(&self, ty: &Ty) -> bool {
-        match ty {
-            Ty::UInt(_) => true,
-            Ty::Var(id) => matches!(self.get(*id), TyVar::Int(Some(false))),
-            _ => false,
-        }
-    }
-
-    /// Checks int type is unknown
-    pub fn is_unknown_int_ty(&self, ty: &Ty) -> bool {
-        match ty {
-            Ty::Var(id) => matches!(self.get(*id), TyVar::Int(None)),
-            _ => false,
-        }
-    }
-
-    /// Sets type to signed, if type is int var
-    pub fn set_ty_signed(&mut self, ty: &Ty, signed: bool) {
-        if let Ty::Var(id) = ty {
-            if let TyVar::Int(s) = self.get_mut(*id) {
-                *s = Some(signed);
-            }
-        }
     }
 }

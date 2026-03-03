@@ -1,17 +1,15 @@
-   0.028284406s  INFO prepare_target{force=false package_id=cli v0.1.0 (/home/vyacheslav/watt/impl/cli) target="cli"}: cargo::core::compiler::fingerprint: dependency on `common` is newer than we are 1772519630.503694235s > 1772519434.176979739s "/home/vyacheslav/watt/impl/parser"
-   0.028300934s  INFO prepare_target{force=false package_id=cli v0.1.0 (/home/vyacheslav/watt/impl/cli) target="cli"}: cargo::core::compiler::fingerprint: dependency on `lexer` is newer than we are 1772519630.552694414s > 1772519434.279980114s "/home/vyacheslav/watt/impl/cli"
-   0.028332360s  INFO prepare_target{force=false package_id=cli v0.1.0 (/home/vyacheslav/watt/impl/cli) target="cli"}: cargo::core::compiler::fingerprint: fingerprint dirty for cli v0.1.0 (/home/vyacheslav/watt/impl/cli)/Check { test: false }/TargetInner { name: "cli", doc: true, ..: with_path("/home/vyacheslav/watt/impl/cli/src/main.rs", Edition2024) }
-   0.028339948s  INFO prepare_target{force=false package_id=cli v0.1.0 (/home/vyacheslav/watt/impl/cli) target="cli"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDependency { unit: UnitIndex(16), dep_mtime: FileTime { seconds: 1772519630, nanos: 552694414 }, max_mtime: FileTime { seconds: 1772519434, nanos: 279980114 } })
-   0.028792986s  INFO prepare_target{force=false package_id=parser v0.1.0 (/home/vyacheslav/watt/impl/parser) target="parser"}: cargo::core::compiler::fingerprint: fingerprint dirty for parser v0.1.0 (/home/vyacheslav/watt/impl/parser)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("parser", ["lib"], "/home/vyacheslav/watt/impl/parser/src/lib.rs", Edition2024) }
-   0.028801709s  INFO prepare_target{force=false package_id=parser v0.1.0 (/home/vyacheslav/watt/impl/parser) target="parser"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDependency { unit: UnitIndex(11), dep_mtime: FileTime { seconds: 1772519630, nanos: 503694235 }, max_mtime: FileTime { seconds: 1772519434, nanos: 176979739 } })
-   0.029003141s  INFO prepare_target{force=false package_id=cli v0.1.0 (/home/vyacheslav/watt/impl/cli) target="cli"}: cargo::core::compiler::fingerprint: dependency on `lexer` is newer than we are 1772519630.552694414s > 1772519434.279980114s "/home/vyacheslav/watt/impl/cli"
-   0.029024643s  INFO prepare_target{force=false package_id=cli v0.1.0 (/home/vyacheslav/watt/impl/cli) target="cli"}: cargo::core::compiler::fingerprint: fingerprint dirty for cli v0.1.0 (/home/vyacheslav/watt/impl/cli)/Check { test: true }/TargetInner { name: "cli", doc: true, ..: with_path("/home/vyacheslav/watt/impl/cli/src/main.rs", Edition2024) }
-   0.029030462s  INFO prepare_target{force=false package_id=cli v0.1.0 (/home/vyacheslav/watt/impl/cli) target="cli"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDependency { unit: UnitIndex(16), dep_mtime: FileTime { seconds: 1772519630, nanos: 552694414 }, max_mtime: FileTime { seconds: 1772519434, nanos: 279980114 } })
-   0.029336672s  INFO prepare_target{force=false package_id=parser v0.1.0 (/home/vyacheslav/watt/impl/parser) target="parser"}: cargo::core::compiler::fingerprint: dependency on `common` is newer than we are 1772519630.503694235s > 1772519434.176979739s "/home/vyacheslav/watt/impl/parser"
-   0.029363304s  INFO prepare_target{force=false package_id=parser v0.1.0 (/home/vyacheslav/watt/impl/parser) target="parser"}: cargo::core::compiler::fingerprint: fingerprint dirty for parser v0.1.0 (/home/vyacheslav/watt/impl/parser)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("parser", ["lib"], "/home/vyacheslav/watt/impl/parser/src/lib.rs", Edition2024) }
-   0.029371821s  INFO prepare_target{force=false package_id=parser v0.1.0 (/home/vyacheslav/watt/impl/parser) target="parser"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleDependency { unit: UnitIndex(11), dep_mtime: FileTime { seconds: 1772519630, nanos: 503694235 }, max_mtime: FileTime { seconds: 1772519434, nanos: 176979739 } })
-   0.029699612s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/watt/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint: fingerprint error for tycheck v0.1.0 (/home/vyacheslav/watt/impl/tycheck)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("tycheck", ["lib"], "/home/vyacheslav/watt/impl/tycheck/src/lib.rs", Edition2024) }
-   0.029707479s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/watt/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/vyacheslav/watt/impl/target/debug/.fingerprint/tycheck-2edcf60f643a45d2/lib-tycheck`
+   0.028464568s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint: stale: changed "/home/vyacheslav/bit/impl/tir/src/def.rs"
+   0.028473702s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:           (vs) "/home/vyacheslav/bit/impl/target/debug/.fingerprint/tir-1166adb500ca4429/dep-lib-tir"
+   0.028476465s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1772520692, nanos: 220823065 } < FileTime { seconds: 1772520697, nanos: 149778969 }
+   0.028506223s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint: fingerprint dirty for tir v0.1.0 (/home/vyacheslav/bit/impl/tir)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("tir", ["lib"], "/home/vyacheslav/bit/impl/tir/src/lib.rs", Edition2024) }
+   0.028514479s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/home/vyacheslav/bit/impl/target/debug/.fingerprint/tir-1166adb500ca4429/dep-lib-tir", reference_mtime: FileTime { seconds: 1772520692, nanos: 220823065 }, stale: "/home/vyacheslav/bit/impl/tir/src/def.rs", stale_mtime: FileTime { seconds: 1772520697, nanos: 149778969 } }))
+   0.028730839s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint: stale: changed "/home/vyacheslav/bit/impl/tir/src/def.rs"
+   0.028735046s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:           (vs) "/home/vyacheslav/bit/impl/target/debug/.fingerprint/tir-329044b540688e48/dep-test-lib-tir"
+   0.028737110s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1772520692, nanos: 220823065 } < FileTime { seconds: 1772520697, nanos: 149778969 }
+   0.028753485s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint: fingerprint dirty for tir v0.1.0 (/home/vyacheslav/bit/impl/tir)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("tir", ["lib"], "/home/vyacheslav/bit/impl/tir/src/lib.rs", Edition2024) }
+   0.028761378s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/home/vyacheslav/bit/impl/target/debug/.fingerprint/tir-329044b540688e48/dep-test-lib-tir", reference_mtime: FileTime { seconds: 1772520692, nanos: 220823065 }, stale: "/home/vyacheslav/bit/impl/tir/src/def.rs", stale_mtime: FileTime { seconds: 1772520697, nanos: 149778969 } }))
+   0.028955973s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint: fingerprint error for tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("tycheck", ["lib"], "/home/vyacheslav/bit/impl/tycheck/src/lib.rs", Edition2024) }
+   0.028963762s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/vyacheslav/bit/impl/target/debug/.fingerprint/tycheck-2edcf60f643a45d2/lib-tycheck`
 
 Caused by:
     No such file or directory (os error 2)
@@ -53,8 +51,8 @@ Stack backtrace:
   24: <unknown>
   25: __libc_start_main
   26: <unknown>
-   0.035052351s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/watt/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint: fingerprint error for tycheck v0.1.0 (/home/vyacheslav/watt/impl/tycheck)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("tycheck", ["lib"], "/home/vyacheslav/watt/impl/tycheck/src/lib.rs", Edition2024) }
-   0.035063163s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/watt/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/vyacheslav/watt/impl/target/debug/.fingerprint/tycheck-1d80ed15e0588a43/test-lib-tycheck`
+   0.034309029s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint: fingerprint error for tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("tycheck", ["lib"], "/home/vyacheslav/bit/impl/tycheck/src/lib.rs", Edition2024) }
+   0.034320331s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/vyacheslav/bit/impl/target/debug/.fingerprint/tycheck-1d80ed15e0588a43/test-lib-tycheck`
 
 Caused by:
     No such file or directory (os error 2)
@@ -96,10 +94,8 @@ Stack backtrace:
   24: <unknown>
   25: __libc_start_main
   26: <unknown>
-    Checking parser v0.1.0 (/home/vyacheslav/watt/impl/parser)
-    Checking tycheck v0.1.0 (/home/vyacheslav/watt/impl/tycheck)
-error: could not compile `parser` (lib test) due to 1 previous error
+    Checking tir v0.1.0 (/home/vyacheslav/bit/impl/tir)
+    Checking tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck)
+error: could not compile `tycheck` (lib test) due to 5 previous errors; 14 warnings emitted
 warning: build failed, waiting for other jobs to finish...
-error: could not compile `parser` (lib) due to 1 previous error
-error: could not compile `tycheck` (lib) due to 38 previous errors; 13 warnings emitted
-error: could not compile `tycheck` (lib test) due to 38 previous errors; 13 warnings emitted
+error: could not compile `tycheck` (lib) due to 5 previous errors; 14 warnings emitted

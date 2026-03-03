@@ -8,13 +8,7 @@ use std::fmt::Debug;
 pub enum TyVar {
     /// Unbound type variable
     Unbound,
-
-    /// Int type variable
-    Int(Option<bool>),
-
-    /// Float type variable
-    Float,
-
+    
     /// Bound type variable
     Bound(Ty),
 }
@@ -71,7 +65,7 @@ pub enum Ty {
     FnDef(Id<FnDef>, GenericArgs),
 
     /// Function pointer type
-    FnPtr(Box<FnSig>),
+    FnRef(Box<FnSig>),
 
     /// Generic parameter type `T`, `K`
     Generic(usize),

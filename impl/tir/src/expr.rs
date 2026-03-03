@@ -1,36 +1,7 @@
 /// Imports
-use crate::{
-    atom::Param,
-    def::{AdtDef, FnDef},
-    stmt::Block,
-    ty::Ty,
-};
+use crate::{atom::Param, stmt::Block, ty::Ty};
 use ast::expr::{AssignOp, BinOp, Lit, UnOp};
 use common::token::Span;
-use id_arena::Id;
-
-/// Resolution definition
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum Def {
-    /// ADT definition
-    Adt(Id<AdtDef>),
-
-    /// Function definition
-    Fn(Id<FnDef>),
-}
-
-/// Expression resolution
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum Res {
-    /// Some definition
-    Def(Def),
-
-    /// Variant of ADT definition
-    Variant(Id<AdtDef>, String),
-
-    /// Local or field type
-    Ty(Ty),
-}
 
 /// Expression kind
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
@@ -48,13 +19,13 @@ pub enum ExprKind {
     If(Box<Expr>, Box<Expr>, Option<Box<Expr>>),
 
     /// Call expr (e.g `foo(arg, arg, ..n)` )
-    Call(Box<Expr>, Vec<Expr>, Res),
+    Call(Box<Expr>, Vec<Expr>),
 
     /// Id expr (e.g, `foo`)
-    Id(String, Res),
+    Id(String),
 
     /// Field expr (e.g, `wibble.wobble`)
-    Field(Box<Expr>, String, Res),
+    Field(Box<Expr>, String),
 
     /// Cast expr (e.g. `foo as f64`)
     Cast(Box<Expr>, Ty),

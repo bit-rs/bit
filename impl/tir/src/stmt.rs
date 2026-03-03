@@ -1,5 +1,6 @@
 /// Imports
-use crate::{atom::Mutability, expr::Expr, ty::Ty};
+use crate::{expr::Expr, ty::Ty};
+use ast::atom::Mutability;
 use common::token::Span;
 
 /// Statement kind

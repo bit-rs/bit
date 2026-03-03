@@ -1,15 +1,34 @@
 /// Imports
+use ast::atom::{Mutability, Publicity};
+use id_arena::Id;
 use std::collections::HashMap;
 use tir::{
-    expr::{Def, Res},
+    def::{AdtDef, FnDef},
     ty::Ty,
 };
+
+/// Local definition
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct Local {
+    pub mutability: Mutability,
+    pub ty: Ty,
+}
+
+/// Query resolution
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub enum Res {
+    /// Some definition
+    Def(Def),
+
+    /// Local type
+    Local(Local),
+}
 
 /// Module resolver
 #[derive(Default)]
 pub struct Resolver {
     /// Scopes stack
-    scopes: Vec<HashMap<String, Ty>>,
+    scopes: Vec<HashMap<String, Local>>,
 
     /// Module level definitions
     defs: HashMap<String, Def>,
@@ -28,7 +47,7 @@ impl Resolver {
     }
 
     /// Resolves local variable
-    pub fn resolve_local(&self, name: &str) -> Option<Ty> {
+    pub fn resolve_local(&self, name: &str) -> Option<Local> {
         self.scopes
             .iter()
             .rev()
@@ -53,13 +72,13 @@ impl Resolver {
 
     /// Defines scope-level definition, returns true on success,
     /// returns false if item already defined
-    pub fn define_local(&mut self, name: &str, ty: Ty) -> bool {
+    pub fn define_local(&mut self, name: &str, mutability: Mutability, ty: Ty) -> bool {
         match self.scopes.last_mut() {
             Some(scope) => {
                 if scope.contains_key(name) {
                     false
                 } else {
-                    scope.insert(name.to_string(), ty);
+                    scope.insert(name.to_string(), Local { mutability, ty });
                     true
                 }
             }
@@ -70,7 +89,7 @@ impl Resolver {
     /// Resolves item
     pub fn resolve(&self, name: &str) -> Option<Res> {
         self.resolve_local(name)
-            .map(Res::Ty)
+            .map(Res::Local)
             .or_else(|| self.resolve_def(name).map(Res::Def))
     }
 }

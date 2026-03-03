@@ -1,9 +1,6 @@
 /// Imports
-use crate::{
-    atom::{Param, Publicity},
-    stmt::Block,
-    ty::Ty,
-};
+use crate::{atom::Param, stmt::Block, ty::Ty};
+use ast::atom::Publicity;
 use common::token::Span;
 
 /// Represents struct field

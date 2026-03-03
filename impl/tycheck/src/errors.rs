@@ -1,12 +1,11 @@
 /// Imports
+use crate::cx::InferCx;
 use ast::expr::{BinOp, UnOp};
 use common::token::Span;
 use miette::{Diagnostic, NamedSource, SourceSpan};
 use std::sync::Arc;
 use thiserror::Error;
-use tir::{expr::Res, ty::Ty};
-
-use crate::cx::InferCx;
+use tir::ty::Ty;
 
 /// Types error
 #[derive(Debug)]
