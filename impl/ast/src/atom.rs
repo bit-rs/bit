@@ -8,13 +8,6 @@ pub enum Publicity {
     Private,
 }
 
-/// Represents declaration mutability
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum Mutability {
-    Mut,
-    Immut,
-}
-
 /// Represents type hint
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum TypeHint {

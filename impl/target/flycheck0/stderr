@@ -1,101 +1,12 @@
-   0.028464568s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint: stale: changed "/home/vyacheslav/bit/impl/tir/src/def.rs"
-   0.028473702s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:           (vs) "/home/vyacheslav/bit/impl/target/debug/.fingerprint/tir-1166adb500ca4429/dep-lib-tir"
-   0.028476465s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1772520692, nanos: 220823065 } < FileTime { seconds: 1772520697, nanos: 149778969 }
-   0.028506223s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint: fingerprint dirty for tir v0.1.0 (/home/vyacheslav/bit/impl/tir)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("tir", ["lib"], "/home/vyacheslav/bit/impl/tir/src/lib.rs", Edition2024) }
-   0.028514479s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/home/vyacheslav/bit/impl/target/debug/.fingerprint/tir-1166adb500ca4429/dep-lib-tir", reference_mtime: FileTime { seconds: 1772520692, nanos: 220823065 }, stale: "/home/vyacheslav/bit/impl/tir/src/def.rs", stale_mtime: FileTime { seconds: 1772520697, nanos: 149778969 } }))
-   0.028730839s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint: stale: changed "/home/vyacheslav/bit/impl/tir/src/def.rs"
-   0.028735046s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:           (vs) "/home/vyacheslav/bit/impl/target/debug/.fingerprint/tir-329044b540688e48/dep-test-lib-tir"
-   0.028737110s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1772520692, nanos: 220823065 } < FileTime { seconds: 1772520697, nanos: 149778969 }
-   0.028753485s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint: fingerprint dirty for tir v0.1.0 (/home/vyacheslav/bit/impl/tir)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("tir", ["lib"], "/home/vyacheslav/bit/impl/tir/src/lib.rs", Edition2024) }
-   0.028761378s  INFO prepare_target{force=false package_id=tir v0.1.0 (/home/vyacheslav/bit/impl/tir) target="tir"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/home/vyacheslav/bit/impl/target/debug/.fingerprint/tir-329044b540688e48/dep-test-lib-tir", reference_mtime: FileTime { seconds: 1772520692, nanos: 220823065 }, stale: "/home/vyacheslav/bit/impl/tir/src/def.rs", stale_mtime: FileTime { seconds: 1772520697, nanos: 149778969 } }))
-   0.028955973s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint: fingerprint error for tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("tycheck", ["lib"], "/home/vyacheslav/bit/impl/tycheck/src/lib.rs", Edition2024) }
-   0.028963762s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/vyacheslav/bit/impl/target/debug/.fingerprint/tycheck-2edcf60f643a45d2/lib-tycheck`
-
-Caused by:
-    No such file or directory (os error 2)
-
-Stack backtrace:
-   0: cargo_util::paths::read_bytes
-   1: cargo_util::paths::read
-   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
-   3: cargo::core::compiler::fingerprint::prepare_target
-   4: cargo::core::compiler::compile
-   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
-   6: cargo::ops::cargo_compile::compile_ws
-   7: cargo::ops::cargo_compile::compile_with_exec
-   8: cargo::ops::cargo_compile::compile
-   9: cargo::commands::check::exec
-  10: <cargo::cli::Exec>::exec
-  11: cargo::main
-  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
-  13: std::rt::lang_start::<()>::{closure#0}
-  14: <&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync as core::ops::function::FnOnce<()>>::call_once
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/core/src/ops/function.rs:287:21
-  15: std::panicking::catch_unwind::do_call::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync, i32>
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/panicking.rs:581:40
-  16: std::panicking::catch_unwind::<i32, &dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync>
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/panicking.rs:544:19
-  17: std::panic::catch_unwind::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync, i32>
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/panic.rs:359:14
-  18: std::rt::lang_start_internal::{closure#0}
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/rt.rs:175:24
-  19: std::panicking::catch_unwind::do_call::<std::rt::lang_start_internal::{closure#0}, isize>
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/panicking.rs:581:40
-  20: std::panicking::catch_unwind::<isize, std::rt::lang_start_internal::{closure#0}>
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/panicking.rs:544:19
-  21: std::panic::catch_unwind::<std::rt::lang_start_internal::{closure#0}, isize>
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/panic.rs:359:14
-  22: std::rt::lang_start_internal
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/rt.rs:171:5
-  23: main
-  24: <unknown>
-  25: __libc_start_main
-  26: <unknown>
-   0.034309029s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint: fingerprint error for tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("tycheck", ["lib"], "/home/vyacheslav/bit/impl/tycheck/src/lib.rs", Edition2024) }
-   0.034320331s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:     err: failed to read `/home/vyacheslav/bit/impl/target/debug/.fingerprint/tycheck-1d80ed15e0588a43/test-lib-tycheck`
-
-Caused by:
-    No such file or directory (os error 2)
-
-Stack backtrace:
-   0: cargo_util::paths::read_bytes
-   1: cargo_util::paths::read
-   2: cargo::core::compiler::fingerprint::_compare_old_fingerprint
-   3: cargo::core::compiler::fingerprint::prepare_target
-   4: cargo::core::compiler::compile
-   5: <cargo::core::compiler::build_runner::BuildRunner>::compile
-   6: cargo::ops::cargo_compile::compile_ws
-   7: cargo::ops::cargo_compile::compile_with_exec
-   8: cargo::ops::cargo_compile::compile
-   9: cargo::commands::check::exec
-  10: <cargo::cli::Exec>::exec
-  11: cargo::main
-  12: std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
-  13: std::rt::lang_start::<()>::{closure#0}
-  14: <&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync as core::ops::function::FnOnce<()>>::call_once
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/core/src/ops/function.rs:287:21
-  15: std::panicking::catch_unwind::do_call::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync, i32>
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/panicking.rs:581:40
-  16: std::panicking::catch_unwind::<i32, &dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync>
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/panicking.rs:544:19
-  17: std::panic::catch_unwind::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync, i32>
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/panic.rs:359:14
-  18: std::rt::lang_start_internal::{closure#0}
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/rt.rs:175:24
-  19: std::panicking::catch_unwind::do_call::<std::rt::lang_start_internal::{closure#0}, isize>
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/panicking.rs:581:40
-  20: std::panicking::catch_unwind::<isize, std::rt::lang_start_internal::{closure#0}>
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/panicking.rs:544:19
-  21: std::panic::catch_unwind::<std::rt::lang_start_internal::{closure#0}, isize>
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/panic.rs:359:14
-  22: std::rt::lang_start_internal
-             at /rustc/38c0de8dcb14d42290042521be9958d37f3fa390/library/std/src/rt.rs:171:5
-  23: main
-  24: <unknown>
-  25: __libc_start_main
-  26: <unknown>
-    Checking tir v0.1.0 (/home/vyacheslav/bit/impl/tir)
+   0.031832868s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint: stale: changed "/home/vyacheslav/bit/impl/tycheck/src/check.rs"
+   0.031841492s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:           (vs) "/home/vyacheslav/bit/impl/target/debug/.fingerprint/tycheck-2edcf60f643a45d2/dep-lib-tycheck"
+   0.031844388s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1772523088, nanos: 976628286 } < FileTime { seconds: 1772523089, nanos: 69628195 }
+   0.031876723s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint: fingerprint dirty for tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck)/Check { test: false }/TargetInner { name_inferred: true, ..: lib_target("tycheck", ["lib"], "/home/vyacheslav/bit/impl/tycheck/src/lib.rs", Edition2024) }
+   0.031885282s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/home/vyacheslav/bit/impl/target/debug/.fingerprint/tycheck-2edcf60f643a45d2/dep-lib-tycheck", reference_mtime: FileTime { seconds: 1772523088, nanos: 976628286 }, stale: "/home/vyacheslav/bit/impl/tycheck/src/check.rs", stale_mtime: FileTime { seconds: 1772523089, nanos: 69628195 } }))
+   0.032133121s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint: stale: changed "/home/vyacheslav/bit/impl/tycheck/src/check.rs"
+   0.032137293s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:           (vs) "/home/vyacheslav/bit/impl/target/debug/.fingerprint/tycheck-1d80ed15e0588a43/dep-test-lib-tycheck"
+   0.032139758s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:                FileTime { seconds: 1772523088, nanos: 976628286 } < FileTime { seconds: 1772523089, nanos: 69628195 }
+   0.032158104s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint: fingerprint dirty for tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck)/Check { test: true }/TargetInner { name_inferred: true, ..: lib_target("tycheck", ["lib"], "/home/vyacheslav/bit/impl/tycheck/src/lib.rs", Edition2024) }
+   0.032164357s  INFO prepare_target{force=false package_id=tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck) target="tycheck"}: cargo::core::compiler::fingerprint:     dirty: FsStatusOutdated(StaleItem(ChangedFile { reference: "/home/vyacheslav/bit/impl/target/debug/.fingerprint/tycheck-1d80ed15e0588a43/dep-test-lib-tycheck", reference_mtime: FileTime { seconds: 1772523088, nanos: 976628286 }, stale: "/home/vyacheslav/bit/impl/tycheck/src/check.rs", stale_mtime: FileTime { seconds: 1772523089, nanos: 69628195 } }))
     Checking tycheck v0.1.0 (/home/vyacheslav/bit/impl/tycheck)
-error: could not compile `tycheck` (lib test) due to 5 previous errors; 14 warnings emitted
-warning: build failed, waiting for other jobs to finish...
-error: could not compile `tycheck` (lib) due to 5 previous errors; 14 warnings emitted
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.08s

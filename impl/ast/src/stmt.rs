@@ -1,5 +1,5 @@
 /// Imports
-use crate::{atom::Mutability, expr::Expr};
+use crate::{expr::Expr};
 use common::token::Span;
 
 /// For range
@@ -27,7 +27,7 @@ pub enum StmtKind {
     Continue,
 
     /// Let definition
-    Let(String, Mutability, Expr),
+    Let(String, Expr),
 
     /// Return statement
     Return(Option<Expr>),
@@ -46,7 +46,7 @@ impl StmtKind {
         match self {
             StmtKind::Break
             | StmtKind::Continue
-            | StmtKind::Let(_, _, _)
+            | StmtKind::Let(_, _)
             | StmtKind::Return(_)
             | StmtKind::Semi(_) => true,
             StmtKind::While(_, _) | StmtKind::For(_, _, _) | StmtKind::Expr(_) => false,

@@ -1,10 +1,15 @@
 /// Imports
-use crate::{cx::InferCx, errors::TypeckError, res::Resolver};
+use crate::{
+    cx::InferCx,
+    errors::TypeckError,
+    res::{Res, Resolver},
+};
 use ast::expr::{BinOp, UnOp};
 use common::token::Span;
 use tir::{
+    def::{AdtDef, ItemDefKind},
     expr::{Expr, ExprKind},
-    ty::Ty,
+    ty::{MetaTy, Ty},
 };
 
 /// Represents Typechecker
@@ -232,6 +237,85 @@ impl<'tcx, 'icx> TypeChecker<'tcx, 'icx> {
         }
     }
 
+    /// Infers id expression
+    fn infer_id(&mut self, span: Span, name: String) -> Expr {
+        let ty = match self.resolver.resolve(&name) {
+            Some(res) => match res {
+                Res::Def(def) => match def.kind {
+                    ItemDefKind::Adt(id) => Ty::Meta(MetaTy::Adt(id)),
+                    ItemDefKind::Fn(id) => self.icx.instantiate_fn_def(id),
+                },
+                Res::Local(local) => local,
+            },
+            None => {
+                self.diagnostics.push(TypeckError::UnresolvedName {
+                    src: span.0.clone(),
+                    span: span.1.clone().into(),
+                    name: name.clone(),
+                });
+                Ty::Error
+            }
+        };
+
+        Expr {
+            kind: ExprKind::Id(name),
+            span,
+            ty,
+        }
+    }
+
+    /// Infers field expression
+    fn infer_field(&mut self, span: Span, what: ast::expr::Expr, name: String) -> Expr {
+        let what = self.infer_expr(what);
+        let mut error = || {
+            self.diagnostics.push(TypeckError::UnresolvedField {
+                src: span.0.clone(),
+                span: span.1.clone().into(),
+                name: name.clone(),
+            });
+            Ty::Error
+        };
+
+        let ty = match &what.ty {
+            Ty::Meta(MetaTy::Module(id)) => match self.icx.tcx.module(*id).defs.get(&name) {
+                Some(def) => match def.kind {
+                    ItemDefKind::Adt(id) => Ty::Meta(MetaTy::Adt(id)),
+                    ItemDefKind::Fn(id) => self.icx.instantiate_fn_def(id),
+                },
+                None => error(),
+            },
+            Ty::Meta(MetaTy::Adt(id)) => match self.icx.tcx.adt(*id) {
+                AdtDef::Enum(en) => match en.variants.iter().find(|f| f.name == name) {
+                    Some(variant) => Ty::Meta(MetaTy::Variant(*id, variant.name.clone())),
+                    None => error(),
+                },
+                _ => error(),
+            },
+            Ty::Adt(id, args) => match self.icx.tcx.adt(*id) {
+                AdtDef::Struct(s) => match s.fields.iter().find(|f| f.name == name) {
+                    Some(field) => self.icx.instantiate(field.ty.clone(), &args),
+                    None => error(),
+                },
+                _ => error(),
+            },
+            Ty::Error => Ty::Error,
+            _ => {
+                self.diagnostics.push(TypeckError::UnresolvedField {
+                    src: span.0.clone(),
+                    span: span.1.clone().into(),
+                    name: name.clone(),
+                });
+                Ty::Error
+            }
+        };
+
+        Expr {
+            span,
+            kind: ExprKind::Field(Box::new(what), name),
+            ty,
+        }
+    }
+
     /// Infers expression and applies substitutions
     pub fn infer_expr(&mut self, expr: ast::expr::Expr) -> Expr {
         let mut tir_expr = match expr.kind {
@@ -243,9 +327,9 @@ impl<'tcx, 'icx> TypeChecker<'tcx, 'icx> {
             ast::expr::ExprKind::If(cond, then, else_) => {
                 self.infer_if(expr.span, *cond, *then, else_.map(|it| *it))
             }
-            ast::expr::ExprKind::Id(_) => todo!(),
+            ast::expr::ExprKind::Id(name) => self.infer_id(expr.span, name),
+            ast::expr::ExprKind::Field(what, name) => self.infer_field(expr.span, *what, name),
             ast::expr::ExprKind::Call(expr, exprs) => todo!(),
-            ast::expr::ExprKind::Field(expr, _) => todo!(),
             ast::expr::ExprKind::Cast(expr, type_hint) => todo!(),
             ast::expr::ExprKind::Closure(items, expr) => todo!(),
             ast::expr::ExprKind::Assign(expr, assign_op, expr1) => todo!(),

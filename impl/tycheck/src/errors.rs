@@ -111,7 +111,7 @@ pub enum TypeckError {
     },
 
     /// Failed to infer resolution
-    #[error("failed to resolve path")]
+    #[error("failed to resolve item")]
     Unresolved {
         #[source_code]
         src: Arc<NamedSource<String>>,

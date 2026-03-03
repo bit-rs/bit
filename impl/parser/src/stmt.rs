@@ -1,9 +1,6 @@
 /// Imports
 use crate::{Parser, errors::ParseError};
-use ast::{
-    atom::Mutability,
-    stmt::{Block, Stmt, StmtKind},
-};
+use ast::stmt::{Block, Stmt, StmtKind};
 use common::token::{Span, TokenKind};
 use macros::bail;
 
@@ -14,19 +11,11 @@ impl<'s> Parser<'s> {
         // Bumping `let`
         self.bump();
 
-        // Checking binding mutability
-        let mutability = if self.check(TokenKind::Mut) {
-            self.bump();
-            Mutability::Mut
-        } else {
-            Mutability::Immut
-        };
-
         let name = self.expect(TokenKind::Id).lexeme;
         self.expect(TokenKind::Eq);
         let expr = self.expr();
 
-        StmtKind::Let(name, mutability, expr)
+        StmtKind::Let(name, expr)
     }
 
     /// Expression statement

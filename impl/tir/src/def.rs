@@ -1,21 +1,10 @@
-use std::sync::Arc;
-
 /// Imports
 use crate::ty::Ty;
 use ast::atom::Publicity;
 use common::token::Span;
 use id_arena::Id;
-use macros::bug;
 use miette::NamedSource;
-
-/// Represents generic parameter
-pub struct GenericParam {
-    /// Generic name
-    pub name: String,
-
-    /// Generic id
-    pub id: usize,
-}
+use std::{collections::HashMap, sync::Arc};
 
 /// Represents structure field
 pub struct FieldDef {
@@ -38,7 +27,7 @@ pub struct StructDef {
     pub name: String,
 
     /// Structure generics
-    pub generics: Vec<GenericParam>,
+    pub generics: Vec<String>,
 
     /// Structure fields
     pub fields: Vec<FieldDef>,
@@ -65,7 +54,7 @@ pub struct EnumDef {
     pub name: String,
 
     /// Enum generics
-    pub generics: Vec<GenericParam>,
+    pub generics: Vec<String>,
 
     /// Enum variants
     pub variants: Vec<VariantDef>,
@@ -86,22 +75,6 @@ impl AdtDef {
             AdtDef::Enum(enum_def) => enum_def.name.clone(),
         }
     }
-
-    // Returns ADT as Enum
-    pub fn as_enum(&self) -> &EnumDef {
-        match self {
-            AdtDef::Enum(enum_def) => &enum_def,
-            AdtDef::Struct(_) => bug!("converted non-enum adt to enum"),
-        }
-    }
-
-    // Returns ADT as Struct
-    pub fn as_struct(&self) -> &StructDef {
-        match self {
-            AdtDef::Struct(struct_def) => &struct_def,
-            AdtDef::Enum(_) => bug!("converted non-struct adt to struct"),
-        }
-    }
 }
 
 /// Represents function definition in types context
@@ -113,7 +86,7 @@ pub struct FnDef {
     pub name: String,
 
     /// Function generics
-    pub generics: Vec<GenericParam>,
+    pub generics: Vec<String>,
 
     /// Function non-instantiated params
     pub params: Vec<Ty>,
@@ -124,7 +97,7 @@ pub struct FnDef {
 
 /// Definition kind
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum DefKind {
+pub enum ItemDefKind {
     /// ADT definition
     Adt(Id<AdtDef>),
 
@@ -132,15 +105,15 @@ pub enum DefKind {
     Fn(Id<FnDef>),
 }
 
-/// Resolution definition
+/// Item definition
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Def {
+pub struct ItemDef {
     pub publicity: Publicity,
-    pub kind: DefKind,
+    pub kind: ItemDefKind,
 }
 
 /// Represents module
-pub struct Module {
+pub struct ModuleDef {
     pub source: Arc<NamedSource<String>>,
-    pub defs: Vec<Def>,
+    pub defs: HashMap<String, ItemDef>,
 }

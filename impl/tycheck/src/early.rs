@@ -1,1 +1,1 @@
-/// Early typechecking phase
+// Early typechecking phase

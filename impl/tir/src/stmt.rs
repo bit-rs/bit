@@ -1,13 +1,12 @@
 /// Imports
 use crate::{expr::Expr, ty::Ty};
-use ast::atom::Mutability;
 use common::token::Span;
 
 /// Statement kind
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum StmtKind {
     /// Let definition
-    Let(String, Ty, Mutability, Expr),
+    Let(String, Ty, Expr),
 
     /// Expr without trailing semi-colon
     Expr(Expr),

@@ -1,37 +1,25 @@
 /// Imports
-use ast::atom::{Mutability, Publicity};
-use id_arena::Id;
 use std::collections::HashMap;
-use tir::{
-    def::{AdtDef, FnDef},
-    ty::Ty,
-};
-
-/// Local definition
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Local {
-    pub mutability: Mutability,
-    pub ty: Ty,
-}
+use tir::{def::ItemDef, ty::Ty};
 
 /// Query resolution
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Res {
     /// Some definition
-    Def(Def),
+    Def(ItemDef),
 
     /// Local type
-    Local(Local),
+    Local(Ty),
 }
 
 /// Module resolver
 #[derive(Default)]
 pub struct Resolver {
     /// Scopes stack
-    scopes: Vec<HashMap<String, Local>>,
+    scopes: Vec<HashMap<String, Ty>>,
 
     /// Module level definitions
-    defs: HashMap<String, Def>,
+    defs: HashMap<String, ItemDef>,
 }
 
 /// Implementation
@@ -47,7 +35,7 @@ impl Resolver {
     }
 
     /// Resolves local variable
-    pub fn resolve_local(&self, name: &str) -> Option<Local> {
+    pub fn resolve_local(&self, name: &str) -> Option<Ty> {
         self.scopes
             .iter()
             .rev()
@@ -55,13 +43,13 @@ impl Resolver {
     }
 
     /// Resolves module definition
-    pub fn resolve_def(&self, name: &str) -> Option<Def> {
+    pub fn resolve_def(&self, name: &str) -> Option<ItemDef> {
         self.defs.get(name).cloned()
     }
 
     /// Defines module-level definition, returns true on success,
     /// returns false if item already defined
-    pub fn define_def(&mut self, name: &str, def: Def) -> bool {
+    pub fn define_def(&mut self, name: &str, def: ItemDef) -> bool {
         if self.defs.contains_key(name) {
             false
         } else {
@@ -72,13 +60,13 @@ impl Resolver {
 
     /// Defines scope-level definition, returns true on success,
     /// returns false if item already defined
-    pub fn define_local(&mut self, name: &str, mutability: Mutability, ty: Ty) -> bool {
+    pub fn define_local(&mut self, name: &str, ty: Ty) -> bool {
         match self.scopes.last_mut() {
             Some(scope) => {
                 if scope.contains_key(name) {
                     false
                 } else {
-                    scope.insert(name.to_string(), Local { mutability, ty });
+                    scope.insert(name.to_string(), ty);
                     true
                 }
             }

@@ -3,7 +3,7 @@ use crate::errors::TypeError;
 use id_arena::{Arena, Id};
 use macros::bug;
 use tir::{
-    def::{AdtDef, FnDef, GenericParam},
+    def::{AdtDef, FnDef, ModuleDef},
     ty::{GenericArgs, Ty, TyVar},
 };
 
@@ -30,18 +30,26 @@ pub struct TyCx {
 
     /// Functions arena
     pub functions: Arena<FnDef>,
+
+    /// Modules arena
+    pub modules: Arena<ModuleDef>,
 }
 
 /// Implementation
 impl TyCx {
-    /// Allocated adt
+    /// Allocates adt
     pub fn insert_adt(&mut self, adt: AdtDef) -> Id<AdtDef> {
         self.adt.alloc(adt)
     }
 
-    /// Allocated function
+    /// Allocates function
     pub fn insert_fn(&mut self, adt: FnDef) -> Id<FnDef> {
         self.functions.alloc(adt)
+    }
+
+    /// Allocates module
+    pub fn insert_mod(&mut self, m: ModuleDef) -> Id<ModuleDef> {
+        self.modules.alloc(m)
     }
 
     /// Returns ADT by id
@@ -56,6 +64,13 @@ impl TyCx {
         self.functions
             .get(id)
             .unwrap_or_else(|| bug!("fn not found by id."))
+    }
+
+    /// Returns module by id
+    pub fn module(&self, id: Id<ModuleDef>) -> &ModuleDef {
+        self.modules
+            .get(id)
+            .unwrap_or_else(|| bug!("module not found by id."))
     }
 }
 
@@ -189,8 +204,16 @@ impl<'tcx> InferCx<'tcx> {
     /// Creates fresh vector of generic arguments
     /// with fresh type variables: `Ty::Var(TyVar::Unbound(...))`
     ///
-    pub fn mk_fresh(&mut self, generics: &[GenericParam]) -> GenericArgs {
+    pub fn fresh_generics(&mut self, generics: &[String]) -> GenericArgs {
         (0..generics.len()).map(|_| Ty::Var(self.fresh())).collect()
+    }
+
+    /// Creates fresh fn def type with fresh generic arguments
+    /// with fresh type variables: `Ty::Var(TyVar::Unbound(...))`
+    ///
+    pub fn instantiate_fn_def(&mut self, id: Id<FnDef>) -> Ty {
+        let generics = self.tcx._fn(id).generics.clone();
+        Ty::FnDef(id, self.fresh_generics(&generics))
     }
 
     /// Generates fresh type variable bound to given type.
@@ -233,21 +256,21 @@ impl<'tcx> InferCx<'tcx> {
     }
 
     /// Replaces `Generic(i)` with `args[i]` type
-    pub fn subst(&self, ty: Ty, args: &GenericArgs) -> Ty {
+    pub fn instantiate(&self, ty: Ty, args: &GenericArgs) -> Ty {
         match ty {
             Ty::Generic(i) => args.get(i).cloned().unwrap_or(Ty::Generic(i)),
             Ty::Adt(id, inner_args) => Ty::Adt(
                 id,
                 inner_args
                     .into_iter()
-                    .map(|a| self.subst(a, args))
+                    .map(|a| self.instantiate(a, args))
                     .collect(),
             ),
             Ty::FnDef(id, inner_args) => Ty::FnDef(
                 id,
                 inner_args
                     .into_iter()
-                    .map(|a| self.subst(a, args))
+                    .map(|a| self.instantiate(a, args))
                     .collect(),
             ),
             other => other,
@@ -311,9 +334,9 @@ impl<'tcx> InferCx<'tcx> {
                 let params: Vec<Ty> = def
                     .params
                     .iter()
-                    .map(|p| self.subst(p.clone(), &args))
+                    .map(|p| self.instantiate(p.clone(), &args))
                     .collect();
-                let ret = self.subst(def.ret.clone(), &args);
+                let ret = self.instantiate(def.ret.clone(), &args);
                 for (a, b) in params.into_iter().zip(sig.params) {
                     self.unify(a, b)?;
                 }
@@ -323,6 +346,9 @@ impl<'tcx> InferCx<'tcx> {
             // Type variables
             (Ty::Var(id), ty) => self.unify_var(id, ty),
             (ty, Ty::Var(id)) => self.unify_var(id, ty),
+
+            // Meta types
+            (Ty::Meta(a), Ty::Meta(b)) if a == b => Ok(()),
 
             // Anything else
             (t1, t2) => Err(TypeError::Mismatch(t1, t2)),
@@ -398,7 +424,7 @@ impl<'tcx> InferCx<'tcx> {
                 let params = def
                     .params
                     .iter()
-                    .map(|p| self.print_ty(&self.subst(p.clone(), args)))
+                    .map(|p| self.print_ty(&self.instantiate(p.clone(), args)))
                     .collect::<Vec<_>>()
                     .join(", ");
                 let ret = self.print_ty(&def.ret);

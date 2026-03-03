@@ -1,5 +1,5 @@
 /// Imports
-use crate::def::{AdtDef, FnDef};
+use crate::def::{AdtDef, FnDef, ModuleDef};
 use id_arena::Id;
 use std::fmt::Debug;
 
@@ -8,7 +8,7 @@ use std::fmt::Debug;
 pub enum TyVar {
     /// Unbound type variable
     Unbound,
-    
+
     /// Bound type variable
     Bound(Ty),
 }
@@ -30,7 +30,7 @@ pub struct FnSig {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum MetaTy {
     /// Module type
-    Module,
+    Module(Id<ModuleDef>),
 
     /// Adt meta type
     Adt(Id<AdtDef>),
