@@ -69,7 +69,7 @@ impl<'s> Parser<'s> {
                 span: start_span + end_span,
                 module: id,
                 name: name,
-                generics,
+                args: generics,
             }
         }
         // If not
@@ -80,7 +80,7 @@ impl<'s> Parser<'s> {
             TypeHint::Local {
                 span: start_span + end_span,
                 name: id,
-                generics,
+                args: generics,
             }
         }
     }

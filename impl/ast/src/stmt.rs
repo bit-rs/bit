@@ -1,5 +1,5 @@
 /// Imports
-use crate::{expr::Expr};
+use crate::{atom::TypeHint, expr::Expr};
 use common::token::Span;
 
 /// For range
@@ -14,23 +14,8 @@ pub enum Range {
 /// Statement kind
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum StmtKind {
-    /// While statement
-    While(Expr, Block),
-
-    /// For statement (var, range, block)
-    For(String, Range, Block),
-
-    /// Break statement
-    Break,
-
-    /// Continue statement
-    Continue,
-
     /// Let definition
-    Let(String, Expr),
-
-    /// Return statement
-    Return(Option<Expr>),
+    Let(String, TypeHint, Expr),
 
     /// Expr without trailing semi-colon
     Expr(Expr),
@@ -44,12 +29,8 @@ impl StmtKind {
     /// Returns true if statement requires semicolon after it
     pub fn requires_semi(&self) -> bool {
         match self {
-            StmtKind::Break
-            | StmtKind::Continue
-            | StmtKind::Let(_, _)
-            | StmtKind::Return(_)
-            | StmtKind::Semi(_) => true,
-            StmtKind::While(_, _) | StmtKind::For(_, _, _) | StmtKind::Expr(_) => false,
+            StmtKind::Let(_, _, _) | StmtKind::Semi(_) => true,
+            StmtKind::Expr(_) => false,
         }
     }
 }

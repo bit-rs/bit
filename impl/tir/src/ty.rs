@@ -1,5 +1,5 @@
 /// Imports
-use crate::def::{AdtDef, FnDef, ModuleDef};
+use crate::def::{AdtDef, FnDef, ModDef};
 use id_arena::Id;
 use std::fmt::Debug;
 
@@ -30,7 +30,7 @@ pub struct FnSig {
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum MetaTy {
     /// Module type
-    Module(Id<ModuleDef>),
+    Module(Id<ModDef>),
 
     /// Adt meta type
     Adt(Id<AdtDef>),

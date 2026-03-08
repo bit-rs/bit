@@ -20,6 +20,7 @@ pub enum StmtKind {
 pub struct Stmt {
     pub kind: StmtKind,
     pub span: Span,
+    pub ty: Ty,
 }
 
 /// Represents statements block

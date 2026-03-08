@@ -1,6 +1,6 @@
 /// Imports
 use crate::{Parser, errors::ParseError};
-use ast::expr::{AssignOp, BinOp, Expr, ExprKind, Lit, UnOp};
+use ast::expr::{BinOp, Expr, ExprKind, Lit, UnOp};
 use common::token::{Span, TokenKind};
 use macros::{bail, bug};
 
@@ -409,35 +409,15 @@ impl<'s> Parser<'s> {
         let start_span = self.peek().span.clone();
         let mut left = self.logical_or_expr();
 
-        while self.check(TokenKind::Eq)
-            | self.check(TokenKind::AmpEq)
-            | self.check(TokenKind::BarEq)
-            | self.check(TokenKind::PlusEq)
-            | self.check(TokenKind::MinusEq)
-            | self.check(TokenKind::StarEq)
-            | self.check(TokenKind::SlashEq)
-            | self.check(TokenKind::PercentEq)
-            | self.check(TokenKind::CaretEq)
-        {
-            let op = match self.bump().kind {
-                TokenKind::Eq => AssignOp::Eq,
-                TokenKind::AmpEq => AssignOp::AndEq,
-                TokenKind::BarEq => AssignOp::OrEq,
-                TokenKind::PlusEq => AssignOp::AddEq,
-                TokenKind::MinusEq => AssignOp::SubEq,
-                TokenKind::StarEq => AssignOp::MulEq,
-                TokenKind::SlashEq => AssignOp::DivEq,
-                TokenKind::PercentEq => AssignOp::ModEq,
-                TokenKind::CaretEq => AssignOp::XorEq,
-                _ => unreachable!(),
-            };
+        while self.check(TokenKind::Eq) {
+            self.bump();
 
             let right = self.logical_or_expr();
             let end_span = self.prev().span.clone();
 
             left = self.mk_expr(
                 start_span.clone() + end_span,
-                ExprKind::Assign(Box::new(left), op, Box::new(right)),
+                ExprKind::Assign(Box::new(left), Box::new(right)),
             )
         }
 

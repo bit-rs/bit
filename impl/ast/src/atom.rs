@@ -15,14 +15,14 @@ pub enum TypeHint {
     Local {
         span: Span,
         name: String,
-        generics: Vec<TypeHint>,
+        args: Vec<TypeHint>,
     },
     /// Module type
     Module {
         span: Span,
         module: String,
         name: String,
-        generics: Vec<TypeHint>,
+        args: Vec<TypeHint>,
     },
     /// Function type
     Function {
@@ -30,10 +30,6 @@ pub enum TypeHint {
         params: Vec<TypeHint>,
         ret: Box<TypeHint>,
     },
-    /// Ref type
-    Ref(Span, Box<TypeHint>),
-    /// Mut ref type
-    MutRef(Span, Box<TypeHint>),
     /// Unit type
     Unit(Span),
     /// Not known

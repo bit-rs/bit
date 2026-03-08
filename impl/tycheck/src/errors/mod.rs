@@ -1,22 +1,13 @@
+/// Modules
+pub mod ty;
+
 /// Imports
-use crate::cx::InferCx;
+use crate::cx::icx::InferCx;
 use ast::expr::{BinOp, UnOp};
 use common::token::Span;
 use miette::{Diagnostic, NamedSource, SourceSpan};
 use std::sync::Arc;
 use thiserror::Error;
-use tir::ty::Ty;
-
-/// Types error
-#[derive(Debug)]
-pub enum TypeError {
-    /// Types missmatch
-    Mismatch(Ty, Ty),
-    /// Attempt to unify rigid and something else
-    RigidMismatch(Ty),
-    /// Infinite type (occurs check failure)
-    InfiniteType,
-}
 
 /// Typeck error
 #[derive(Error, Diagnostic, Debug)]
@@ -40,8 +31,8 @@ pub enum TypeckError {
         src: Arc<NamedSource<String>>,
         #[label("here...")]
         span: SourceSpan,
-        op: UnOp,
         ty: String,
+        op: UnOp,
     },
 
     /// Invalid unary operation
@@ -95,7 +86,17 @@ pub enum TypeckError {
     UnresolvedName {
         #[source_code]
         src: Arc<NamedSource<String>>,
-        #[label("not found in this scope")]
+        #[label("this name is not found in this scope")]
+        span: SourceSpan,
+        name: String,
+    },
+
+    /// Unresolved type
+    #[error("can't find type with name `{name}`")]
+    UnresolvedType {
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("this type is not found")]
         span: SourceSpan,
         name: String,
     },
@@ -105,7 +106,7 @@ pub enum TypeckError {
     UnresolvedField {
         #[source_code]
         src: Arc<NamedSource<String>>,
-        #[label("field not found")]
+        #[label("this field is not found")]
         span: SourceSpan,
         name: String,
     },
@@ -115,40 +116,37 @@ pub enum TypeckError {
     CanNotCall {
         #[source_code]
         src: Arc<NamedSource<String>>,
-        #[label("field not found")]
+        #[label("this is invalid")]
         span: SourceSpan,
-        name: String,
+        ty: String,
     },
 
-    /// Failed to infer resolution
-    #[error("failed to resolve item")]
-    Unresolved {
+    /// Arity missmatch
+    #[error("arity missmatch. expected `{expected}`, got `{got}`")]
+    ArityMissmatch {
         #[source_code]
         src: Arc<NamedSource<String>>,
-        #[label("this is not found")]
+        #[label("this call is not valid")]
         span: SourceSpan,
+        expected: usize,
+        got: usize,
+    },
+
+    /// Already defined
+    #[error("value `{binding}` already defined in this scope")]
+    AlreadyDefined {
+        #[source_code]
+        src: Arc<NamedSource<String>>,
+        #[label("this binding is invalid")]
+        span: SourceSpan,
+        binding: String,
     },
 }
 
-/// Into diagnostic impl
-impl TypeError {
-    pub fn into_diagnostic(&self, icx: &InferCx, span: Span) -> TypeckError {
-        match self {
-            TypeError::Mismatch(t1, t2) => TypeckError::TypeMismatch {
-                src: span.0,
-                span: span.1.into(),
-                t1: icx.print_ty(&t1),
-                t2: icx.print_ty(&t2),
-            },
-            TypeError::RigidMismatch(ty) => TypeckError::RigidMismatch {
-                src: span.0,
-                span: span.1.into(),
-                ty: icx.print_ty(&ty),
-            },
-            TypeError::InfiniteType => TypeckError::InfiniteType {
-                src: span.0,
-                span: span.1.into(),
-            },
-        }
-    }
+/// An `IntoDiagnostic` trait, used to convert error
+/// into `TypeckError`. Provides reference to `InferCx`
+/// and span, where error happened
+///
+pub trait IntoDiagnostic {
+    fn into_diag(&self, icx: &InferCx, span: Span) -> TypeckError;
 }

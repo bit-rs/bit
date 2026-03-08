@@ -1,12 +1,19 @@
 /// Imports
+use id_arena::Id;
 use std::collections::HashMap;
-use tir::{def::ItemDef, ty::Ty};
+use tir::{
+    def::{AdtDef, ItemDef, ModDef},
+    ty::Ty,
+};
 
 /// Query resolution
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub enum Res {
-    /// Some definition
-    Def(ItemDef),
+    /// Top-level definition
+    Item(ItemDef),
+
+    /// Module definition
+    Mod(Id<ModDef>),
 
     /// Local type
     Local(Ty),
@@ -19,7 +26,10 @@ pub struct Resolver {
     scopes: Vec<HashMap<String, Ty>>,
 
     /// Module level definitions
-    defs: HashMap<String, ItemDef>,
+    items: HashMap<String, ItemDef>,
+
+    /// Imported modules
+    mods: HashMap<String, Id<ModDef>>,
 }
 
 /// Implementation
@@ -34,26 +44,24 @@ impl Resolver {
         self.scopes.pop();
     }
 
-    /// Resolves local variable
-    pub fn resolve_local(&self, name: &str) -> Option<Ty> {
-        self.scopes
-            .iter()
-            .rev()
-            .find_map(|scope| scope.get(name).cloned())
-    }
-
-    /// Resolves module definition
-    pub fn resolve_def(&self, name: &str) -> Option<ItemDef> {
-        self.defs.get(name).cloned()
-    }
-
-    /// Defines module-level definition, returns true on success,
+    /// Defines top-level item, returns true on success,
     /// returns false if item already defined
-    pub fn define_def(&mut self, name: &str, def: ItemDef) -> bool {
-        if self.defs.contains_key(name) {
+    pub fn define_item(&mut self, name: &str, def: ItemDef) -> bool {
+        if self.items.contains_key(name) {
             false
         } else {
-            self.defs.insert(name.to_string(), def);
+            self.items.insert(name.to_string(), def);
+            true
+        }
+    }
+
+    /// Defines module, returns true on success,
+    /// returns false if item already defined
+    pub fn define_mod(&mut self, name: &str, def: Id<ModDef>) -> bool {
+        if self.mods.contains_key(name) {
+            false
+        } else {
+            self.mods.insert(name.to_string(), def);
             true
         }
     }
@@ -74,10 +82,37 @@ impl Resolver {
         }
     }
 
-    /// Resolves item
-    pub fn resolve(&self, name: &str) -> Option<Res> {
-        self.resolve_local(name)
+    /// Looks up top-level definition
+    pub fn lookup_item(&self, name: &str) -> Option<ItemDef> {
+        self.items.get(name).cloned()
+    }
+
+    /// Looks up module definition
+    pub fn lookup_mod(&self, name: &str) -> Option<Id<ModDef>> {
+        self.mods.get(name).cloned()
+    }
+
+    /// Looks up top-level adt definition
+    pub fn lookup_adt(&self, name: &str) -> Option<Id<AdtDef>> {
+        match self.items.get(name)?.kind {
+            tir::def::ItemDefKind::Adt(id) => Some(id),
+            tir::def::ItemDefKind::Fn(_) => None,
+        }
+    }
+
+    /// Looks up local-level definition
+    pub fn lookup_local(&self, name: &str) -> Option<Ty> {
+        self.scopes
+            .iter()
+            .rev()
+            .find_map(|scope| scope.get(name).cloned())
+    }
+
+    /// Looks up local-level, top-level item or module
+    pub fn lookup(&self, name: &str) -> Option<Res> {
+        self.lookup_local(name)
             .map(Res::Local)
-            .or_else(|| self.resolve_def(name).map(Res::Def))
+            .or_else(|| self.lookup_item(name).map(Res::Item))
+            .or_else(|| self.lookup_mod(name).map(Res::Mod))
     }
 }

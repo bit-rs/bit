@@ -3,10 +3,12 @@ use crate::ty::Ty;
 use ast::atom::Publicity;
 use common::token::Span;
 use id_arena::Id;
+use macros::bug;
 use miette::NamedSource;
 use std::{collections::HashMap, sync::Arc};
 
 /// Represents structure field
+#[derive(Clone)]
 pub struct FieldDef {
     /// Span of the field definition
     pub span: Span,
@@ -19,6 +21,7 @@ pub struct FieldDef {
 }
 
 /// Represents structure type
+#[derive(Clone)]
 pub struct StructDef {
     /// Span of the structure definition
     pub span: Span,
@@ -34,6 +37,7 @@ pub struct StructDef {
 }
 
 /// Defines enum variant
+#[derive(Clone)]
 pub struct VariantDef {
     /// Span of the variant definition
     pub span: Span,
@@ -46,6 +50,7 @@ pub struct VariantDef {
 }
 
 /// Represents enum definition in types context
+#[derive(Clone)]
 pub struct EnumDef {
     /// Span of the enum definition
     pub span: Span,
@@ -61,6 +66,7 @@ pub struct EnumDef {
 }
 
 /// Represents adt definition
+#[derive(Clone)]
 pub enum AdtDef {
     Struct(StructDef),
     Enum(EnumDef),
@@ -71,8 +77,24 @@ impl AdtDef {
     // Returns ADT name
     pub fn name(&self) -> String {
         match self {
-            AdtDef::Struct(struct_def) => struct_def.name.clone(),
-            AdtDef::Enum(enum_def) => enum_def.name.clone(),
+            AdtDef::Struct(s) => s.name.clone(),
+            AdtDef::Enum(e) => e.name.clone(),
+        }
+    }
+
+    // Returns ADT as StructDef if it is, else emits bug
+    pub fn as_struct(&self) -> &StructDef {
+        match self {
+            AdtDef::Enum(_) => bug!("expected struct, got enum by id"),
+            AdtDef::Struct(s) => s,
+        }
+    }
+
+    // Returns ADT as EnumDef if it is, else emits bug
+    pub fn as_enum(&self) -> &EnumDef {
+        match self {
+            AdtDef::Struct(_) => bug!("expected struct, got enum by id"),
+            AdtDef::Enum(e) => e,
         }
     }
 }
@@ -113,7 +135,7 @@ pub struct ItemDef {
 }
 
 /// Represents module
-pub struct ModuleDef {
+pub struct ModDef {
     pub source: Arc<NamedSource<String>>,
     pub defs: HashMap<String, ItemDef>,
 }

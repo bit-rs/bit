@@ -1,6 +1,9 @@
 /// Imports
 use crate::{Parser, errors::ParseError};
-use ast::stmt::{Block, Stmt, StmtKind};
+use ast::{
+    atom::TypeHint,
+    stmt::{Block, Stmt, StmtKind},
+};
 use common::token::{Span, TokenKind};
 use macros::bail;
 
@@ -12,10 +15,17 @@ impl<'s> Parser<'s> {
         self.bump();
 
         let name = self.expect(TokenKind::Id).lexeme;
+        let hint = if self.check(TokenKind::Colon) {
+            self.bump();
+            self.type_hint()
+        } else {
+            TypeHint::Infer
+        };
+
         self.expect(TokenKind::Eq);
         let expr = self.expr();
 
-        StmtKind::Let(name, expr)
+        StmtKind::Let(name, hint, expr)
     }
 
     /// Expression statement

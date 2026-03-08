@@ -1,6 +1,6 @@
 /// Imports
 use crate::{atom::Param, stmt::Block, ty::Ty};
-use ast::expr::{AssignOp, BinOp, Lit, UnOp};
+use ast::expr::{BinOp, Lit, UnOp};
 use common::token::Span;
 
 /// Expression kind
@@ -34,7 +34,7 @@ pub enum ExprKind {
     Closure(Vec<Param>, Box<Expr>),
 
     /// Assignment expr (e.g `a = b`)
-    Assign(Box<Expr>, AssignOp, Box<Expr>),
+    Assign(Box<Expr>, Box<Expr>),
 
     /// Block
     Block(Box<Block>),

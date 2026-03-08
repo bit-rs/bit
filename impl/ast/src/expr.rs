@@ -1,5 +1,5 @@
 /// Imports
-use crate::{atom::TypeHint, stmt::Block};
+use crate::{stmt::Block};
 use common::token::Span;
 
 /// Literal
@@ -26,37 +26,6 @@ pub enum UnOp {
 
     // *
     Deref,
-}
-
-/// Assignment operation
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub enum AssignOp {
-    // +=
-    AddEq,
-
-    // -=
-    SubEq,
-
-    // *=
-    MulEq,
-
-    // /=
-    DivEq,
-
-    // %=
-    ModEq,
-
-    // &=
-    AndEq,
-
-    // |=
-    OrEq,
-
-    // ^=
-    XorEq,
-
-    // =
-    Eq,
 }
 
 /// Binary operation
@@ -135,14 +104,11 @@ pub enum ExprKind {
     /// Field expr (e.g, `wibbe.wobble`)
     Field(Box<Expr>, String),
 
-    /// Cast expr (e.g. `foo as f64`)
-    Cast(Box<Expr>, TypeHint),
-
     /// Closure expr (e.g `|param, param, ..n| ...`)
     Closure(Vec<String>, Box<Expr>),
 
     /// Assignment expr (e.g `a = b`)
-    Assign(Box<Expr>, AssignOp, Box<Expr>),
+    Assign(Box<Expr>, Box<Expr>),
 
     /// Block
     Block(Box<Block>),
