@@ -1,7 +1,7 @@
 /// Imports
 use id_arena::{Arena, Id};
 use macros::bug;
-use tir::def::{AdtDef, FnDef, ModDef};
+use tir::ty::{AdtDef, FnDef, ModDef};
 
 /// Context for all type-level definitions used across compilation.
 ///

@@ -346,9 +346,9 @@ impl<'tcx> InferCx<'tcx> {
                 format!("fn({params}) -> {ret}")
             }
             Ty::Meta(meta) => match meta {
-                tir::ty::MetaTy::Module(_) => "Meta(Module)".to_string(),
-                tir::ty::MetaTy::Adt(_) => "Meta(Adt)".to_string(),
-                tir::ty::MetaTy::Variant(_, _) => "Meta(Variant)".to_string(),
+                tir::ty::TyMeta::Module(_) => "Meta(Module)".to_string(),
+                tir::ty::TyMeta::Adt(_) => "Meta(Adt)".to_string(),
+                tir::ty::TyMeta::Variant(_, _) => "Meta(Variant)".to_string(),
             },
             Ty::Error => "Error".to_string(),
         }

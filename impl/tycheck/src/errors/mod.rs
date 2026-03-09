@@ -12,17 +12,6 @@ use thiserror::Error;
 /// Typeck error
 #[derive(Error, Diagnostic, Debug)]
 pub enum TypeckError {
-    /// Unsigned int negation
-    #[error("can't negate unsigned integer `{ty}`")]
-    #[diagnostic(code(typeck::uint_negation))]
-    UIntNegation {
-        #[source_code]
-        src: Arc<NamedSource<String>>,
-        #[label("here...")]
-        span: SourceSpan,
-        ty: String,
-    },
-
     /// Invalid unary operation
     #[error("invalid unary op `{op:?}` on expr with ty `{ty}`")]
     #[diagnostic(code(typeck::invalid_unary_op))]

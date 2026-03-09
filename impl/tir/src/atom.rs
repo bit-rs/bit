@@ -1,7 +1,6 @@
 /// Imports
-use common::token::Span;
-
 use crate::ty::Ty;
+use common::token::Span;
 
 /// Function param
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]

@@ -13,7 +13,7 @@ use tir::{
     def::{AdtDef, ItemDefKind},
     expr::{Expr, ExprKind},
     stmt::{Block, Stmt, StmtKind},
-    ty::{MetaTy, Ty},
+    ty::{TyMeta, Ty},
 };
 
 /// Represents Module Typechecker
@@ -314,13 +314,13 @@ impl<'tcx, 'icx> ModuleTyck<'tcx, 'icx> {
         let ty = match self.resolver.lookup(&name) {
             Some(res) => match res {
                 Res::Item(def) => match def.kind {
-                    ItemDefKind::Adt(id) => Ty::Meta(MetaTy::Adt(id)),
+                    ItemDefKind::Adt(id) => Ty::Meta(TyMeta::Adt(id)),
                     ItemDefKind::Fn(id) => Ty::FnDef(
                         id,
                         self.icx.fresh_generics(self.icx.tcx._fn(id).generics.len()),
                     ),
                 },
-                Res::Mod(id) => Ty::Meta(MetaTy::Module(id)),
+                Res::Mod(id) => Ty::Meta(TyMeta::Module(id)),
                 Res::Local(local) => local,
             },
             None => {
@@ -353,9 +353,9 @@ impl<'tcx, 'icx> ModuleTyck<'tcx, 'icx> {
         };
 
         let ty = match &what.ty {
-            Ty::Meta(MetaTy::Module(id)) => match self.icx.tcx._mod(*id).defs.get(&name) {
+            Ty::Meta(TyMeta::Module(id)) => match self.icx.tcx._mod(*id).defs.get(&name) {
                 Some(def) => match def.kind {
-                    ItemDefKind::Adt(id) => Ty::Meta(MetaTy::Adt(id)),
+                    ItemDefKind::Adt(id) => Ty::Meta(TyMeta::Adt(id)),
                     ItemDefKind::Fn(id) => Ty::FnDef(
                         id,
                         self.icx.fresh_generics(self.icx.tcx._fn(id).generics.len()),
@@ -363,9 +363,9 @@ impl<'tcx, 'icx> ModuleTyck<'tcx, 'icx> {
                 },
                 None => error(),
             },
-            Ty::Meta(MetaTy::Adt(id)) => match self.icx.tcx.adt(*id) {
+            Ty::Meta(TyMeta::Adt(id)) => match self.icx.tcx.adt(*id) {
                 AdtDef::Enum(en) => match en.variants.iter().find(|f| f.name == name) {
-                    Some(variant) => Ty::Meta(MetaTy::Variant(*id, variant.name.clone())),
+                    Some(variant) => Ty::Meta(TyMeta::Variant(*id, variant.name.clone())),
                     None => error(),
                 },
                 _ => error(),
@@ -477,7 +477,7 @@ impl<'tcx, 'icx> ModuleTyck<'tcx, 'icx> {
             // Call to meta type
             Ty::Meta(meta) => match meta {
                 // Struct initialization
-                MetaTy::Adt(id) => match self.icx.tcx.adt(id).clone() {
+                TyMeta::Adt(id) => match self.icx.tcx.adt(id).clone() {
                     AdtDef::Struct(s) => {
                         // Checking arity of fields and args
                         self.check_arity(&span, s.fields.len(), args.len());
@@ -494,11 +494,11 @@ impl<'tcx, 'icx> ModuleTyck<'tcx, 'icx> {
 
                         Ty::Adt(id, generics)
                     }
-                    _ => error(&Ty::Meta(MetaTy::Adt(id))),
+                    _ => error(&Ty::Meta(TyMeta::Adt(id))),
                 },
 
                 // Variant initialization
-                MetaTy::Variant(id, variant) => {
+                TyMeta::Variant(id, variant) => {
                     // Retrieving enum and variant
                     let en = self.icx.tcx.adt(id).as_enum().clone();
                     let variant = en.variants.iter().find(|v| v.name == variant).unwrap();
